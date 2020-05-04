@@ -42,3 +42,6 @@ A port of the classic puzzle game LaserTank (1995) by Jim Kindley into Python wi
  * [PICO-8 Port](https://github.com/tobiasvl/lasertank-pico8)
  * [Java Port](https://github.com/wrldwzrd89/laser-tank-ggj2017-edition)
  * [NodeJS Port](https://github.com/tonai/lasertank)
+ * [TI89 Calculator Port](http://lasertank.free.fr/Misc/TI89_Ltank.zip)
+ * [Palm Port](http://lasertank.free.fr/Appl/Palm-ltank.zip)
+ 
