@@ -1,8 +1,14 @@
 from enum import Enum
-from pathlib import Path
-import itertools
 
-import pygame
+from old_graphics import *
+from old_VectorFuncs import *
+
+image_dict = init_graphics()
+
+
+def get_frames(name):
+    return image_dict[name]
+
 
 SPRITE_SIZE = 32
 ANIMATE_AFTER_NUM_FRAMES = 8
@@ -80,51 +86,6 @@ def NoneObject(position):
     return None
 
 
-class ImageLoader:
-    def __init__(self, image_dir_path="/images", file_type="*.png"):
-        self.sprite_dict = {}
-        self.object_names = {
-            ""
-        }
-        obj_names = {
-            "grass": {},
-            "flag": {},
-            "water": {},
-            "conveyor": {"orientation": Direction},
-            "ice": {},
-            "ice_thin": {},
-            "bridge": {},
-            "tunnel": {"id": ["a", "b", "c", "d", "e", "f", "g", "h"]},
-            "tank": {"orientation": Direction},
-            "solid": {},
-            "block": {},
-            "wall": {},
-            "antitank": {"orientation": Direction},
-            "antitank_dead": {"orientation": Direction},
-            "mirror": {"angle": Angle},
-            "glass": {"glow": ["", "green", "red"]},
-            "rotmirror": {},
-            "laser": {"colour": ["red", "green"], "from_dir": Direction, "to_dir": Direction},
-        }
-
-
-def get_frames(name, orientation=None):
-    """ Get list of pygame.Surface objects from image resources
-    based on the filename ./images/name_[orientation_]0.png and incrementing digit """
-    image_dir = Path("/images")
-    sprite_frames = []
-    for frame_number in itertools.count(start=0):
-        if orientation is None:
-            filename = image_dir / f'{name}_{frame_number}.png'
-        else:
-            filename = image_dir / f'{name}_{orientation}_{frame_number}.png'
-        if filename.is_file():
-            frame = pygame.image.load(filename).convert_alpha()
-            sprite_frames.append(frame)
-        else:
-            return sprite_frames
-
-
 class LTSprite(pygame.sprite.Sprite):
     frames = []
     gameboard = None
@@ -152,7 +113,7 @@ class LTSprite(pygame.sprite.Sprite):
 
 
 class Laser(LTSprite):
-    images = image_dict["laser"]  # laser_sprites[DIR in][DIR out]["red/green"]
+    images = get_frames("laser")  # laser_sprites[DIR in][DIR out]["red/green"]
 
     def __init__(self):
         self.exists = False
@@ -164,10 +125,8 @@ class Laser(LTSprite):
 
     def update(self):
         if self.exists:
-            self.from_direction = DIR_OPPOSITE[
-                self.dir
-            ]  # Save previous direction
-            self.position = vec_add(self.position, DIR_TO_XY[self.dir])
+            self.from_direction = Direction.get_opposite(self.dir)  # Save previous direction
+            self.position = vec_add(self.position, Direction.get_xy(self.dir))
 
             if self.gameboard.is_within_board(self.position):
                 x, y = self.position
@@ -178,7 +137,7 @@ class Laser(LTSprite):
                     )
                 else:
                     # Passing through an empty square
-                    self.dir = DIR_OPPOSITE[self.from_direction]
+                    self.dir = Direction.get_opposite(self.from_direction)
                 if self.dir == Direction.NONE:
                     self.die()
             else:
@@ -282,7 +241,7 @@ class Water(Terrain):
 class Conveyor(Terrain):
     def __init__(self, direction, position):
         self.dir = direction
-        self.frames = get_frames("conveyor", self.dir)
+        self.frames = get_frames("conveyor" + self.dir)
         Terrain.__init__(self, position)
 
     def effect(self, item_on):
@@ -353,7 +312,7 @@ class Tunnel(Terrain):
                     item_on.teleport((x, y))  # Teleport
                     return
             # Only blocked exit(s) so set tunnel as waiting
-            # will transport when another tunnel is unblocked        
+            # will transport when another tunnel is unblocked
             self.waiting = True
 
     def get_exits(self):
@@ -438,7 +397,7 @@ class Item(LTSprite):
             return False
 
     def resolve_momentum(self):
-        destination = vec_add(self.position, DIR_TO_XY[self.momentum])
+        destination = vec_add(self.position, Direction.get_xy(self.momentum))
         if self.gameboard.can_move_into(destination):
             self.set_position(destination)
         else:
@@ -451,7 +410,7 @@ class Item(LTSprite):
     # def resolve_terrain_effect(self):
     #     x, y = self.position
     #     self.gameboard.ground[x][y].effect(self)
-    # 
+    #
     # def sink(self):
     #     self.destroy()
 
@@ -470,10 +429,10 @@ class DirectionalItem:
 
 class Tank(Item, DirectionalItem):
     images = {
-        Direction.N: [image_dict["tank_up"]],
-        Direction.E: [image_dict["tank_right"]],
-        Direction.S: [image_dict["tank_down"]],
-        Direction.W: [image_dict["tank_left"]],
+        Direction.N: [get_frames("tank_up")],
+        Direction.E: [get_frames("tank_right")],
+        Direction.S: [get_frames("tank_down")],
+        Direction.W: [get_frames("tank_left")],
     }
 
     def __init__(self, direction, position):
@@ -500,7 +459,7 @@ class Tank(Item, DirectionalItem):
 
 
 class Solid(Item):
-    frames = [image_dict["solid"]]
+    frames = [get_frames("solid")]
 
     def __init__(self, position):
         Item.__init__(self, position)
@@ -510,19 +469,19 @@ class Solid(Item):
 
 
 class Block(Item):
-    frames = [image_dict["block"]]
+    frames = [get_frames("block")]
 
     def __init__(self, position):
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
         # Hit this item with a laser from the direction, return exiting direction
-        self.push(DIR_OPPOSITE[from_direction])
+        self.push(Direction.get_opposite(from_direction))
         return Direction.NONE
 
 
 class Wall(Item):
-    frames = [image_dict["wall"]]
+    frames = [get_frames("wall")]
 
     def __init__(self, position):
         Item.__init__(self, position)
@@ -535,31 +494,31 @@ class Wall(Item):
 class Antitank(Item, DirectionalItem):
     images = {
         Direction.N: [
-            image_dict["antitank_up_1"],
-            image_dict["antitank_up_2"],
-            image_dict["antitank_up_3"],
+            get_frames("antitank_up_1"),
+            get_frames("antitank_up_2"),
+            get_frames("antitank_up_3"),
         ],
         Direction.E: [
-            image_dict["antitank_right_1"],
-            image_dict["antitank_right_2"],
-            image_dict["antitank_right_3"],
+            get_frames("antitank_right_1"),
+            get_frames("antitank_right_2"),
+            get_frames("antitank_right_3"),
         ],
         Direction.S: [
-            image_dict["antitank_down_1"],
-            image_dict["antitank_down_2"],
-            image_dict["antitank_down_3"],
+            get_frames("antitank_down_1"),
+            get_frames("antitank_down_2"),
+            get_frames("antitank_down_3"),
         ],
         Direction.W: [
-            image_dict["antitank_left_1"],
-            image_dict["antitank_left_2"],
-            image_dict["antitank_left_3"],
+            get_frames("antitank_left_1"),
+            get_frames("antitank_left_2"),
+            get_frames("antitank_left_3"),
         ],
     }
     dead_images = {
-        Direction.N: [image_dict["antitank_up_dead"], ],
-        Direction.E: [image_dict["antitank_right_dead"], ],
-        Direction.S: [image_dict["antitank_down_dead"], ],
-        Direction.W: [image_dict["antitank_left_dead"], ],
+        Direction.N: [get_frames("antitank_up_dead"), ],
+        Direction.E: [get_frames("antitank_right_dead"), ],
+        Direction.S: [get_frames("antitank_down_dead"), ],
+        Direction.W: [get_frames("antitank_left_dead"), ],
     }
 
     def __init__(self, direction, position):
@@ -568,7 +527,7 @@ class Antitank(Item, DirectionalItem):
         self.firing = False
         self.update_frames()
         Item.__init__(self, position)
-        self.movable[DIR_OPPOSITE[self.dir]] = False
+        self.movable[Direction.get_opposite(self.dir)] = False
 
     def die(self):
         self.alive = False
@@ -589,7 +548,7 @@ class Antitank(Item, DirectionalItem):
             self.die()
             return Direction.NONE
         else:
-            self.push(DIR_OPPOSITE[from_direction])
+            self.push(Direction.get_opposite(from_direction))
             return Direction.NONE
 
     def shoot(self):
@@ -599,31 +558,31 @@ class Antitank(Item, DirectionalItem):
 class AntitankDead(Item, DirectionalItem):
     images = {
         Direction.N: [
-            image_dict["antitank_up_1"],
-            image_dict["antitank_up_2"],
-            image_dict["antitank_up_3"],
+            get_frames("antitank_up_1"),
+            get_frames("antitank_up_2"),
+            get_frames("antitank_up_3"),
         ],
         Direction.E: [
-            image_dict["antitank_right_1"],
-            image_dict["antitank_right_2"],
-            image_dict["antitank_right_3"],
+            get_frames("antitank_right_1"),
+            get_frames("antitank_right_2"),
+            get_frames("antitank_right_3"),
         ],
         Direction.S: [
-            image_dict["antitank_down_1"],
-            image_dict["antitank_down_2"],
-            image_dict["antitank_down_3"],
+            get_frames("antitank_down_1"),
+            get_frames("antitank_down_2"),
+            get_frames("antitank_down_3"),
         ],
         Direction.W: [
-            image_dict["antitank_left_1"],
-            image_dict["antitank_left_2"],
-            image_dict["antitank_left_3"],
+            get_frames("antitank_left_1"),
+            get_frames("antitank_left_2"),
+            get_frames("antitank_left_3"),
         ],
     }
     dead_images = {
-        Direction.N: [image_dict["antitank_up_dead"], ],
-        Direction.E: [image_dict["antitank_right_dead"], ],
-        Direction.S: [image_dict["antitank_down_dead"], ],
-        Direction.W: [image_dict["antitank_left_dead"], ],
+        Direction.N: [get_frames("antitank_up_dead"), ],
+        Direction.E: [get_frames("antitank_right_dead"), ],
+        Direction.S: [get_frames("antitank_down_dead"), ],
+        Direction.W: [get_frames("antitank_left_dead"), ],
     }
 
     def __init__(self, direction, position):
@@ -632,7 +591,7 @@ class AntitankDead(Item, DirectionalItem):
         self.firing = False
         self.update_frames()
         Item.__init__(self, position)
-        self.movable[DIR_OPPOSITE[self.dir]] = False
+        self.movable[Direction.get_opposite(self.dir)] = False
 
     def die(self):
         self.alive = False
@@ -651,10 +610,10 @@ class AntitankDead(Item, DirectionalItem):
 
 class Mirror(Item, DirectionalItem):
     images = {
-        Direction.N: [image_dict["mirror_left_up"]],
-        Direction.E: [image_dict["mirror_up_right"]],
-        Direction.S: [image_dict["mirror_right_down"]],
-        Direction.W: [image_dict["mirror_down_left"]],
+        Direction.N: [get_frames("mirror_left_up")],
+        Direction.E: [get_frames("mirror_up_right")],
+        Direction.S: [get_frames("mirror_right_down")],
+        Direction.W: [get_frames("mirror_down_left")],
     }
 
     def __init__(self, angle, position):
@@ -671,12 +630,12 @@ class Mirror(Item, DirectionalItem):
         elif from_direction == dir2:
             return dir1
         else:
-            self.push(DIR_OPPOSITE[from_direction])
+            self.push(Direction.get_opposite(from_direction))
             return Direction.NONE
 
 
 class Glass(Item):
-    frames = [image_dict["glass"]]
+    frames = [get_frames("glass")]
     movable = {
         Direction.N: False,
         Direction.E: False,
@@ -689,15 +648,15 @@ class Glass(Item):
 
     def hit_with_laser(self, from_direction):
         # Hit this item with a laser from the direction, return exiting direction
-        return DIR_OPPOSITE[from_direction]
+        return Direction.get_opposite(from_direction)
 
 
 class RotMirror(Item, DirectionalItem):
     images = {
-        Direction.N: [image_dict["rotmirror_left_up"]],
-        Direction.E: [image_dict["rotmirror_up_right"]],
-        Direction.S: [image_dict["rotmirror_right_down"]],
-        Direction.W: [image_dict["rotmirror_down_left"]],
+        Direction.N: [get_frames("rotmirror_left_up")],
+        Direction.E: [get_frames("rotmirror_up_right")],
+        Direction.S: [get_frames("rotmirror_right_down")],
+        Direction.W: [get_frames("rotmirror_down_left")],
     }
     movable = {
         Direction.N: False,
@@ -720,5 +679,5 @@ class RotMirror(Item, DirectionalItem):
         elif from_direction == dir2:
             return dir1
         else:
-            self.rotate(DIR_CLOCKWISE[self.dir])
+            self.rotate(Direction.get_clockwise(self.dir))
             return Direction.NONE
