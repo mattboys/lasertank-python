@@ -12,9 +12,11 @@ GameBoardOffsetY = 0
 GameBoardWidth = SPRITE_SIZE * 16 + 2 * GameBoardOffsetX
 GameBoardHeight = SPRITE_SIZE * 16 + 2 * GameBoardOffsetY
 
+
 def square_to_pixels(square):
     x, y = square
     return (GameBoardOffsetX + x * SPRITE_SIZE, GameBoardOffsetY + y * SPRITE_SIZE)
+
 
 class Direction(Enum):
     N = "N"
@@ -38,11 +40,11 @@ class Direction(Enum):
     @staticmethod
     def get_clockwise(direction):
         lookup = {
-                Direction.N: Direction.E,
-                Direction.E: Direction.S,
-                Direction.S: Direction.W,
-                Direction.W: Direction.N,
-            }
+            Direction.N: Direction.E,
+            Direction.E: Direction.S,
+            Direction.S: Direction.W,
+            Direction.W: Direction.N,
+        }
         return lookup[direction]
 
     @staticmethod
@@ -55,6 +57,7 @@ class Direction(Enum):
             Direction.NONE: (0, 0),
         }
         return lookup[direction]
+
 
 class Angle(Enum):
     NW = "NW"
@@ -75,6 +78,7 @@ class Angle(Enum):
 
 def NoneObject(position):
     return None
+
 
 class ImageLoader:
     def __init__(self, image_dir_path="/images", file_type="*.png"):
@@ -98,13 +102,13 @@ class ImageLoader:
             "antitank": {"orientation": Direction},
             "antitank_dead": {"orientation": Direction},
             "mirror": {"angle": Angle},
-            "glass": {"glow": ["",  "green",  "red"]},
+            "glass": {"glow": ["", "green", "red"]},
             "rotmirror": {},
-            "laser": {"colour": ["red",  "green"],  "from_dir": Direction,  "to_dir": Direction},
+            "laser": {"colour": ["red", "green"], "from_dir": Direction, "to_dir": Direction},
         }
 
 
-def get_frames(name, orientation = None):
+def get_frames(name, orientation=None):
     """ Get list of pygame.Surface objects from image resources
     based on the filename ./images/name_[orientation_]0.png and incrementing digit """
     image_dir = Path("/images")
@@ -119,6 +123,7 @@ def get_frames(name, orientation = None):
             sprite_frames.append(frame)
         else:
             return sprite_frames
+
 
 class LTSprite(pygame.sprite.Sprite):
     frames = []
@@ -270,7 +275,7 @@ class Water(Terrain):
             self.gameboard.game_over()
         elif isinstance(item_on, Block):
             x, y = self.position
-            self.gameboard.ground[x][y] = Bridge((x,y))
+            self.gameboard.ground[x][y] = Bridge((x, y))
         item_on.destroy()
 
 
@@ -320,6 +325,7 @@ class Bridge(Terrain):
 
 class Tunnel(Terrain):
     links = {}  # { id:[tunnel_a, tunnel_b, ...], id:[tunnel_c, ...], ... }
+
     def __init__(self, tunnel_id, position):
         self.frames = get_frames("teleport_{tunnel_id}")
         Terrain.__init__(self, position)
@@ -335,7 +341,7 @@ class Tunnel(Terrain):
     def effect(self, item_on):
         # Search for open exit
         exits = self.get_exits()
-        if len(exits)==0:
+        if len(exits) == 0:
             # Black Hole
             item_on.destroy()
             return
@@ -344,7 +350,7 @@ class Tunnel(Terrain):
             for link in exits:
                 x, y = link.position
                 if self.gameboard.items[x][y] is None:  # is unblocked?
-                    item_on.teleport( (x,y) )  # Teleport
+                    item_on.teleport((x, y))  # Teleport
                     return
             # Only blocked exit(s) so set tunnel as waiting
             # will transport when another tunnel is unblocked        
@@ -357,7 +363,7 @@ class Tunnel(Terrain):
         x, y = self.position
         if self.gameboard.items[x][y] is not None:
             return self.gameboard.items[x][y]
-        elif self.gameboard.tank.position == (x,y):
+        elif self.gameboard.tank.position == (x, y):
             return self.gameboard.tank
         else:
             print('Tunnel error')
@@ -365,13 +371,14 @@ class Tunnel(Terrain):
 
     def obj_leaving(self):
         x, y = self.position
-        if self.gameboard.items[x][y] is None and self.gameboard.tank.position != (x,y):
+        if self.gameboard.items[x][y] is None and self.gameboard.tank.position != (x, y):
             self.waiting = False
         for link in self.get_exits():
             if link.waiting:
                 link.waiting = False
                 link.effect(link.get_item_waiting())
                 return
+
 
 # Objects
 class Item(LTSprite):
@@ -404,7 +411,6 @@ class Item(LTSprite):
             assert self.gameboard.items[dest_x][dest_y] == None, "Can't move item into occupied space!"
             self.gameboard.items[dest_x][dest_y] = self
         self.position = destination
-
 
     def set_position(self, destination):
         orig_x, orig_y = self.position
@@ -588,6 +594,7 @@ class Antitank(Item, DirectionalItem):
 
     def shoot(self):
         self.gameboard.laser.fire(self.position, self.dir, good=False)
+
 
 class AntitankDead(Item, DirectionalItem):
     images = {
