@@ -1,15 +1,3 @@
-######################################################
-##             LaserTank ver 4.0                     ##
-##               By Jim Kindley                      ##
-##               (c) 2001                            ##
-##         The Program and Source is Public Domain   ##
-#######################################################
-##       Release version 2005 by Yves Maingoy        ##
-##               ymaingoy@free.fr                    ##
-#######################################################
-
-""" LaserTank Ver 4.1 (32Bit) Resource File """
-
 from tkinter import *
 import pygame
 

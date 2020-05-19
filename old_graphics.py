@@ -24,30 +24,30 @@ def square_to_pixels(square):
     return (GameBoardOffsetX + x * SPRITE_SIZE, GameBoardOffsetY + y * SPRITE_SIZE)
 
 
-def get_sprites_old(
-    filename, rows=6, columns=10, size_h=SPRITE_SIZE, size_w=SPRITE_SIZE
-):
-    """
-    Convert a sprite sheet into an array of ImageTk.PhotoImage clippings
-    filename: file to load
-    rows: int number of rows of sprites down the sheet
-    columns: int number of columns of sprites along the sheet
-    size: pixel size of sprites in height and width (SpBm_Width, SpBm_Height)
-    """
-    load_image = Image.open(filename)
-
-    sprites = []
-    for row in range(rows):
-        for col in range(columns):
-            left = col * size_w
-            top = row * size_h
-            right = left + size_w
-            bottom = top + size_h
-            sprites.append(
-                ImageTk.PhotoImage(load_image.crop((left, top, right, bottom)))
-            )
-
-    return sprites
+# def get_sprites_old(
+#     filename, rows=6, columns=10, size_h=SPRITE_SIZE, size_w=SPRITE_SIZE
+# ):
+#     """
+#     Convert a sprite sheet into an array of ImageTk.PhotoImage clippings
+#     filename: file to load
+#     rows: int number of rows of sprites down the sheet
+#     columns: int number of columns of sprites along the sheet
+#     size: pixel size of sprites in height and width (SpBm_Width, SpBm_Height)
+#     """
+#     load_image = Image.open(filename)
+#
+#     sprites = []
+#     for row in range(rows):
+#         for col in range(columns):
+#             left = col * size_w
+#             top = row * size_h
+#             right = left + size_w
+#             bottom = top + size_h
+#             sprites.append(
+#                 ImageTk.PhotoImage(load_image.crop((left, top, right, bottom)))
+#             )
+#
+#     return sprites
 
 
 def get_sprites(
@@ -88,7 +88,7 @@ def get_sprites(
 
 
 def init_graphics():
-    spritelist = get_sprites("Files/Game.png")
+    spritelist = get_sprites("images/all.png")
     laser_sprites = get_laser_sprites()
     sprites = {
         "grass": spritelist[1],

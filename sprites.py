@@ -514,12 +514,6 @@ class Antitank(Item, DirectionalItem):
             get_frames("antitank_left_3"),
         ],
     }
-    dead_images = {
-        Direction.N: [get_frames("antitank_up_dead"), ],
-        Direction.E: [get_frames("antitank_right_dead"), ],
-        Direction.S: [get_frames("antitank_down_dead"), ],
-        Direction.W: [get_frames("antitank_left_dead"), ],
-    }
 
     def __init__(self, direction, position):
         self.dir = direction
@@ -530,20 +524,11 @@ class Antitank(Item, DirectionalItem):
         self.movable[Direction.get_opposite(self.dir)] = False
 
     def die(self):
-        self.alive = False
-        self.images = self.dead_images
-        self.movable = {
-            Direction.N: False,
-            Direction.E: False,
-            Direction.S: False,
-            Direction.W: False,
-        }
-        self.update_frames()
+        x, y = self.position
+        self.gameboard.ground[x][y] = AntitankDead(self.dir, (x,y))
+        self.destroy()
 
     def hit_with_laser(self, from_direction):
-        if not self.alive:
-            return Direction.NONE
-
         if from_direction == self.dir:
             self.die()
             return Direction.NONE
@@ -557,52 +542,23 @@ class Antitank(Item, DirectionalItem):
 
 class AntitankDead(Item, DirectionalItem):
     images = {
-        Direction.N: [
-            get_frames("antitank_up_1"),
-            get_frames("antitank_up_2"),
-            get_frames("antitank_up_3"),
-        ],
-        Direction.E: [
-            get_frames("antitank_right_1"),
-            get_frames("antitank_right_2"),
-            get_frames("antitank_right_3"),
-        ],
-        Direction.S: [
-            get_frames("antitank_down_1"),
-            get_frames("antitank_down_2"),
-            get_frames("antitank_down_3"),
-        ],
-        Direction.W: [
-            get_frames("antitank_left_1"),
-            get_frames("antitank_left_2"),
-            get_frames("antitank_left_3"),
-        ],
-    }
-    dead_images = {
         Direction.N: [get_frames("antitank_up_dead"), ],
         Direction.E: [get_frames("antitank_right_dead"), ],
         Direction.S: [get_frames("antitank_down_dead"), ],
         Direction.W: [get_frames("antitank_left_dead"), ],
     }
 
+    movable = {
+        Direction.N: False,
+        Direction.E: False,
+        Direction.S: False,
+        Direction.W: False,
+    }
+
     def __init__(self, direction, position):
         self.dir = direction
-        self.alive = True
-        self.firing = False
         self.update_frames()
         Item.__init__(self, position)
-        self.movable[Direction.get_opposite(self.dir)] = False
-
-    def die(self):
-        self.alive = False
-        self.images = self.dead_images
-        self.movable = {
-            Direction.N: False,
-            Direction.E: False,
-            Direction.S: False,
-            Direction.W: False,
-        }
-        self.update_frames()
 
     def hit_with_laser(self, from_direction):
         return Direction.NONE

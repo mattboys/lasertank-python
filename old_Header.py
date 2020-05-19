@@ -3,7 +3,7 @@ import os
 LevelData = "LaserTank.lvl"
 # LevelData = 'tunnel_test.lvl'
 
-FILENAME_LEVELS = os.path.join("Files", LevelData)
+FILENAME_LEVELS = os.path.join("legacy_resources/Files", LevelData)
 
 
 INIFileName = "LaserTank.ini"
