@@ -3,9 +3,14 @@ import copy
 import sprites
 from constants import GAMEBOARD_SIZE
 
+class GameState:
+    def __init__(self, number, title, hint, author, difficulty, playfield):
+        self.lvl_number = number
+        self.lvl_title = title
+        self.lvl_hint = hint
+        self.lvl_author = author
+        self.lvl_difficulty = difficulty
 
-class Board:
-    def __init__(self, playfield):
         sprites.LTSprite.gameboard = self
         self.board_terrain = [[sprites.Grass((x, y)) for x in range(GAMEBOARD_SIZE)] for y in range(GAMEBOARD_SIZE)]
         self.board_items = [[sprites.Empty((x, y)) for x in range(GAMEBOARD_SIZE)] for y in range(GAMEBOARD_SIZE)]
@@ -13,6 +18,8 @@ class Board:
         self.board_laser = sprites.Laser()
         self.sliding_items = []
         self.moves_history = []
+        self.moves_buffer = []
+
         for x in range(GAMEBOARD_SIZE):
             for y in range(GAMEBOARD_SIZE):
                 terrain_str, item_str = playfield[x][y]
@@ -23,6 +30,18 @@ class Board:
                     self.board_tank = item
                 else:
                     self.put_item(pos, item)
+
+
+    # def add_undo(self):
+    #     self.history.append(copy.deepcopy(self.gameboard))
+
+    def queue_event(self, event):
+        """ Put move on input buffer. Will be held until player's next turn """
+        assert event in ["up", "down", "left", "right", "shoot", "undo", "reset"], "Invalid move!"
+        if event in ["up", "down", "left", "right", "shoot"]:
+            self.moves_buffer.append(event)
+        # TODO: Handle reset board
+        # TODO: Handle undo
 
     def laser_update(self):
         self.board_laser.update()
@@ -52,7 +71,9 @@ class Board:
                 if self.is_within_board(check_pos):
                     continue
                 maybe_antitank = self.get_item(check_pos)
-                if isinstance(maybe_antitank, sprites.Antitank) and maybe_antitank.dir == sprites.Direction.get_opposite(check_dir) and check_pos != self.board_tank.position:
+                if isinstance(maybe_antitank,
+                              sprites.Antitank) and maybe_antitank.dir == sprites.Direction.get_opposite(
+                        check_dir) and check_pos != self.board_tank.position:
                     maybe_antitank.shoot()  # allow the found antitank to shoot
                     return  # Only one antitank gets a chance to fire
 
@@ -113,37 +134,13 @@ class Board:
         else:
             return False  # Off gameboard
 
-
-class GameState:
-    def __init__(self, number, title, hint, author, difficulty, playfield):
-        self.lvl_number = number
-        self.lvl_title = title
-        self.lvl_hint = hint
-        self.lvl_author = author
-        self.lvl_difficulty = difficulty
-
-        self.gameboard = Board(playfield)
-        self.input_buffer = []
-        self.speed_counter = 0
-        self.history = []
-        self.add_undo()
-
-    def add_undo(self):
-        self.history.append(copy.deepcopy(self.gameboard))
-
-    def queue_event(self, event):
-        pass
-
-    def is_not_solved(self):
-        pass
-
     def update(self):
         try:
-            self.gameboard.laser_update()
-            if self.gameboard.is_players_turn():
-                self.gameboard.next_move(self.input_buffer.pop(0))
-            self.gameboard.resolve_momenta()
-            self.gameboard.ai_move()
+            self.laser_update()
+            if self.is_players_turn():
+                self.next_move(self.moves_buffer.pop(0))
+            self.resolve_momenta()
+            self.ai_move()
         except sprites.Solved:
             # TODO: Implement game solved
             print("Solved!")
@@ -151,19 +148,19 @@ class GameState:
             # TODO: Implement game over
             print("Game over!")
 
-
-def run(gamestate: GameState, input_engine, render_engine):
-    while gamestate.is_not_solved():
-        for event in input_engine.get_input():
-            if event == "quit":
-                return "quit"
-            elif event in ["up", "down", "left", "right", "shoot"]:
-                gamestate.queue_event(event)
-            else:
-                print(f"Unhandled input: {event}")
-        gamestate.update()
-        render_engine(gamestate)
-    return "solved"
+#
+# def run(gamestate: GameState, input_engine, render_engine):
+#     while gamestate.is_not_solved():
+#         for event in input_engine.get_input():
+#             if event == "quit":
+#                 return "quit"
+#             elif event in ["up", "down", "left", "right", "shoot", "undo", "reset"]:
+#                 gamestate.queue_event(event)
+#             else:
+#                 print(f"Unhandled input: {event}")
+#         gamestate.update()
+#         render_engine(gamestate)
+#     return "solved"
 
 
 if __name__ == "__main__":
