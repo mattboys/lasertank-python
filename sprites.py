@@ -237,7 +237,7 @@ class Tunnel(Terrain):
     def get_item_waiting(self):
         if not self.gameboard.is_square_empty(self.position):
             return self.gameboard.get_item(self.position)
-        elif self.gameboard.tank.position == self.position:
+        elif self.gameboard.board_tank.position == self.position:
             return self.gameboard.get_tank()
         else:
             print('Tunnel error')
@@ -327,6 +327,9 @@ class Tank(Item):
     def rotate(self, direction):
         """ Face direction specified without moving spaces """
         self.dir = direction
+
+    def move(self, direction):
+        self._push(direction)
 
 
 class Solid(Item):
@@ -433,50 +436,54 @@ class RotMirror(Item):
 def map_strings_to_objects(object_string, position):
     import constants
     mapping = {
-        constants.Empty: Empty(position),
-        constants.Grass: Grass(position),
-        constants.Flag: Flag(position),
-        constants.Water: Water(position),
-        constants.Conveyor_N: Conveyor(Direction.N, position),
-        constants.Conveyor_S: Conveyor(Direction.S, position),
-        constants.Conveyor_E: Conveyor(Direction.E, position),
-        constants.Conveyor_W: Conveyor(Direction.W, position),
-        constants.Ice: Ice(position),
-        constants.ThinIce: ThinIce(position),
-        constants.Bridge: Bridge(position),
-        constants.Tunnel_0: Tunnel(0, position),
-        constants.Tunnel_1: Tunnel(1, position),
-        constants.Tunnel_2: Tunnel(2, position),
-        constants.Tunnel_3: Tunnel(3, position),
-        constants.Tunnel_4: Tunnel(4, position),
-        constants.Tunnel_5: Tunnel(5, position),
-        constants.Tunnel_6: Tunnel(6, position),
-        constants.Tunnel_7: Tunnel(7, position),
-        constants.Tunnel_8: Tunnel(8, position),
-        constants.Tunnel_9: Tunnel(9, position),
-        constants.Tank_N: Tank(Direction.N, position),
-        constants.Tank_S: Tank(Direction.S, position),
-        constants.Tank_E: Tank(Direction.E, position),
-        constants.Tank_W: Tank(Direction.W, position),
-        constants.Solid: Solid(position),
-        constants.Block: Block(position),
-        constants.Wall: Wall(position),
-        constants.Antitank_N: Antitank(Direction.N, position),
-        constants.Antitank_S: Antitank(Direction.S, position),
-        constants.Antitank_E: Antitank(Direction.E, position),
-        constants.Antitank_W: Antitank(Direction.W, position),
-        constants.DeadAntitank_N: AntitankDead(Direction.N, position),
-        constants.DeadAntitank_S: AntitankDead(Direction.S, position),
-        constants.DeadAntitank_E: AntitankDead(Direction.E, position),
-        constants.DeadAntitank_W: AntitankDead(Direction.W, position),
-        constants.Mirror_NW: Mirror(Angle.NW, position),
-        constants.Mirror_NE: Mirror(Angle.NE, position),
-        constants.Mirror_SE: Mirror(Angle.SE, position),
-        constants.Mirror_SW: Mirror(Angle.SW, position),
-        constants.Glass: Glass(position),
-        constants.RotMirror_NW: RotMirror(Angle.NW, position),
-        constants.RotMirror_NE: RotMirror(Angle.NE, position),
-        constants.RotMirror_SE: RotMirror(Angle.SE, position),
-        constants.RotMirror_SW: RotMirror(Angle.SW, position),
+        constants.Empty: ("Empty", None),
+        constants.Grass: ("Grass", None),
+        constants.Flag: ("Flag", None),
+        constants.Water: ("Water", None),
+        constants.Conveyor_N: ("Conveyor", Direction.N),
+        constants.Conveyor_S: ("Conveyor", Direction.S),
+        constants.Conveyor_E: ("Conveyor", Direction.E),
+        constants.Conveyor_W: ("Conveyor", Direction.W),
+        constants.Ice: ("Ice", None),
+        constants.ThinIce: ("ThinIce", None),
+        constants.Bridge: ("Bridge", None),
+        constants.Tunnel_0: ("Tunnel", 0),
+        constants.Tunnel_1: ("Tunnel", 1),
+        constants.Tunnel_2: ("Tunnel", 2),
+        constants.Tunnel_3: ("Tunnel", 3),
+        constants.Tunnel_4: ("Tunnel", 4),
+        constants.Tunnel_5: ("Tunnel", 5),
+        constants.Tunnel_6: ("Tunnel", 6),
+        constants.Tunnel_7: ("Tunnel", 7),
+        constants.Tunnel_8: ("Tunnel", 8),
+        constants.Tunnel_9: ("Tunnel", 9),
+        constants.Tank_N: ("Tank", Direction.N),
+        constants.Tank_S: ("Tank", Direction.S),
+        constants.Tank_E: ("Tank", Direction.E),
+        constants.Tank_W: ("Tank", Direction.W),
+        constants.Solid: ("Solid", None),
+        constants.Block: ("Block", None),
+        constants.Wall: ("Wall", None),
+        constants.Antitank_N: ("Antitank", Direction.N),
+        constants.Antitank_S: ("Antitank", Direction.S),
+        constants.Antitank_E: ("Antitank", Direction.E),
+        constants.Antitank_W: ("Antitank", Direction.W),
+        constants.DeadAntitank_N: ("AntitankDead", Direction.N),
+        constants.DeadAntitank_S: ("AntitankDead", Direction.S),
+        constants.DeadAntitank_E: ("AntitankDead", Direction.E),
+        constants.DeadAntitank_W: ("AntitankDead", Direction.W),
+        constants.Mirror_NW: ("Mirror", Angle.NW),
+        constants.Mirror_NE: ("Mirror", Angle.NE),
+        constants.Mirror_SE: ("Mirror", Angle.SE),
+        constants.Mirror_SW: ("Mirror", Angle.SW),
+        constants.Glass: ("Glass", None),
+        constants.RotMirror_NW: ("RotMirror", Angle.NW),
+        constants.RotMirror_NE: ("RotMirror", Angle.NE),
+        constants.RotMirror_SE: ("RotMirror", Angle.SE),
+        constants.RotMirror_SW: ("RotMirror", Angle.SW),
     }
-    return mapping[object_string]
+    obj, param = mapping[object_string]
+    if param is None:
+        return getattr(__import__("sprites"), obj)(position)
+    else:
+        return getattr(__import__("sprites"), obj)(param, position)

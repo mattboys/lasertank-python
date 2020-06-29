@@ -101,7 +101,7 @@ class Laser(LTSprite):
 
             if self.gameboard.is_within_board(self.position):
                 x, y = self.position
-                interacting_item = self.gameboard.items[x][y]
+                interacting_item = self.gameboard.board_items[x][y]
                 if interacting_item is not None:
                     self.dir = interacting_item.hit_with_laser(
                         self.from_direction
@@ -318,7 +318,7 @@ class Tunnel(Terrain):
             # Find an unblocked exit
             for link in exits:
                 x, y = link.position
-                if self.gameboard.items[x][y] is None:  # is unblocked?
+                if self.gameboard.board_items[x][y] is None:  # is unblocked?
                     item_on.teleport( (x,y) )  # Teleport
                     return
             # Only blocked exit(s) so set tunnel as waiting
@@ -330,17 +330,17 @@ class Tunnel(Terrain):
 
     def get_item_waiting(self):
         x, y = self.position
-        if self.gameboard.items[x][y] is not None:
-            return self.gameboard.items[x][y]
-        elif self.gameboard.tank.position == (x,y):
-            return self.gameboard.tank
+        if self.gameboard.board_items[x][y] is not None:
+            return self.gameboard.board_items[x][y]
+        elif self.gameboard.board_tank.position == (x, y):
+            return self.gameboard.board_tank
         else:
             print('Tunnel error')
             return None
 
     def obj_leaving(self):
         x, y = self.position
-        if self.gameboard.items[x][y] is None and self.gameboard.tank.position != (x,y):
+        if self.gameboard.board_items[x][y] is None and self.gameboard.board_tank.position != (x, y):
             self.waiting = False
         for link in self.get_exits():
             if link.waiting:
@@ -375,9 +375,9 @@ class Item(LTSprite):
         orig_x, orig_y = self.position
         dest_x, dest_y = destination
         if not isinstance(self, Tank):
-            self.gameboard.items[orig_x][orig_y] = NoneObject(self.position)
-            assert self.gameboard.items[dest_x][dest_y] == None, "Can't move item into occupied space!"
-            self.gameboard.items[dest_x][dest_y] = self
+            self.gameboard.board_items[orig_x][orig_y] = NoneObject(self.position)
+            assert self.gameboard.board_items[dest_x][dest_y] == None, "Can't move item into occupied space!"
+            self.gameboard.board_items[dest_x][dest_y] = self
         self.position = destination
 
 
@@ -385,9 +385,9 @@ class Item(LTSprite):
         orig_x, orig_y = self.position
         dest_x, dest_y = destination
         if not isinstance(self, Tank):
-            self.gameboard.items[orig_x][orig_y] = NoneObject(self.position)
-            assert self.gameboard.items[dest_x][dest_y] == None, "Can't move item into occupied space!"
-            self.gameboard.items[dest_x][dest_y] = self
+            self.gameboard.board_items[orig_x][orig_y] = NoneObject(self.position)
+            assert self.gameboard.board_items[dest_x][dest_y] == None, "Can't move item into occupied space!"
+            self.gameboard.board_items[dest_x][dest_y] = self
         self.position = destination
         # Resolve effects on terrain
         self.gameboard.ground[orig_x][orig_y].obj_leaving()
@@ -453,7 +453,7 @@ class Tank(Item, RotatableItem):
         Item.__init__(self, position)
 
     def shoot(self):
-        self.gameboard.laser.fire(self.position, self.dir, good=True)
+        self.gameboard.board_laser.fire(self.position, self.dir, good=True)
 
     def destroy(self):
         self.gameboard.game_over()
@@ -562,7 +562,7 @@ class Antitank(Item, RotatableItem):
             return DIR_NONE
 
     def shoot(self):
-        self.gameboard.laser.fire(self.position, self.dir, good=False)
+        self.gameboard.board_laser.fire(self.position, self.dir, good=False)
 
 class Mirror(Item, RotatableItem):
     images = {

@@ -56,15 +56,10 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
         chunk = f.read(chunk_size)
         if not chunk:
             return None
-    playfiled_ints, title, hint, author, difficulty_int = struct.unpack(struct_format, chunk)
+    playfield_ints, title, hint, author, difficulty_int = struct.unpack(struct_format, chunk)
 
     def convert_str(bytes):
-        bytes = bytes.rstrip(b"\x00")
-        return "".join([chr(i) for i in bytes])
-
-    #title = title.decode("utf-8").rstrip("\x00")
-    #hint = hint.decode("utf-8").rstrip("\x00")
-    #author = author.decode("utf-8").rstrip("\x00")
+        return bytes.rstrip(b"\x00").decode("mbcs")
 
     title = convert_str(title)
     hint = convert_str(hint)
@@ -79,12 +74,12 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
     }
     difficulty = DIFFICULTY_TEXTS[difficulty_int]
 
-    playfiled = [[None for x in range(BOARDSIZE)] for y in range(BOARDSIZE)]
+    playfield = [[None for x in range(BOARDSIZE)] for y in range(BOARDSIZE)]
     for x in range(BOARDSIZE):
         for y in range(BOARDSIZE):
-            i = int(playfiled_ints[x + y * BOARDSIZE])
+            i = int(playfield_ints[x + y * BOARDSIZE])
             terrain, item = decode_table[i]
-            playfiled[x][y] = (terrain, item)
+            playfield[x][y] = (terrain, item)
 
     return {
         "number": level_number,
@@ -92,15 +87,19 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
         "hint": hint,
         "author": author,
         "difficulty": difficulty,
-        "playfiled": playfiled
+        "playfield": playfield
     }
 
+
 if __name__ == "__main__":
-    l = 1
+    level_number = 1
     while True:
-        level_data = import_legacy_lvl(level_number=l)
+        level_data = import_legacy_lvl(level_number=level_number)
         if level_data is None:
             break
-        print(f"{level_data['number']}\t{level_data['title']}\t{level_data['author']}\t{level_data['difficulty']}\t{level_data['hint']}")
-        l += 1
-
+        print(f"{level_data['number']}" + "\t" +
+              f"{level_data['title']}" + "\t" +
+              f"{level_data['author']}" + "\t" +
+              f"{level_data['difficulty']}" + "\t" +
+              f"{level_data['hint']}")
+        level_number += 1

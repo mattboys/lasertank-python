@@ -1,92 +1,128 @@
 import copy
 
 import sprites
+from constants import GAMEBOARD_SIZE
 
-class LevelInfo:
-    def __init__(self, number, title, hint, author, difficulty, playfield):
-        self.number = number
-        self.title = title
-        self.hint = hint
-        self.author = author
-        self.difficulty = difficulty
-        self.playfield = playfield
 
-class GameBoard:
-    SIZE = 16
-    def __init__(self):
+class Board:
+    def __init__(self, playfield):
         sprites.LTSprite.gameboard = self
-        self.terrain = [[None for x in range(self.SIZE)] for y in range(self.SIZE)]
-        self.items = [[None for x in range(self.SIZE)] for y in range(self.SIZE)]
-        self.tank = sprites.Tank(position=(7, 15), direction=1)
-        self.laser = sprites.Laser()
+        self.board_terrain = [[sprites.Grass((x, y)) for x in range(GAMEBOARD_SIZE)] for y in range(GAMEBOARD_SIZE)]
+        self.board_items = [[sprites.Empty((x, y)) for x in range(GAMEBOARD_SIZE)] for y in range(GAMEBOARD_SIZE)]
+        self.board_tank = sprites.Tank(position=(7, 15), direction=1)
+        self.board_laser = sprites.Laser()
         self.sliding_items = []
         self.moves_history = []
-
-    def setup(self, playfield):
-        for x in range(self.SIZE):
-            for y in range(self.SIZE):
+        for x in range(GAMEBOARD_SIZE):
+            for y in range(GAMEBOARD_SIZE):
                 terrain_str, item_str = playfield[x][y]
-                self.terrain[x][y] = sprites.map_strings_to_objects(terrain_str, (x,y))
-                self.items[x][y] = sprites.map_strings_to_objects(item_str, (x, y))
+                pos = (x, y)
+                self.put_terrain(pos, sprites.map_strings_to_objects(terrain_str, pos))
+                item = sprites.map_strings_to_objects(item_str, pos)
+                if isinstance(item, sprites.Tank):
+                    self.board_tank = item
+                else:
+                    self.put_item(pos, item)
 
-    def start_sliding(self, item):
+    def laser_update(self):
+        self.board_laser.update()
+
+    def is_players_turn(self):
+        """ Can the player execute a move? (nothing moving, laser not moving) """
+        return len(self.sliding_items) == 0 and not self.board_laser.exists
+
+    def next_move(self, move):
+        if move == sprites.Direction.SHOOT:
+            self.board_tank.shoot()
+            self.moves_history.append(sprites.Direction.SHOOT)
+        else:
+            if self.board_tank.dir == move:
+                self.board_tank.move(move)
+                self.moves_history.append(move)
+            else:
+                self.board_tank.rotate(move)
+
+    def ai_move(self):
+        if not self.board_laser.exists:
+            for check_dir in [sprites.Direction.E, sprites.Direction.W, sprites.Direction.S, sprites.Direction.N]:
+                check_pos = self.board_tank.position
+                # Search along direction skipping empty squares
+                while self.can_move_into(check_pos):
+                    check_pos = sprites.vec_add(check_pos, sprites.Direction.get_xy(check_dir))
+                if self.is_within_board(check_pos):
+                    continue
+                maybe_antitank = self.get_item(check_pos)
+                if isinstance(maybe_antitank, sprites.Antitank) and maybe_antitank.dir == sprites.Direction.get_opposite(check_dir) and check_pos != self.board_tank.position:
+                    maybe_antitank.shoot()  # allow the found antitank to shoot
+                    return  # Only one antitank gets a chance to fire
+
+    def resolve_momenta(self):
+        """ Resolve new positions of each item with momentum such as those sliding on ice. """
+        for item in reversed(self.sliding_items):
+            item.resolve_momentum()
+        self.sliding_items = [
+            item for item in self.sliding_items if item.momentum != sprites.Direction.NONE
+        ]
+
+    def start_sliding(self, item: sprites.Item):
         if item not in self.sliding_items:
             self.sliding_items.append(item)
 
-    def is_within_board(self, position):
+    def is_within_board(self, position: (int, int)) -> bool:
         """ Is this square still within the confines of the board? """
         x, y = position
-        return 0 <= x < self.SIZE and 0 <= y < self.SIZE
+        return 0 <= x < GAMEBOARD_SIZE and 0 <= y < GAMEBOARD_SIZE
 
-    def get_laser(self):
-        return self.laser
+    def get_laser(self) -> sprites.Laser:
+        return self.board_laser
 
-    def get_tank(self):
-        return self.laser
+    def get_tank(self) -> sprites.Tank:
+        return self.board_tank
 
-    def get_item(self, position):
+    def get_item(self, position: (int, int)) -> sprites.Item:
         x, y = position
-        return self.items[x][y]
+        return self.board_items[x][y]
 
-    def put_item(self, position, item):
+    def put_item(self, position: (int, int), item: sprites.Item):
         x, y = position
-        self.items[x][y] = item
+        self.board_items[x][y] = item
 
-    def destroy_item(self, position):
+    def destroy_item(self, position: (int, int)):
         x, y = position
-        self.items[x][y] = sprites.Empty(position)
+        self.board_items[x][y] = sprites.Empty(position)
 
-    def get_terrain(self, position):
+    def get_terrain(self, position: (int, int)):
         x, y = position
-        return self.terrain[x][y]
+        return self.board_terrain[x][y]
 
-    def put_terrain(self, position, terrain):
+    def put_terrain(self, position: (int, int), terrain: sprites.Terrain):
         x, y = position
-        self.terrain[x][y] = terrain
+        self.board_terrain[x][y] = terrain
 
     def is_square_empty(self, position):
         x, y = position
-        return isinstance(self.items[x][y], sprites.Empty)
+        return isinstance(self.board_items[x][y], sprites.Empty)
 
-    def can_move_into(self, position):
+    def is_tank_in_square(self, position: (int, int)):
+        return self.board_tank.position == position
+
+    def can_move_into(self, position: (int, int)):
         """ Can an item move into this square? or Is this square on the board and empty? """
         if self.is_within_board(position):
             return self.is_square_empty(position)
         else:
             return False  # Off gameboard
 
-    def setup(self, item_ids, terrain_ids):
-        for position, x, y in [((x,y), x, y) for x in range(self.SIZE) for y in range(self.SIZE)]:
-            unplaced_item = sprites.get_item_from_id(item_ids[x][y])
-            self.put_item(position, unplaced_item(position))
-            unplaced_terrain = sprites.get_terrain_from_id(terrain_ids[x][y])
-            self.put_terrain(position, unplaced_terrain(position))
-
 
 class GameState:
-    def __init__(self):
-        self.level_data = LevelInfo()
-        self.gameboard = GameBoard()
+    def __init__(self, number, title, hint, author, difficulty, playfield):
+        self.lvl_number = number
+        self.lvl_title = title
+        self.lvl_hint = hint
+        self.lvl_author = author
+        self.lvl_difficulty = difficulty
+
+        self.gameboard = Board(playfield)
         self.input_buffer = []
         self.speed_counter = 0
         self.history = []
@@ -103,19 +139,20 @@ class GameState:
 
     def update(self):
         try:
-            if gameboard.players_turn():
+            self.gameboard.laser_update()
+            if self.gameboard.is_players_turn():
                 self.gameboard.next_move(self.input_buffer.pop(0))
-            else:
-                self.gameboard.ai_turn()
-        except Solved:
-            pass
-        except GameOver:
-            pass
+            self.gameboard.resolve_momenta()
+            self.gameboard.ai_move()
+        except sprites.Solved:
+            # TODO: Implement game solved
+            print("Solved!")
+        except sprites.GameOver:
+            # TODO: Implement game over
+            print("Game over!")
 
 
-
-
-def run(gamestate, input_engine, render_engine):
+def run(gamestate: GameState, input_engine, render_engine):
     while gamestate.is_not_solved():
         for event in input_engine.get_input():
             if event == "quit":
@@ -128,12 +165,15 @@ def run(gamestate, input_engine, render_engine):
         render_engine(gamestate)
     return "solved"
 
-if __name__ == "__main__":
-    from old_LTank2 import LevelLoader
-    level_loader = LevelLoader()
 
-    level_info = load_level()
-    gamestate(level_info)
-    graphics.render_frame(level.info)
-    graphics.render(gamestate)
-    run(gamestate, input_engine, graphics)
+if __name__ == "__main__":
+    from level_importer import import_legacy_lvl
+    from graphics_pygame import Graphics
+
+    level_dict = import_legacy_lvl(level_number=1)
+    game = GameState(**level_dict)
+
+    # graphics.render_frame(level.info)
+    graphics = Graphics()
+    graphics.render(game)
+    # run(gamestate, input_engine, graphics)

@@ -1,5 +1,11 @@
 GAMEBOARD_SIZE = 16
 
+MOVES_SHOOT = "F"
+MOVES_N = "N"
+MOVES_S = "S"
+MOVES_E = "E"
+MOVES_W = "W"
+
 Empty = "Empty"
 Grass = "Grass"
 Flag = "Flag"
