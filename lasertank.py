@@ -112,6 +112,12 @@ class GameState:
         x, y = position
         return self.board_items[y][x]
 
+    def get_tank_or_item(self, position: (int, int)) -> sprites.Item:
+        if self.board_tank.position == position:
+            return self.board_tank
+        else:
+            return self.get_item(position)
+
     def put_item(self, position: (int, int), item: sprites.Item):
         x, y = position
         self.board_items[y][x] = item

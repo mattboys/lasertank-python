@@ -93,14 +93,10 @@ class Laser(LaserTankObject):
             self.position = vec_add(self.position, Direction.get_xy(self.dir))
 
             if self.gameboard.is_within_board(self.position):
-                interacting_item = self.gameboard.get_item(self.position)
-                if interacting_item is not None:
-                    self.dir = interacting_item.hit_with_laser(
-                        self.from_direction
-                    )
-                else:
-                    # Passing through an empty square
-                    self.dir = Direction.get_opposite(self.from_direction)
+                interacting_item = self.gameboard.get_tank_or_item(self.position)
+                self.dir = interacting_item.hit_with_laser(
+                    self.from_direction
+                )
                 if self.dir == Direction.NONE:
                     self.die()
             else:
