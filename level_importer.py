@@ -75,11 +75,15 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
     difficulty = DIFFICULTY_TEXTS[difficulty_int]
 
     playfield = [[None for x in range(BOARDSIZE)] for y in range(BOARDSIZE)]
-    for x in range(BOARDSIZE):
-        for y in range(BOARDSIZE):
-            i = int(playfield_ints[x + y * BOARDSIZE])
+    for col in range(BOARDSIZE):
+        for row in range(BOARDSIZE):
+            # Note that lvl files are saved in columns and playfield is in [y][x]
+            x = col
+            y = row
+            print(f"i:{row + col * BOARDSIZE}  row, col:{(row, col)}  x, y:{(x, y)}")
+            i = int(playfield_ints[row + col * BOARDSIZE])
             terrain, item = decode_table[i]
-            playfield[x][y] = (terrain, item)
+            playfield[y][x] = (terrain, item)
 
     return {
         "number": level_number,
@@ -87,19 +91,24 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
         "hint": hint,
         "author": author,
         "difficulty": difficulty,
-        "playfield": playfield
+        "playfield": playfield,
+        "ints": playfield_ints,
     }
 
 
 if __name__ == "__main__":
     level_number = 1
-    while True:
-        level_data = import_legacy_lvl(level_number=level_number)
-        if level_data is None:
-            break
-        print(f"{level_data['number']}" + "\t" +
-              f"{level_data['title']}" + "\t" +
-              f"{level_data['author']}" + "\t" +
-              f"{level_data['difficulty']}" + "\t" +
-              f"{level_data['hint']}")
-        level_number += 1
+    level_data = import_legacy_lvl(level_number=level_number)
+
+    pass
+
+    # while True:
+    #     level_data = import_legacy_lvl(level_number=level_number)
+    #     if level_data is None:
+    #         break
+    #     print(f"{level_data['number']}" + "\t" +
+    #           f"{level_data['title']}" + "\t" +
+    #           f"{level_data['author']}" + "\t" +
+    #           f"{level_data['difficulty']}" + "\t" +
+    #           f"{level_data['hint']}")
+    #     level_number += 1

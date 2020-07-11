@@ -72,25 +72,31 @@ def vec_add(a, b):
     return a[0] + b[0], a[1] + b[1]
 
 
-class LTSprite:
+class LaserTankObject:
     gameboard = None
 
     def __init__(self, position):
         self.position = position
 
 
-class Laser(LTSprite):
+class Laser(LaserTankObject):
 
     def __init__(self):
         self.exists = False
         self.colour = "red"
         self.dir = Direction.NONE
         self.from_direction = Direction.NONE
-        LTSprite.__init__(self, (0, 0))
+        LaserTankObject.__init__(self, (0, 0))
 
     def update(self):
         if self.exists:
             self.from_direction = Direction.get_opposite(self.dir)  # Save previous direction
+
+            # Reset any glowing glass previously under laser
+            previous_interacting_item = self.gameboard.get_item(self.position)
+            if isinstance(previous_interacting_item, Glass):
+                previous_interacting_item.colour = 'none'
+
             self.position = vec_add(self.position, Direction.get_xy(self.dir))
 
             if self.gameboard.is_within_board(self.position):
@@ -127,9 +133,9 @@ class Laser(LTSprite):
         self.exists = False
 
 
-class Terrain(LTSprite):
+class Terrain(LaserTankObject):
     def __init__(self, init_pos):
-        LTSprite.__init__(self, init_pos)
+        LaserTankObject.__init__(self, init_pos)
 
     def effect(self, item_on):
         item_on.momentum = Direction.NONE
@@ -172,7 +178,7 @@ class Conveyor(Terrain):
 
     def effect(self, item_on):
         if isinstance(item_on, Tank):
-            item_on._push(self.dir)
+            item_on.push(self.dir)
 
 
 class Ice(Terrain):
@@ -255,11 +261,11 @@ class Tunnel(Terrain):
 
 
 # Objects
-class Item(LTSprite):
+class Item(LaserTankObject):
 
     def __init__(self, init_pos):
         self.momentum = Direction.NONE
-        LTSprite.__init__(self, init_pos)
+        LaserTankObject.__init__(self, init_pos)
 
     def destroy(self):
         self.gameboard.destroy_item(self.position)
@@ -283,7 +289,7 @@ class Item(LTSprite):
         self.gameboard.get_terrain(original_position).obj_leaving()
         self.gameboard.get_terrain(destination).effect(self)
 
-    def _push(self, direction):
+    def push(self, direction):
         """ Assumes this object can legally move in direction, then set momentum and add to gameboard.sliding list """
         self.momentum = direction
         self.gameboard.start_sliding(self)
@@ -329,7 +335,7 @@ class Tank(Item):
         self.dir = direction
 
     def move(self, direction):
-        self._push(direction)
+        self.push(direction)
 
 
 class Solid(Item):
@@ -346,7 +352,7 @@ class Block(Item):
 
     def hit_with_laser(self, from_direction):
         # Hit this item with a laser from the direction, return exiting direction
-        self._push(Direction.get_opposite(from_direction))
+        self.push(Direction.get_opposite(from_direction))
         return Direction.NONE
 
 
@@ -370,7 +376,7 @@ class Antitank(Item):
             self.gameboard.put_item(self.position, AntitankDead(self.dir, self.position))
             return Direction.NONE
         else:
-            self._push(Direction.get_opposite(from_direction))
+            self.push(Direction.get_opposite(from_direction))
             return Direction.NONE
 
     def shoot(self):
@@ -398,7 +404,7 @@ class Mirror(Item):
         elif from_direction == dir2:
             return dir1
         else:
-            self._push(Direction.get_opposite(from_direction))
+            self.push(Direction.get_opposite(from_direction))
             return Direction.NONE
 
 
@@ -406,9 +412,11 @@ class Glass(Item):
 
     def __init__(self, position):
         Item.__init__(self, position)
+        self.colour = 'none'
 
     def hit_with_laser(self, from_direction):
         # Hit this item with a laser from the direction, return exiting direction
+        self.colour = self.gameboard.get_laser().colour
         return Direction.get_opposite(from_direction)
 
 

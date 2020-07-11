@@ -27,9 +27,9 @@ A port of the classic puzzle game LaserTank (1995) by Jim Kindley into Python wi
 
 ## Links
  * [Original LaserTank game by Jim Kindley](https://laser-tank.com/)
- * [Wikipedia](https://en.wikipedia.org/wiki/LaserTank)
- * [Forum](https://forum.laser-tank.com/)
- * [Catalog of solution end-states (but no steps)](https://lasertanksolutions.blogspot.com/)
+ * [Wikipedia/LaserTank](https://en.wikipedia.org/wiki/LaserTank)
+ * [LaserTank Forum](https://forum.laser-tank.com/)
+ * [Catalog of solution end-states](https://lasertanksolutions.blogspot.com/)
  * [Catalog of levels](http://lasertankpedia.zdobywca.com/)
  * [Original Source Mirrored on Github (Win32 C)](https://github.com/tobiasvl/lasertank)
  * [Android Port](https://play.google.com/store/apps/details?id=legatogames.lasertank)
