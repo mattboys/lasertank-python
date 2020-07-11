@@ -50,22 +50,15 @@ class Direction(Enum):
         }
         return lookup[direction]
 
-
-class Angle(Enum):
-    NW = "NW"
-    NE = "NE"
-    SE = "SE"
-    SW = "SW"
-
     @staticmethod
-    def to_dirs(angle):
+    def reflection_angle_to_dirs(direction):
         lookup = {
-            Angle.NW: (Direction.W, Direction.N),
-            Angle.NE: (Direction.N, Direction.E),
-            Angle.SE: (Direction.E, Direction.S),
-            Angle.SW: (Direction.S, Direction.W),
+            Direction.N: (Direction.W, Direction.N),
+            Direction.E: (Direction.N, Direction.E),
+            Direction.S: (Direction.E, Direction.S),
+            Direction.W: (Direction.S, Direction.W),
         }
-        return lookup[angle]
+        return lookup[direction]
 
 
 def vec_add(a, b):
@@ -393,12 +386,12 @@ class AntitankDead(Item):
 
 
 class Mirror(Item):
-    def __init__(self, angle, position):
-        self.dir = angle
+    def __init__(self, direction, position):
+        self.dir = direction
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
-        dir1, dir2 = Angle.to_dirs(self.dir)
+        dir1, dir2 = Direction.reflection_angle_to_dirs(self.dir)
         if from_direction == dir1:
             return dir2
         elif from_direction == dir2:
@@ -422,12 +415,12 @@ class Glass(Item):
 
 class RotMirror(Item):
 
-    def __init__(self, angle, position):
-        self.dir = angle
+    def __init__(self, direction, position):
+        self.dir = direction
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
-        dir1, dir2 = Angle.to_dirs(self.dir)
+        dir1, dir2 = Direction.reflection_angle_to_dirs(self.dir)
         if from_direction == dir1:
             return dir2
         elif from_direction == dir2:
@@ -480,15 +473,15 @@ def map_strings_to_objects(object_string, position):
         constants.DeadAntitank_S: ("AntitankDead", Direction.S),
         constants.DeadAntitank_E: ("AntitankDead", Direction.E),
         constants.DeadAntitank_W: ("AntitankDead", Direction.W),
-        constants.Mirror_NW: ("Mirror", Angle.NW),
-        constants.Mirror_NE: ("Mirror", Angle.NE),
-        constants.Mirror_SE: ("Mirror", Angle.SE),
-        constants.Mirror_SW: ("Mirror", Angle.SW),
+        constants.Mirror_NW: ("Mirror", Direction.N),
+        constants.Mirror_NE: ("Mirror", Direction.E),
+        constants.Mirror_SE: ("Mirror", Direction.S),
+        constants.Mirror_SW: ("Mirror", Direction.W),
         constants.Glass: ("Glass", None),
-        constants.RotMirror_NW: ("RotMirror", Angle.NW),
-        constants.RotMirror_NE: ("RotMirror", Angle.NE),
-        constants.RotMirror_SE: ("RotMirror", Angle.SE),
-        constants.RotMirror_SW: ("RotMirror", Angle.SW),
+        constants.RotMirror_NW: ("RotMirror", Direction.N),
+        constants.RotMirror_NE: ("RotMirror", Direction.E),
+        constants.RotMirror_SE: ("RotMirror", Direction.S),
+        constants.RotMirror_SW: ("RotMirror", Direction.W),
     }
     obj, param = mapping[object_string]
     if param is None:

@@ -87,7 +87,6 @@ class GameState:
 
     def resolve_momenta(self):
         """ Resolve new positions of each item with momentum such as those sliding on ice. """
-        print(self.sliding_items)
         for item in reversed(self.sliding_items):
             item.resolve_momentum()
         self.sliding_items = [

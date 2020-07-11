@@ -17,16 +17,16 @@ files = {
         "Ice": ["ice_0.png",],
         "ThinIce": ["ice_thin_0.png",],
         "Bridge": ["bridge_0.png",],
-        "Tunnel_0": ["tunnel_a_0.png",],
-        "Tunnel_1": ["tunnel_b_0.png",],
-        "Tunnel_2": ["tunnel_c_0.png",],
-        "Tunnel_3": ["tunnel_d_0.png",],
-        "Tunnel_4": ["tunnel_e_0.png",],
-        "Tunnel_5": ["tunnel_f_0.png",],
-        "Tunnel_6": ["tunnel_g_0.png",],
-        "Tunnel_7": ["tunnel_h_0.png",],
-        "Tunnel_8": ["tunnel_a_0.png",],
-        "Tunnel_9": ["tunnel_a_0.png",],
+        "Tunnel_0": ["tunnel_0_0.png",],
+        "Tunnel_1": ["tunnel_1_0.png",],
+        "Tunnel_2": ["tunnel_2_0.png",],
+        "Tunnel_3": ["tunnel_3_0.png",],
+        "Tunnel_4": ["tunnel_4_0.png",],
+        "Tunnel_5": ["tunnel_5_0.png",],
+        "Tunnel_6": ["tunnel_6_0.png",],
+        "Tunnel_7": ["tunnel_7_0.png",],
+        "Tunnel_8": ["tunnel_Null_0.png",],
+        "Tunnel_9": ["tunnel_Null_0.png",],
         "Tank_N": ["tank_N_0.png",],
         "Tank_S": ["tank_S_0.png",],
         "Tank_E": ["tank_E_0.png",],
@@ -38,21 +38,21 @@ files = {
         "Antitank_S": ["antitank_S_0.png", "antitank_S_1.png", "antitank_S_2.png"],
         "Antitank_E": ["antitank_E_0.png", "antitank_E_1.png", "antitank_E_2.png"],
         "Antitank_W": ["antitank_W_0.png", "antitank_W_1.png", "antitank_W_2.png"],
-        "DeadAntitank_N": ["antitank_dead_N_0.png"],
-        "DeadAntitank_S": ["antitank_dead_S_0.png"],
-        "DeadAntitank_E": ["antitank_dead_E_0.png"],
-        "DeadAntitank_W": ["antitank_dead_W_0.png"],
-        "Mirror_NW": ["mirror_NW_0.png",],
-        "Mirror_NE": ["mirror_NE_0.png",],
-        "Mirror_SE": ["mirror_SE_0.png",],
-        "Mirror_SW": ["mirror_SW_0.png",],
+        "AntitankDead_N": ["antitank_dead_N_0.png"],
+        "AntitankDead_S": ["antitank_dead_S_0.png"],
+        "AntitankDead_E": ["antitank_dead_E_0.png"],
+        "AntitankDead_W": ["antitank_dead_W_0.png"],
+        "Mirror_N": ["mirror_NW_0.png",],
+        "Mirror_E": ["mirror_NE_0.png",],
+        "Mirror_S": ["mirror_SE_0.png",],
+        "Mirror_W": ["mirror_SW_0.png",],
         "Glass_none": ["glass_0.png"],
         "Glass_red": ["glass_red_0.png"],
         "Glass_green": ["glass_green_0.png"],
-        "RotMirror_NW": ["rotmirror_NW_0.png",],
-        "RotMirror_NE": ["rotmirror_NE_0.png",],
-        "RotMirror_SE": ["rotmirror_SE_0.png",],
-        "RotMirror_SW": ["rotmirror_SW_0.png",],
+        "RotMirror_N": ["rotmirror_NW_0.png",],
+        "RotMirror_E": ["rotmirror_NE_0.png",],
+        "RotMirror_S": ["rotmirror_SE_0.png",],
+        "RotMirror_W": ["rotmirror_SW_0.png",],
     }
 
 
@@ -62,7 +62,7 @@ class Graphics:
     GAMEBOARD_OFFSET_Y = 0
     ANIMATION_SPEED = 8
     MAX_FRAMES_LCM = 3
-    FPS = 2
+    FPS = 60
 
     frames = {}  # Same structure as files but with pygame.Surface objects
 

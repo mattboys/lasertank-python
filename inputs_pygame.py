@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+
 class InputEngine:
     def __init__(self):
         pygame.init()
@@ -10,7 +11,7 @@ class InputEngine:
         translated_events = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                return(["quit"])
+                return ["quit"]
             elif event.type == KEYDOWN and event.key == K_UP:
                 translated_events.append("up")
             elif event.type == KEYDOWN and event.key == K_DOWN:
@@ -23,4 +24,3 @@ class InputEngine:
                 translated_events.append("shoot")
             # TODO: Undo keys
         return translated_events
-
