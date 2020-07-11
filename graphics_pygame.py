@@ -101,8 +101,8 @@ class Graphics:
             self.frame_speed_counter = 0
             self.animation_frame_number = (self.animation_frame_number + 1) % self.MAX_FRAMES_LCM
 
-        for x in range(game.GAMEBOARD_SIZE):
-            for y in range(game.GAMEBOARD_SIZE):
+        for y in range(game.GAMEBOARD_SIZE):
+            for x in range(game.GAMEBOARD_SIZE):
                 position = (x, y)
                 self.draw(game.get_terrain(position))
                 self.draw(game.get_item(position))
@@ -116,8 +116,8 @@ class Graphics:
     def draw(self, game_object: sprites.LaserTankObject):
         obj_name = type(game_object).__name__
         position_x, position_y = game_object.position
-        location = (self.GAMEBOARD_OFFSET_Y + self.SPRITE_SIZE * position_y,
-                    self.GAMEBOARD_OFFSET_X + self.SPRITE_SIZE * position_x)
+        location = (self.GAMEBOARD_OFFSET_X + self.SPRITE_SIZE * position_x,
+                    self.GAMEBOARD_OFFSET_Y + self.SPRITE_SIZE * position_y)
         if obj_name == "Empty":
             return
         for attribute in ['colour', 'dir', 'angle', 'tunnel_id']:

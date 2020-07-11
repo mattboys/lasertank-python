@@ -59,12 +59,10 @@ class GameState:
             "right": sprites.Direction.E,
         }
         if move == "shoot":
-            print("shooting")
             self.board_tank.shoot()
             self.moves_history.append(sprites.Direction.SHOOT)
         else:
             move_dir = move_direction_mapping[move]
-            print(f"moving {move} ({move_dir})")
             if self.board_tank.dir == move_dir:
                 self.board_tank.move(move_dir)
                 self.moves_history.append(move_dir)
@@ -156,11 +154,11 @@ class GameState:
         except sprites.Solved:
             # TODO: Implement game solved
             print("Solved!")
-            return True
+            return False
         except sprites.GameOver:
             # TODO: Implement game over
             print("Game over!")
-            return True
+            return False
 
 
 def run(gamestate: GameState, input_engine, render_engine):
