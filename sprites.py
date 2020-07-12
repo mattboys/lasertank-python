@@ -208,6 +208,7 @@ class Tunnel(Terrain):
             if other_tunnel.tunnel_id == self.tunnel_id:
                 other_tunnel.add_exit(self)
                 self.add_exit(other_tunnel)
+        Tunnel.all_tunnels.append(self)
 
     def add_exit(self, other_tunnel):
         assert other_tunnel is not self, "Cannot add a tunnel as an exit to itself!"
