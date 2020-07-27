@@ -13,13 +13,17 @@ class GameState:
         self.lvl_difficulty = difficulty
 
         sprites.LaserTankObject.gameboard = self
-        self.board_terrain = [[sprites.Grass((x, y)) for x in range(self.GAMEBOARD_SIZE)] for y in range(self.GAMEBOARD_SIZE)]
-        self.board_items = [[sprites.Empty((x, y)) for x in range(self.GAMEBOARD_SIZE)] for y in range(self.GAMEBOARD_SIZE)]
+        self.board_terrain = [[sprites.Grass((x, y)) for x in range(self.GAMEBOARD_SIZE)] for y in
+                              range(self.GAMEBOARD_SIZE)]
+        self.board_items = [[sprites.Empty((x, y)) for x in range(self.GAMEBOARD_SIZE)] for y in
+                            range(self.GAMEBOARD_SIZE)]
         self.board_tank = sprites.Tank(position=(7, 15), direction=1)
         self.board_laser = sprites.Laser()
         self.sliding_items = []
         self.moves_history = []
         self.moves_buffer = []
+
+        self.undo_state = []
 
         for y in range(self.GAMEBOARD_SIZE):
             for x in range(self.GAMEBOARD_SIZE):
@@ -90,7 +94,7 @@ class GameState:
         for item in reversed(self.sliding_items):
             item.resolve_momentum()
         self.sliding_items = [
-            item for item in self.sliding_items if item.momentum != sprites.Direction.NONE
+            item for item in self.sliding_items if item._momentum != sprites.Direction.NONE
         ]
 
     def start_sliding(self, item: sprites.Item):
@@ -148,10 +152,36 @@ class GameState:
         else:
             return False  # Off gameboard
 
+    def get_tunnels(self, tunnel_id):
+        found_set = []
+        for x in range(self.GAMEBOARD_SIZE):
+            for y in range(self.GAMEBOARD_SIZE):
+                terrain_obj = self.get_terrain((x, y))
+                if isinstance(terrain_obj, sprites.Tunnel) and terrain_obj.tunnel_id == tunnel_id:
+                    found_set.append(terrain_obj)
+        return found_set
+
+    def savestate(self):
+        board_terrain = [[self.get_terrain((x, y)).export() for x in range(self.GAMEBOARD_SIZE)] for y in
+                         range(self.GAMEBOARD_SIZE)]
+        board_items = [[self.get_item((x, y)).export() for x in range(self.GAMEBOARD_SIZE)] for y in
+                       range(self.GAMEBOARD_SIZE)]
+        board_tank = self.get_tank().export()
+        board_laser = self.get_laser().export()
+        return {
+            "board_terrain": board_terrain,
+            "board_items": board_items,
+            "board_tank": board_tank,
+            "board_laser": board_laser
+        }
+
     def update(self):
         try:
             self.laser_update()
-            if self.is_players_turn() and len(self.moves_buffer)>0:
+            if self.is_players_turn() and len(self.moves_buffer) > 0:
+                state = self.savestate()
+                print(state)
+                self.undo_state.append(state)  # Save for undos
                 self.next_move(self.moves_buffer.pop(0))
             self.resolve_momenta()
             self.ai_move()
@@ -171,7 +201,10 @@ def run(gamestate: GameState, input_engine, render_engine):
         for event in input_engine.get_inputs():
             if event == "quit":
                 return "quit"
-            elif event in ["up", "down", "left", "right", "shoot", "undo", "reset"]:
+            elif event == "undo":
+                if len(gamestate.undo_state) > 0:
+                    print(gamestate.undo_state.pop())  # TODO: import compressed state
+            elif event in ["up", "down", "left", "right", "shoot", "reset"]:
                 gamestate.queue_event(event)
             else:
                 print(f"Unhandled input: {event}")

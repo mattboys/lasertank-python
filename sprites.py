@@ -1,5 +1,4 @@
 from enum import Enum
-from functools import partial
 
 
 class Solved(Exception):
@@ -71,6 +70,11 @@ class LaserTankObject:
     def __init__(self, position):
         self.position = position
 
+    def export(self):
+        """ Return minimal dict to save game state when idle"""
+        attributes = dict([(k, v) for k, v in self.__dict__.items() if not k.startswith("_") and k != "gameboard"])
+        return type(self).__name__, attributes
+
 
 class Laser(LaserTankObject):
 
@@ -122,178 +126,54 @@ class Laser(LaserTankObject):
         self.exists = False
 
 
-class Terrain(LaserTankObject):
-    def __init__(self, init_pos):
-        LaserTankObject.__init__(self, init_pos)
-
-    def effect(self, item_on):
-        item_on.momentum = Direction.NONE
-
-    def obj_leaving(self):
-        pass
-
-
-class Grass(Terrain):
-    def __init__(self, position):
-        Terrain.__init__(self, position)
-
-
-class Flag(Terrain):
-    def __init__(self, position):
-        Terrain.__init__(self, position)
-
-    def effect(self, item_on):
-        if isinstance(item_on, Tank):
-            raise Solved
-
-
-class Water(Terrain):
-    def __init__(self, position):
-        Terrain.__init__(self, position)
-
-    def effect(self, item_on):
-        item_on.momentum = Direction.NONE
-        if isinstance(item_on, Tank):
-            raise GameOver
-        elif isinstance(item_on, Block):
-            self.gameboard.put_terrain(self.position, Bridge(self.position))
-        item_on.destroy()
-
-
-class Conveyor(Terrain):
-    def __init__(self, direction, position):
-        self.dir = direction
-        Terrain.__init__(self, position)
-
-    def effect(self, item_on):
-        if isinstance(item_on, Tank):
-            item_on.push(self.dir)
-
-
-class Ice(Terrain):
-    def __init__(self, position):
-        Terrain.__init__(self, position)
-
-    def effect(self, item_on):
-        # Keep current momentum
-        pass
-
-
-class ThinIce(Terrain):
-    def __init__(self, position):
-        Terrain.__init__(self, position)
-
-    def effect(self, item_on):
-        # Keep current momentum
-        pass
-
-    def obj_leaving(self):
-        self.gameboard.put_terrain(self.position, Water(self.position))
-
-
-class Bridge(Terrain):
-    def __init__(self, position):
-        Terrain.__init__(self, position)
-
-
-class Tunnel(Terrain):
-    all_tunnels = []
-
-    def __init__(self, tunnel_id, position):
-        Terrain.__init__(self, position)
-        self.tunnel_id = tunnel_id
-        self.exits = []
-        self.waiting = False  # Waiting for an open exit
-        for other_tunnel in Tunnel.all_tunnels:
-            if other_tunnel.tunnel_id == self.tunnel_id:
-                other_tunnel.add_exit(self)
-                self.add_exit(other_tunnel)
-        Tunnel.all_tunnels.append(self)
-
-    def add_exit(self, other_tunnel):
-        assert other_tunnel is not self, "Cannot add a tunnel as an exit to itself!"
-        self.exits.append(other_tunnel)
-        self.exits.sort(key=lambda temp_tunnel: (temp_tunnel.position[1], temp_tunnel.position[0]))
-
-    def effect(self, item_on):
-        if len(self.exits) == 0:
-            # Black Hole
-            item_on.destroy()
-            return
-        else:
-            # Find an unblocked exit
-            for exit_tunnel in self.exits:
-                if self.gameboard.is_square_empty(exit_tunnel.position):  # is unblocked?
-                    item_on.teleport(exit_tunnel.position)  # Teleport
-                    return
-            # Only blocked exit(s) so set tunnel as waiting
-            # will transport when another tunnel is unblocked
-            self.waiting = True
-
-    def get_item_waiting(self):
-        if not self.gameboard.is_square_empty(self.position):
-            return self.gameboard.get_item(self.position)
-        elif self.gameboard.board_tank.position == self.position:
-            return self.gameboard.get_tank()
-        else:
-            print('Tunnel error')
-            return None
-
-    def obj_leaving(self):
-        x, y = self.position
-        if self.gameboard.is_square_empty(self.position) and self.gameboard.get_tank().position != self.position:
-            self.waiting = False
-        for link in self.exits:
-            if link.waiting:
-                link.waiting = False
-                link.effect(link.get_item_waiting())
-                return
-
 
 # Objects
 class Item(LaserTankObject):
 
     def __init__(self, init_pos):
-        self.momentum = Direction.NONE
         LaserTankObject.__init__(self, init_pos)
 
     def destroy(self):
         self.gameboard.destroy_item(self.position)
 
+    def hit_with_laser(self, from_direction):
+        """ Hit this item with a laser from the direction, return exiting direction """
+        return Direction.get_opposite(from_direction)
+
+
+class ItemMovable(Item):
+    def __init__(self, init_pos):
+        self._momentum = Direction.NONE
+        Item.__init__(self, init_pos)
+
+    def push(self, direction):
+        """ Assumes this object can legally move in direction, then set momentum and add to gameboard.sliding list """
+        self._momentum = direction
+        self.gameboard.start_sliding(self)
+
+    def resolve_momentum(self):
+        destination = vec_add(self.position, Direction.get_xy(self._momentum))
+        if self.gameboard.can_move_into(destination):
+            # Set new position
+            original_position = self.position
+            if not isinstance(self, Tank):
+                self.gameboard.put_item(original_position, Empty(original_position))
+                assert self.gameboard.is_square_empty(destination), "Can't move item into occupied space!"
+                self.gameboard.put_item(destination, self)
+            self.position = destination
+            # Resolve effects on terrain
+            self.gameboard.get_terrain(original_position).obj_leaving()
+            self.gameboard.get_terrain(destination).effect(self)
+        else:
+            self._momentum = Direction.NONE
+            self.gameboard.get_terrain(self.position).effect(self)
+
     def teleport(self, destination):
-        self.momentum = Direction.NONE
         if not isinstance(self, Tank):
             self.gameboard.put_item(self.position, Empty(self.position))
             assert self.gameboard.is_square_empty(destination), "Can't move item into occupied space!"
             self.gameboard.put_item(destination, self)
         self.position = destination
-
-    def _set_position(self, destination):
-        original_position = self.position
-        if not isinstance(self, Tank):
-            self.gameboard.put_item(original_position, Empty(original_position))
-            assert self.gameboard.is_square_empty(destination), "Can't move item into occupied space!"
-            self.gameboard.put_item(destination, self)
-        self.position = destination
-        # Resolve effects on terrain
-        self.gameboard.get_terrain(original_position).obj_leaving()
-        self.gameboard.get_terrain(destination).effect(self)
-
-    def push(self, direction):
-        """ Assumes this object can legally move in direction, then set momentum and add to gameboard.sliding list """
-        self.momentum = direction
-        self.gameboard.start_sliding(self)
-
-    def resolve_momentum(self):
-        destination = vec_add(self.position, Direction.get_xy(self.momentum))
-        if self.gameboard.can_move_into(destination):
-            self._set_position(destination)
-        else:
-            self.momentum = Direction.NONE
-
-    def hit_with_laser(self, from_direction):
-        """ Hit this item with a laser from the direction, return exiting direction """
-        return Direction.get_opposite(from_direction)
 
 
 class Empty(Item):
@@ -304,11 +184,10 @@ class Empty(Item):
         pass
 
 
-class Tank(Item):
+class Tank(ItemMovable):
     def __init__(self, direction, position):
         self.dir = direction
-        self.firing = False
-        Item.__init__(self, position)
+        ItemMovable.__init__(self, position)
 
     def shoot(self):
         self.gameboard.get_laser().fire(self.position, self.dir, good=True)
@@ -336,14 +215,20 @@ class Solid(Item):
         return Direction.NONE
 
 
-class Block(Item):
+class Block(ItemMovable):
     def __init__(self, position):
+        self._momentum = Direction.NONE
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
         # Hit this item with a laser from the direction, return exiting direction
         self.push(Direction.get_opposite(from_direction))
         return Direction.NONE
+
+    def push(self, direction):
+        """ Assumes this object can legally move in direction, then set momentum and add to gameboard.sliding list """
+        self._momentum = direction
+        self.gameboard.start_sliding(self)
 
 
 class Wall(Item):
@@ -355,10 +240,9 @@ class Wall(Item):
         return Direction.NONE
 
 
-class Antitank(Item):
+class Antitank(ItemMovable):
     def __init__(self, direction, position):
         self.dir = direction
-        self.firing = False
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
@@ -382,10 +266,10 @@ class AntitankDead(Item):
         return Direction.NONE
 
 
-class Mirror(Item):
+class Mirror(ItemMovable):
     def __init__(self, direction, position):
         self.dir = direction
-        Item.__init__(self, position)
+        ItemMovable.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
         dir1, dir2 = Direction.reflection_angle_to_dirs(self.dir)
@@ -429,6 +313,126 @@ class RotMirror(Item):
     def rotate(self, direction):
         """ Face direction specified without moving spaces """
         self.dir = direction
+
+
+class Terrain(LaserTankObject):
+    def __init__(self, init_pos):
+        LaserTankObject.__init__(self, init_pos)
+
+    def effect(self, item_on):
+        item_on._momentum = Direction.NONE
+
+    def obj_leaving(self):
+        pass
+
+
+class Grass(Terrain):
+    def __init__(self, position):
+        Terrain.__init__(self, position)
+
+
+class Flag(Terrain):
+    def __init__(self, position):
+        Terrain.__init__(self, position)
+
+    def effect(self, item_on):
+        if isinstance(item_on, Tank):
+            raise Solved
+
+
+class Water(Terrain):
+    def __init__(self, position):
+        Terrain.__init__(self, position)
+
+    def effect(self, item_on):
+        item_on._momentum = Direction.NONE
+        if isinstance(item_on, Tank):
+            raise GameOver
+        elif isinstance(item_on, Block):
+            self.gameboard.put_terrain(self.position, Bridge(self.position))
+        item_on.destroy()
+
+
+class Conveyor(Terrain):
+    def __init__(self, direction, position):
+        self.dir = direction
+        Terrain.__init__(self, position)
+
+    def effect(self, item_on):
+        if isinstance(item_on, Tank):
+            item_on.push(self.dir)
+
+
+class Ice(Terrain):
+    def __init__(self, position):
+        Terrain.__init__(self, position)
+
+    def effect(self, item_on):
+        # Keep current momentum
+        pass
+
+
+class ThinIce(Terrain):
+    def __init__(self, position):
+        Terrain.__init__(self, position)
+
+    def effect(self, item_on):
+        self.gameboard.put_terrain(self.position, Water(self.position))
+        # TODO: Tank should sink next tick if stopped on thin ice
+
+
+class Bridge(Terrain):
+    def __init__(self, position):
+        Terrain.__init__(self, position)
+
+
+class Tunnel(Terrain):
+
+    def __init__(self, tunnel_id, position):
+        Terrain.__init__(self, position)
+        self.tunnel_id = tunnel_id
+        self.waiting = False  # Waiting for an open exit
+
+    def _get_exits(self):
+        exits = self.gameboard.get_tunnels(self.tunnel_id)
+        exits.remove(self)
+        return exits
+
+    def effect(self, item_on: ItemMovable):
+        exits = self._get_exits()
+        if len(exits) == 0:
+            # Black Hole
+            item_on.destroy()
+            return
+        else:
+            # Find an unblocked exit
+            for exit_tunnel in exits:
+                if self.gameboard.is_square_empty(exit_tunnel.position):  # is unblocked?
+                    item_on.teleport(exit_tunnel.position)  # Teleport
+                    return
+            # Only blocked exit(s) so set tunnel as waiting
+            # will transport when another tunnel is unblocked
+            self.waiting = True
+
+    def release(self):
+        """ Was waiting and now an exit is free """
+        self.waiting = False
+        if not self.gameboard.is_square_empty(self.position):
+            return self.gameboard.get_item(self.position)
+        elif self.gameboard.board_tank.position == self.position:
+            return self.gameboard.get_tank()
+        else:
+            print('Tunnel error')
+            return None
+
+    def obj_leaving(self):
+        if self.gameboard.is_square_empty(self.position) and self.gameboard.get_tank().position != self.position:
+            self.waiting = False
+        for link in self._get_exits():
+            if link.waiting:
+                link.release()
+                # Only release first waiting instance
+                return
 
 
 def map_strings_to_objects(object_string, position):

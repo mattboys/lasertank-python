@@ -22,5 +22,7 @@ class InputEngine:
                 translated_events.append("right")
             elif event.type == KEYDOWN and event.key == K_SPACE:
                 translated_events.append("shoot")
-            # TODO: Undo keys
+            elif event.type == KEYDOWN and event.key == K_u:
+                translated_events.append("undo")
+                print("Undo requested")
         return translated_events
