@@ -24,5 +24,4 @@ class InputEngine:
                 translated_events.append("shoot")
             elif event.type == KEYDOWN and event.key == K_u:
                 translated_events.append("undo")
-                print("Undo requested")
         return translated_events

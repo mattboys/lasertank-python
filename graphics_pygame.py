@@ -139,12 +139,9 @@ class Graphics:
                     self.GAMEBOARD_OFFSET_Y + self.SPRITE_SIZE * position_y)
         if obj_name == "Empty":
             return
-        for attribute in ['colour', 'dir', 'angle', 'tunnel_id']:
+        for attribute in ['_colour', 'direction', 'angle', 'tunnel_id']:
             if hasattr(game_object, attribute):
-                # TODO: Remove reliance on checking if Enum
                 value = getattr(game_object, attribute)
-                if isinstance(value, Enum):
-                    value = value.value
                 obj_name = obj_name + "_" + str(value)
         if obj_name not in self.frames:
             print(f"ERROR: Cannot find sprite for object {obj_name}")
@@ -161,14 +158,11 @@ class Graphics:
         location = (self.GAMEBOARD_OFFSET_X + self.SPRITE_SIZE * position_x,
                     self.GAMEBOARD_OFFSET_Y + self.SPRITE_SIZE * position_y)
         # Fix syntax of directions
-        dir1 = laser.dir
+        dir1 = laser.direction
         if laser.from_direction == sprites.Direction.NONE:
             dir2 = dir1
         else:
             dir2 = laser.from_direction
-        dir1 = dir1.value
-        dir2 = dir2.value
-
         obj_name = f"laser_{laser.colour}_{dir1}{dir2}"
         if obj_name not in self.frames:
             obj_name = f"laser_{laser.colour}_{dir2}{dir1}"

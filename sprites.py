@@ -1,4 +1,4 @@
-from enum import Enum
+import Direction
 
 
 class Solved(Exception):
@@ -7,57 +7,6 @@ class Solved(Exception):
 
 class GameOver(Exception):
     pass
-
-
-class Direction(Enum):
-    N = "N"
-    E = "E"
-    S = "S"
-    W = "W"
-    SHOOT = "F"
-    NONE = "0"
-
-    @staticmethod
-    def get_opposite(direction):
-        lookup = {
-            Direction.N: Direction.S,
-            Direction.S: Direction.N,
-            Direction.E: Direction.W,
-            Direction.W: Direction.E,
-            Direction.NONE: Direction.NONE,
-        }
-        return lookup[direction]
-
-    @staticmethod
-    def get_clockwise(direction):
-        lookup = {
-            Direction.N: Direction.E,
-            Direction.E: Direction.S,
-            Direction.S: Direction.W,
-            Direction.W: Direction.N,
-        }
-        return lookup[direction]
-
-    @staticmethod
-    def get_xy(direction):
-        lookup = {
-            Direction.N: (0, -1),
-            Direction.E: (1, 0),
-            Direction.S: (0, 1),
-            Direction.W: (-1, 0),
-            Direction.NONE: (0, 0),
-        }
-        return lookup[direction]
-
-    @staticmethod
-    def reflection_angle_to_dirs(direction):
-        lookup = {
-            Direction.N: (Direction.W, Direction.N),
-            Direction.E: (Direction.N, Direction.E),
-            Direction.S: (Direction.E, Direction.S),
-            Direction.W: (Direction.S, Direction.W),
-        }
-        return lookup[direction]
 
 
 def vec_add(a, b):
@@ -70,38 +19,40 @@ class LaserTankObject:
     def __init__(self, position):
         self.position = position
 
-    def export(self):
+    def pack(self):
         """ Return minimal dict to save game state when idle"""
-        attributes = dict([(k, v) for k, v in self.__dict__.items() if not k.startswith("_") and k != "gameboard"])
+        attributes = dict([(k, v) for k, v in self.__dict__.items() if not k.startswith("_") and k not in ["gameboard",
+                                                                                                           "position"]])
         return type(self).__name__, attributes
 
 
 class Laser(LaserTankObject):
 
-    def __init__(self):
-        self.exists = False
-        self.colour = "red"
-        self.dir = Direction.NONE
-        self.from_direction = Direction.NONE
-        LaserTankObject.__init__(self, (0, 0))
+    def __init__(self, exists=False, colour="red", direction=Direction.NONE, from_direction=Direction.NONE,
+                 position=(0, 0)):
+        self.exists = exists
+        self.colour = colour
+        self.direction = direction
+        self.from_direction = from_direction
+        LaserTankObject.__init__(self, position)
 
     def update(self):
         if self.exists:
-            self.from_direction = Direction.get_opposite(self.dir)  # Save previous direction
+            self.from_direction = Direction.get_opposite(self.direction)  # Save previous direction
 
             # Reset any glowing glass previously under laser
             previous_interacting_item = self.gameboard.get_item(self.position)
             if isinstance(previous_interacting_item, Glass):
                 previous_interacting_item.colour = 'none'
 
-            self.position = vec_add(self.position, Direction.get_xy(self.dir))
+            self.position = vec_add(self.position, Direction.get_xy(self.direction))
 
             if self.gameboard.is_within_board(self.position):
                 interacting_item = self.gameboard.get_tank_or_item(self.position)
-                self.dir = interacting_item.hit_with_laser(
+                self.direction = interacting_item.hit_with_laser(
                     self.from_direction
                 )
-                if self.dir == Direction.NONE:
+                if self.direction == Direction.NONE:
                     self.die()
             else:
                 self.die()
@@ -114,7 +65,7 @@ class Laser(LaserTankObject):
             self.exists = True
             # Spawn at location and direction
             self.position = position
-            self.dir = direction
+            self.direction = direction
             self.from_direction = Direction.NONE
             if good:
                 self.colour = "green"
@@ -124,6 +75,12 @@ class Laser(LaserTankObject):
 
     def die(self):
         self.exists = False
+
+    def pack(self):
+        """ Return minimal dict to save game state when idle"""
+        obj_name, attributes = LaserTankObject.pack(self)
+        attributes["position"] = self.position
+        return obj_name, attributes
 
 
 
@@ -177,8 +134,8 @@ class ItemMovable(Item):
 
 
 class Empty(Item):
-    def __init__(self, init_pos):
-        Item.__init__(self, init_pos)
+    def __init__(self, position):
+        Item.__init__(self, position)
 
     def destroy(self):
         pass
@@ -186,11 +143,11 @@ class Empty(Item):
 
 class Tank(ItemMovable):
     def __init__(self, direction, position):
-        self.dir = direction
+        self.direction = direction
         ItemMovable.__init__(self, position)
 
     def shoot(self):
-        self.gameboard.get_laser().fire(self.position, self.dir, good=True)
+        self.gameboard.get_laser().fire(self.position, self.direction, good=True)
 
     def destroy(self):
         raise GameOver
@@ -201,10 +158,16 @@ class Tank(ItemMovable):
 
     def rotate(self, direction):
         """ Face direction specified without moving spaces """
-        self.dir = direction
+        self.direction = direction
 
     def move(self, direction):
         self.push(direction)
+
+    def pack(self):
+        """ Return minimal dict to save game state when idle"""
+        obj_name, attributes = LaserTankObject.pack(self)
+        attributes["position"] = self.position
+        return obj_name, attributes
 
 
 class Solid(Item):
@@ -242,24 +205,24 @@ class Wall(Item):
 
 class Antitank(ItemMovable):
     def __init__(self, direction, position):
-        self.dir = direction
+        self.direction = direction
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
-        if from_direction == self.dir:
-            self.gameboard.put_item(self.position, AntitankDead(self.dir, self.position))
+        if from_direction == self.direction:
+            self.gameboard.put_item(self.position, AntitankDead(self.direction, self.position))
             return Direction.NONE
         else:
             self.push(Direction.get_opposite(from_direction))
             return Direction.NONE
 
     def shoot(self):
-        self.gameboard.get_laser().fire(self.position, self.dir, good=False)
+        self.gameboard.get_laser().fire(self.position, self.direction, good=False)
 
 
 class AntitankDead(Item):
     def __init__(self, direction, position):
-        self.dir = direction
+        self.direction = direction
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
@@ -268,11 +231,11 @@ class AntitankDead(Item):
 
 class Mirror(ItemMovable):
     def __init__(self, direction, position):
-        self.dir = direction
+        self.direction = direction
         ItemMovable.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
-        dir1, dir2 = Direction.reflection_angle_to_dirs(self.dir)
+        dir1, dir2 = Direction.reflection_angle_to_dirs(self.direction)
         if from_direction == dir1:
             return dir2
         elif from_direction == dir2:
@@ -286,33 +249,33 @@ class Glass(Item):
 
     def __init__(self, position):
         Item.__init__(self, position)
-        self.colour = 'none'
+        self._colour = 'none'
 
     def hit_with_laser(self, from_direction):
         # Hit this item with a laser from the direction, return exiting direction
-        self.colour = self.gameboard.get_laser().colour
+        self._colour = self.gameboard.get_laser().colour
         return Direction.get_opposite(from_direction)
 
 
 class RotMirror(Item):
 
     def __init__(self, direction, position):
-        self.dir = direction
+        self.direction = direction
         Item.__init__(self, position)
 
     def hit_with_laser(self, from_direction):
-        dir1, dir2 = Direction.reflection_angle_to_dirs(self.dir)
+        dir1, dir2 = Direction.reflection_angle_to_dirs(self.direction)
         if from_direction == dir1:
             return dir2
         elif from_direction == dir2:
             return dir1
         else:
-            self.rotate(Direction.get_clockwise(self.dir))
+            self.rotate(Direction.get_clockwise(self.direction))
             return Direction.NONE
 
     def rotate(self, direction):
         """ Face direction specified without moving spaces """
-        self.dir = direction
+        self.direction = direction
 
 
 class Terrain(LaserTankObject):
@@ -355,12 +318,12 @@ class Water(Terrain):
 
 class Conveyor(Terrain):
     def __init__(self, direction, position):
-        self.dir = direction
+        self.direction = direction
         Terrain.__init__(self, position)
 
     def effect(self, item_on):
         if isinstance(item_on, Tank):
-            item_on.push(self.dir)
+            item_on.push(self.direction)
 
 
 class Ice(Terrain):
@@ -388,10 +351,10 @@ class Bridge(Terrain):
 
 class Tunnel(Terrain):
 
-    def __init__(self, tunnel_id, position):
+    def __init__(self, tunnel_id, position, waiting=False):
         Terrain.__init__(self, position)
         self.tunnel_id = tunnel_id
-        self.waiting = False  # Waiting for an open exit
+        self.waiting = waiting  # Waiting for an open exit
 
     def _get_exits(self):
         exits = self.gameboard.get_tunnels(self.tunnel_id)
@@ -489,3 +452,11 @@ def map_strings_to_objects(object_string, position):
         return getattr(__import__("sprites"), obj)(position)
     else:
         return getattr(__import__("sprites"), obj)(param, position)
+
+
+def unpack(obj_name, params_dict):
+    """ Return an object from the packed version
+    obj_name: str representation of the object name
+    params_dict: dictionary of object parameters to use in constructor
+     i.e.: unpack("Conveyor", {'direction': 'S', 'position': (9, 14)}) """
+    return getattr(__import__("sprites"), obj_name)(**params_dict)

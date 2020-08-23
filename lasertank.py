@@ -6,11 +6,7 @@ class GameState:
     GAMEBOARD_SIZE = 16
 
     def __init__(self, number, title, hint, author, difficulty, playfield):
-        self.lvl_number = number
-        self.lvl_title = title
-        self.lvl_hint = hint
-        self.lvl_author = author
-        self.lvl_difficulty = difficulty
+        self.level_info = {"number": number, "title": title, "hint": hint, "difficulty": difficulty, "author": author}
 
         sprites.LaserTankObject.gameboard = self
         self.board_terrain = [[sprites.Grass((x, y)) for x in range(self.GAMEBOARD_SIZE)] for y in
@@ -67,7 +63,7 @@ class GameState:
             self.moves_history.append(sprites.Direction.SHOOT)
         else:
             move_dir = move_direction_mapping[move]
-            if self.board_tank.dir == move_dir:
+            if self.board_tank.direction == move_dir:
                 self.board_tank.move(move_dir)
                 self.moves_history.append(move_dir)
             else:
@@ -84,8 +80,8 @@ class GameState:
                     continue
                 maybe_antitank = self.get_item(check_pos)
                 if isinstance(maybe_antitank,
-                              sprites.Antitank) and maybe_antitank.dir == sprites.Direction.get_opposite(
-                        check_dir) and check_pos != self.board_tank.position:
+                              sprites.Antitank) and maybe_antitank.direction == sprites.Direction.get_opposite(
+                    check_dir) and check_pos != self.board_tank.position:
                     maybe_antitank.shoot()  # allow the found antitank to shoot
                     return  # Only one antitank gets a chance to fire
 
@@ -161,13 +157,13 @@ class GameState:
                     found_set.append(terrain_obj)
         return found_set
 
-    def savestate(self):
-        board_terrain = [[self.get_terrain((x, y)).export() for x in range(self.GAMEBOARD_SIZE)] for y in
+    def packstate(self):
+        board_terrain = [[self.get_terrain((x, y)).pack() for x in range(self.GAMEBOARD_SIZE)] for y in
                          range(self.GAMEBOARD_SIZE)]
-        board_items = [[self.get_item((x, y)).export() for x in range(self.GAMEBOARD_SIZE)] for y in
+        board_items = [[self.get_item((x, y)).pack() for x in range(self.GAMEBOARD_SIZE)] for y in
                        range(self.GAMEBOARD_SIZE)]
-        board_tank = self.get_tank().export()
-        board_laser = self.get_laser().export()
+        board_tank = self.get_tank().pack()
+        board_laser = self.get_laser().pack()
         return {
             "board_terrain": board_terrain,
             "board_items": board_items,
@@ -175,13 +171,34 @@ class GameState:
             "board_laser": board_laser
         }
 
+    def load_undo(self):
+        """ Pop undo state and unpack into current state """
+        if len(self.undo_state) > 0:
+            packed = self.undo_state.pop()
+            # Unpack state
+            for y in range(self.GAMEBOARD_SIZE):
+                for x in range(self.GAMEBOARD_SIZE):
+                    item_name, item_params = packed['board_items'][y][x]
+                    item_params["position"] = (x, y)
+                    self.put_item((x, y), sprites.unpack(item_name, item_params))
+
+                    terrain_name, terrain_params = packed['board_terrain'][y][x]
+                    terrain_params["position"] = (x, y)
+                    self.put_terrain((x, y), sprites.unpack(terrain_name, terrain_params, ))
+
+            tank_name, tank_params = packed['board_tank']
+            self.board_tank = sprites.unpack(tank_name, tank_params)
+
+            laser_name, laser_params = packed['board_laser']
+            self.board_laser = sprites.unpack(laser_name, laser_params)
+
     def update(self):
         try:
             self.laser_update()
             if self.is_players_turn() and len(self.moves_buffer) > 0:
-                state = self.savestate()
-                print(state)
-                self.undo_state.append(state)  # Save for undos
+                packed_state = self.packstate()
+                # print(packed_state)
+                self.undo_state.append(packed_state)  # Save for undos
                 self.next_move(self.moves_buffer.pop(0))
             self.resolve_momenta()
             self.ai_move()
@@ -202,8 +219,8 @@ def run(gamestate: GameState, input_engine, render_engine):
             if event == "quit":
                 return "quit"
             elif event == "undo":
-                if len(gamestate.undo_state) > 0:
-                    print(gamestate.undo_state.pop())  # TODO: import compressed state
+
+                gamestate.load_undo()
             elif event in ["up", "down", "left", "right", "shoot", "reset"]:
                 gamestate.queue_event(event)
             else:
