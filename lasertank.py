@@ -9,9 +9,9 @@ class GameState:
         self.level_info = {"number": number, "title": title, "hint": hint, "difficulty": difficulty, "author": author}
 
         sprites.LaserTankObject.gameboard = self
-        self.board_terrain = [[sprites.Grass((x, y)) for x in range(self.GAMEBOARD_SIZE)] for y in
+        self.board_terrain = [[sprites.Grass((x, y)) for y in range(self.GAMEBOARD_SIZE)] for x in
                               range(self.GAMEBOARD_SIZE)]
-        self.board_items = [[sprites.Empty((x, y)) for x in range(self.GAMEBOARD_SIZE)] for y in
+        self.board_items = [[sprites.Empty((x, y)) for y in range(self.GAMEBOARD_SIZE)] for x in
                             range(self.GAMEBOARD_SIZE)]
         self.board_tank = sprites.Tank(position=(7, 15), direction=1)
         self.board_laser = sprites.Laser()
@@ -157,13 +157,13 @@ class GameState:
                     found_set.append(terrain_obj)
         return found_set
 
-    def packstate(self):
-        board_terrain = [[self.get_terrain((x, y)).pack() for x in range(self.GAMEBOARD_SIZE)] for y in
+    def serialize_state(self):
+        board_terrain = [[self.get_terrain((x, y)).serialize() for x in range(self.GAMEBOARD_SIZE)] for y in
                          range(self.GAMEBOARD_SIZE)]
-        board_items = [[self.get_item((x, y)).pack() for x in range(self.GAMEBOARD_SIZE)] for y in
+        board_items = [[self.get_item((x, y)).serialize() for x in range(self.GAMEBOARD_SIZE)] for y in
                        range(self.GAMEBOARD_SIZE)]
-        board_tank = self.get_tank().pack()
-        board_laser = self.get_laser().pack()
+        board_tank = self.get_tank().serialize()
+        board_laser = self.get_laser().serialize()
         return {
             "board_terrain": board_terrain,
             "board_items": board_items,
@@ -172,33 +172,31 @@ class GameState:
         }
 
     def load_undo(self):
-        """ Pop undo state and unpack into current state """
+        """ Pop undo state and unserialize into current state """
         if len(self.undo_state) > 0:
-            packed = self.undo_state.pop()
-            # Unpack state
+            serialized = self.undo_state.pop()
+            # Deserialize state
             for y in range(self.GAMEBOARD_SIZE):
                 for x in range(self.GAMEBOARD_SIZE):
-                    item_name, item_params = packed['board_items'][y][x]
-                    item_params["position"] = (x, y)
-                    self.put_item((x, y), sprites.unpack(item_name, item_params))
+                    position = (x, y)
+                    item_name = serialized['board_items'][y][x]
+                    self.put_item((x, y), sprites.deserialize(item_name, position))
+                    terrain_params = serialized['board_terrain'][y][x]
+                    self.put_terrain((x, y), sprites.deserialize(terrain_params, position))
 
-                    terrain_name, terrain_params = packed['board_terrain'][y][x]
-                    terrain_params["position"] = (x, y)
-                    self.put_terrain((x, y), sprites.unpack(terrain_name, terrain_params, ))
-
-            tank_name, tank_params = packed['board_tank']
-            self.board_tank = sprites.unpack(tank_name, tank_params)
-
-            laser_name, laser_params = packed['board_laser']
-            self.board_laser = sprites.unpack(laser_name, laser_params)
+            tank_params = serialized['board_tank']
+            self.board_tank = sprites.deserialize_tank(tank_params)
+            laser_params = serialized['board_laser']
+            self.board_laser = sprites.deserialize_laser(laser_params)
 
     def update(self):
         try:
             self.laser_update()
             if self.is_players_turn() and len(self.moves_buffer) > 0:
-                packed_state = self.packstate()
-                # print(packed_state)
-                self.undo_state.append(packed_state)  # Save for undos
+                serializeed_state = self.serialize_state()
+                import json
+                print(json.dumps(serializeed_state))
+                self.undo_state.append(serializeed_state)  # Save for undos
                 self.next_move(self.moves_buffer.pop(0))
             self.resolve_momenta()
             self.ai_move()

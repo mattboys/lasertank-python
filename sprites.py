@@ -1,4 +1,5 @@
 import Direction
+import constants
 
 
 class Solved(Exception):
@@ -18,12 +19,6 @@ class LaserTankObject:
 
     def __init__(self, position):
         self.position = position
-
-    def pack(self):
-        """ Return minimal dict to save game state when idle"""
-        attributes = dict([(k, v) for k, v in self.__dict__.items() if not k.startswith("_") and k not in ["gameboard",
-                                                                                                           "position"]])
-        return type(self).__name__, attributes
 
 
 class Laser(LaserTankObject):
@@ -76,12 +71,9 @@ class Laser(LaserTankObject):
     def die(self):
         self.exists = False
 
-    def pack(self):
+    def serialize(self):
         """ Return minimal dict to save game state when idle"""
-        obj_name, attributes = LaserTankObject.pack(self)
-        attributes["position"] = self.position
-        return obj_name, attributes
-
+        return self.exists, self.colour, self.direction, self.from_direction, self.position
 
 
 # Objects
@@ -96,6 +88,9 @@ class Item(LaserTankObject):
     def hit_with_laser(self, from_direction):
         """ Hit this item with a laser from the direction, return exiting direction """
         return Direction.get_opposite(from_direction)
+
+    def serialize(self):
+        raise ValueError(f"Serialize function unavailable for {self.__name__}")
 
 
 class ItemMovable(Item):
@@ -140,6 +135,9 @@ class Empty(Item):
     def destroy(self):
         pass
 
+    def serialize(self):
+        return constants.Empty
+
 
 class Tank(ItemMovable):
     def __init__(self, direction, position):
@@ -163,11 +161,9 @@ class Tank(ItemMovable):
     def move(self, direction):
         self.push(direction)
 
-    def pack(self):
+    def serialize(self):
         """ Return minimal dict to save game state when idle"""
-        obj_name, attributes = LaserTankObject.pack(self)
-        attributes["position"] = self.position
-        return obj_name, attributes
+        return self.direction, self.position
 
 
 class Solid(Item):
@@ -176,6 +172,9 @@ class Solid(Item):
 
     def hit_with_laser(self, from_direction):
         return Direction.NONE
+
+    def serialize(self):
+        return constants.Solid
 
 
 class Block(ItemMovable):
@@ -193,6 +192,9 @@ class Block(ItemMovable):
         self._momentum = direction
         self.gameboard.start_sliding(self)
 
+    def serialize(self):
+        return constants.Block
+
 
 class Wall(Item):
     def __init__(self, position):
@@ -201,6 +203,9 @@ class Wall(Item):
     def hit_with_laser(self, from_direction):
         self.destroy()
         return Direction.NONE
+
+    def serialize(self):
+        return constants.Wall
 
 
 class Antitank(ItemMovable):
@@ -219,6 +224,18 @@ class Antitank(ItemMovable):
     def shoot(self):
         self.gameboard.get_laser().fire(self.position, self.direction, good=False)
 
+    def serialize(self):
+        if self.direction == Direction.N:
+            return constants.Antitank_N
+        elif self.direction == Direction.E:
+            return constants.Antitank_E
+        elif self.direction == Direction.W:
+            return constants.Antitank_W
+        elif self.direction == Direction.S:
+            return constants.Antitank_S
+        else:
+            raise ValueError("Cannot serialize Antitank")
+
 
 class AntitankDead(Item):
     def __init__(self, direction, position):
@@ -227,6 +244,18 @@ class AntitankDead(Item):
 
     def hit_with_laser(self, from_direction):
         return Direction.NONE
+
+    def serialize(self):
+        if self.direction == Direction.N:
+            return constants.DeadAntitank_N
+        elif self.direction == Direction.E:
+            return constants.DeadAntitank_E
+        elif self.direction == Direction.W:
+            return constants.DeadAntitank_W
+        elif self.direction == Direction.S:
+            return constants.DeadAntitank_S
+        else:
+            raise ValueError("Cannot serialize AntitankDead")
 
 
 class Mirror(ItemMovable):
@@ -244,6 +273,18 @@ class Mirror(ItemMovable):
             self.push(Direction.get_opposite(from_direction))
             return Direction.NONE
 
+    def serialize(self):
+        if self.direction == Direction.N:
+            return constants.Mirror_N
+        elif self.direction == Direction.E:
+            return constants.Mirror_E
+        elif self.direction == Direction.W:
+            return constants.Mirror_W
+        elif self.direction == Direction.S:
+            return constants.Mirror_S
+        else:
+            raise ValueError("Cannot serialize Mirror")
+
 
 class Glass(Item):
 
@@ -255,6 +296,9 @@ class Glass(Item):
         # Hit this item with a laser from the direction, return exiting direction
         self._colour = self.gameboard.get_laser().colour
         return Direction.get_opposite(from_direction)
+
+    def serialize(self):
+        return constants.Glass
 
 
 class RotMirror(Item):
@@ -277,6 +321,18 @@ class RotMirror(Item):
         """ Face direction specified without moving spaces """
         self.direction = direction
 
+    def serialize(self):
+        if self.direction == Direction.N:
+            return constants.RotMirror_N
+        elif self.direction == Direction.E:
+            return constants.RotMirror_E
+        elif self.direction == Direction.W:
+            return constants.RotMirror_W
+        elif self.direction == Direction.S:
+            return constants.RotMirror_S
+        else:
+            raise ValueError("Cannot serialize RotMirror")
+
 
 class Terrain(LaserTankObject):
     def __init__(self, init_pos):
@@ -293,6 +349,9 @@ class Grass(Terrain):
     def __init__(self, position):
         Terrain.__init__(self, position)
 
+    def serialize(self):
+        return constants.Grass
+
 
 class Flag(Terrain):
     def __init__(self, position):
@@ -301,6 +360,9 @@ class Flag(Terrain):
     def effect(self, item_on):
         if isinstance(item_on, Tank):
             raise Solved
+
+    def serialize(self):
+        return constants.Flag
 
 
 class Water(Terrain):
@@ -315,6 +377,9 @@ class Water(Terrain):
             self.gameboard.put_terrain(self.position, Bridge(self.position))
         item_on.destroy()
 
+    def serialize(self):
+        return constants.Water
+
 
 class Conveyor(Terrain):
     def __init__(self, direction, position):
@@ -325,6 +390,18 @@ class Conveyor(Terrain):
         if isinstance(item_on, Tank):
             item_on.push(self.direction)
 
+    def serialize(self):
+        if self.direction == Direction.N:
+            return constants.Conveyor_N
+        elif self.direction == Direction.E:
+            return constants.Conveyor_E
+        elif self.direction == Direction.W:
+            return constants.Conveyor_W
+        elif self.direction == Direction.S:
+            return constants.Conveyor_S
+        else:
+            raise ValueError("Cannot serialize Conveyor")
+
 
 class Ice(Terrain):
     def __init__(self, position):
@@ -333,6 +410,9 @@ class Ice(Terrain):
     def effect(self, item_on):
         # Keep current momentum
         pass
+
+    def serialize(self):
+        return constants.Ice
 
 
 class ThinIce(Terrain):
@@ -343,10 +423,16 @@ class ThinIce(Terrain):
         self.gameboard.put_terrain(self.position, Water(self.position))
         # TODO: Tank should sink next tick if stopped on thin ice
 
+    def serialize(self):
+        return constants.ThinIce
+
 
 class Bridge(Terrain):
     def __init__(self, position):
         Terrain.__init__(self, position)
+
+    def serialize(self):
+        return constants.Bridge
 
 
 class Tunnel(Terrain):
@@ -397,6 +483,60 @@ class Tunnel(Terrain):
                 # Only release first waiting instance
                 return
 
+    def serialize(self):
+        if self.tunnel_id == 0:
+            if self.waiting:
+                return constants.Tunnel_0_waiting
+            else:
+                return constants.Tunnel_0
+        elif self.tunnel_id == 1:
+            if self.waiting:
+                return constants.Tunnel_1_waiting
+            else:
+                return constants.Tunnel_1
+        elif self.tunnel_id == 2:
+            if self.waiting:
+                return constants.Tunnel_2_waiting
+            else:
+                return constants.Tunnel_2
+        elif self.tunnel_id == 3:
+            if self.waiting:
+                return constants.Tunnel_3_waiting
+            else:
+                return constants.Tunnel_3
+        elif self.tunnel_id == 4:
+            if self.waiting:
+                return constants.Tunnel_4_waiting
+            else:
+                return constants.Tunnel_4
+        elif self.tunnel_id == 5:
+            if self.waiting:
+                return constants.Tunnel_5_waiting
+            else:
+                return constants.Tunnel_5
+        elif self.tunnel_id == 6:
+            if self.waiting:
+                return constants.Tunnel_6_waiting
+            else:
+                return constants.Tunnel_6
+        elif self.tunnel_id == 7:
+            if self.waiting:
+                return constants.Tunnel_7_waiting
+            else:
+                return constants.Tunnel_7
+        elif self.tunnel_id == 8:
+            if self.waiting:
+                return constants.Tunnel_8_waiting
+            else:
+                return constants.Tunnel_8
+        elif self.tunnel_id == 9:
+            if self.waiting:
+                return constants.Tunnel_9_waiting
+            else:
+                return constants.Tunnel_9
+        else:
+            raise ValueError("Cannot serialize Tunnel")
+
 
 def map_strings_to_objects(object_string, position):
     import constants
@@ -437,15 +577,15 @@ def map_strings_to_objects(object_string, position):
         constants.DeadAntitank_S: ("AntitankDead", Direction.S),
         constants.DeadAntitank_E: ("AntitankDead", Direction.E),
         constants.DeadAntitank_W: ("AntitankDead", Direction.W),
-        constants.Mirror_NW: ("Mirror", Direction.N),
-        constants.Mirror_NE: ("Mirror", Direction.E),
-        constants.Mirror_SE: ("Mirror", Direction.S),
-        constants.Mirror_SW: ("Mirror", Direction.W),
+        constants.Mirror_N: ("Mirror", Direction.N),
+        constants.Mirror_E: ("Mirror", Direction.E),
+        constants.Mirror_S: ("Mirror", Direction.S),
+        constants.Mirror_W: ("Mirror", Direction.W),
         constants.Glass: ("Glass", None),
-        constants.RotMirror_NW: ("RotMirror", Direction.N),
-        constants.RotMirror_NE: ("RotMirror", Direction.E),
-        constants.RotMirror_SE: ("RotMirror", Direction.S),
-        constants.RotMirror_SW: ("RotMirror", Direction.W),
+        constants.RotMirror_N: ("RotMirror", Direction.N),
+        constants.RotMirror_E: ("RotMirror", Direction.E),
+        constants.RotMirror_S: ("RotMirror", Direction.S),
+        constants.RotMirror_W: ("RotMirror", Direction.W),
     }
     obj, param = mapping[object_string]
     if param is None:
@@ -454,9 +594,133 @@ def map_strings_to_objects(object_string, position):
         return getattr(__import__("sprites"), obj)(param, position)
 
 
-def unpack(obj_name, params_dict):
-    """ Return an object from the packed version
+def deserialize(obj_name, position):
+    """ Return an object from the serialized version
     obj_name: str representation of the object name
     params_dict: dictionary of object parameters to use in constructor
-     i.e.: unpack("Conveyor", {'direction': 'S', 'position': (9, 14)}) """
-    return getattr(__import__("sprites"), obj_name)(**params_dict)
+     i.e.: deserialize("Conveyor", {'direction': 'S', 'position': (9, 14, position)}, position) """
+
+    if obj_name == constants.Grass:
+        return Grass(position)
+    elif obj_name == constants.Flag:
+        return Flag(position)
+    elif obj_name == constants.Water:
+        return Water(position)
+    elif obj_name == constants.Conveyor_N:
+        return Conveyor(Direction.N, position)
+    elif obj_name == constants.Conveyor_S:
+        return Conveyor(Direction.S, position)
+    elif obj_name == constants.Conveyor_E:
+        return Conveyor(Direction.E, position)
+    elif obj_name == constants.Conveyor_W:
+        return Conveyor(Direction.W, position)
+    elif obj_name == constants.Ice:
+        return Ice(position)
+    elif obj_name == constants.ThinIce:
+        return ThinIce(position)
+    elif obj_name == constants.Bridge:
+        return Bridge(position)
+    elif obj_name == constants.Tunnel_0:
+        return Tunnel(0, position)
+    elif obj_name == constants.Tunnel_1:
+        return Tunnel(1, position)
+    elif obj_name == constants.Tunnel_2:
+        return Tunnel(2, position)
+    elif obj_name == constants.Tunnel_3:
+        return Tunnel(3, position)
+    elif obj_name == constants.Tunnel_4:
+        return Tunnel(4, position)
+    elif obj_name == constants.Tunnel_5:
+        return Tunnel(5, position)
+    elif obj_name == constants.Tunnel_6:
+        return Tunnel(6, position)
+    elif obj_name == constants.Tunnel_7:
+        return Tunnel(7, position)
+    elif obj_name == constants.Tunnel_8:
+        return Tunnel(8, position)
+    elif obj_name == constants.Tunnel_9:
+        return Tunnel(9, position)
+    elif obj_name == constants.Tunnel_0_waiting:
+        return Tunnel(0, True, position)
+    elif obj_name == constants.Tunnel_1_waiting:
+        return Tunnel(1, True, position)
+    elif obj_name == constants.Tunnel_2_waiting:
+        return Tunnel(2, True, position)
+    elif obj_name == constants.Tunnel_3_waiting:
+        return Tunnel(3, True, position)
+    elif obj_name == constants.Tunnel_4_waiting:
+        return Tunnel(4, True, position)
+    elif obj_name == constants.Tunnel_5_waiting:
+        return Tunnel(5, True, position)
+    elif obj_name == constants.Tunnel_6_waiting:
+        return Tunnel(6, True, position)
+    elif obj_name == constants.Tunnel_7_waiting:
+        return Tunnel(7, True, position)
+    elif obj_name == constants.Tunnel_8_waiting:
+        return Tunnel(8, True, position)
+    elif obj_name == constants.Tunnel_9_waiting:
+        return Tunnel(9, True, position)
+    elif obj_name == constants.Tank_N:
+        return Tank(Direction.N, position)
+    elif obj_name == constants.Tank_S:
+        return Tank(Direction.S, position)
+    elif obj_name == constants.Tank_E:
+        return Tank(Direction.E, position)
+    elif obj_name == constants.Tank_W:
+        return Tank(Direction.W, position)
+    elif obj_name == constants.Empty:
+        return Empty(position)
+    elif obj_name == constants.Solid:
+        return Solid(position)
+    elif obj_name == constants.Block:
+        return Block(position)
+    elif obj_name == constants.Wall:
+        return Wall(position)
+    elif obj_name == constants.Antitank_N:
+        return Antitank(Direction.N, position)
+    elif obj_name == constants.Antitank_S:
+        return Antitank(Direction.S, position)
+    elif obj_name == constants.Antitank_E:
+        return Antitank(Direction.E, position)
+    elif obj_name == constants.Antitank_W:
+        return Antitank(Direction.W, position)
+    elif obj_name == constants.DeadAntitank_N:
+        return AntitankDead(Direction.N, position)
+    elif obj_name == constants.DeadAntitank_S:
+        return AntitankDead(Direction.S, position)
+    elif obj_name == constants.DeadAntitank_E:
+        return AntitankDead(Direction.E, position)
+    elif obj_name == constants.DeadAntitank_W:
+        return AntitankDead(Direction.W, position)
+    elif obj_name == constants.Mirror_N:
+        return Mirror(Direction.N, position)
+    elif obj_name == constants.Mirror_S:
+        return Mirror(Direction.S, position)
+    elif obj_name == constants.Mirror_E:
+        return Mirror(Direction.E, position)
+    elif obj_name == constants.Mirror_W:
+        return Mirror(Direction.W, position)
+    elif obj_name == constants.Glass:
+        return Glass(position)
+    elif obj_name == constants.RotMirror_N:
+        return RotMirror(Direction.N, position)
+    elif obj_name == constants.RotMirror_S:
+        return RotMirror(Direction.S, position)
+    elif obj_name == constants.RotMirror_E:
+        return RotMirror(Direction.E, position)
+    elif obj_name == constants.RotMirror_W:
+        return RotMirror(Direction.W, position)
+    else:
+        raise ValueError(f"Cannot deserialize {obj_name}, {position}")
+
+
+def deserialize_laser(parameters):
+    exists, colour, direction, from_direction, position = parameters
+    position = tuple(position)
+    return Laser(exists, colour, direction, from_direction, position)
+
+
+def deserialize_tank(parameters):
+    direction, position = parameters
+    position = tuple(position)
+    return Tank(direction, position)

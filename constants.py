@@ -6,7 +6,7 @@ MOVES_S = "S"
 MOVES_E = "E"
 MOVES_W = "W"
 
-Empty = "Empty"
+# Terrain
 Grass = "Grass"
 Flag = "Flag"
 Water = "Water"
@@ -17,6 +17,7 @@ Conveyor_W = "Conveyor_W"
 Ice = "Ice"
 ThinIce = "ThinIce"
 Bridge = "Bridge"
+
 Tunnel_0 = "Tunnel_0"
 Tunnel_1 = "Tunnel_1"
 Tunnel_2 = "Tunnel_2"
@@ -28,13 +29,28 @@ Tunnel_7 = "Tunnel_7"
 Tunnel_8 = "Tunnel_8"
 Tunnel_9 = "Tunnel_9"
 
+Tunnel_0_waiting = "Tunnel_0"
+Tunnel_1_waiting = "Tunnel_1"
+Tunnel_2_waiting = "Tunnel_2"
+Tunnel_3_waiting = "Tunnel_3"
+Tunnel_4_waiting = "Tunnel_4"
+Tunnel_5_waiting = "Tunnel_5"
+Tunnel_6_waiting = "Tunnel_6"
+Tunnel_7_waiting = "Tunnel_7"
+Tunnel_8_waiting = "Tunnel_8"
+Tunnel_9_waiting = "Tunnel_9"
+
+# Items
 Tank_N = "Tank_N"
 Tank_S = "Tank_S"
 Tank_E = "Tank_E"
 Tank_W = "Tank_W"
+
+Empty = "Empty"
 Solid = "Solid"
 Block = "Block"
 Wall = "Wall"
+
 Antitank_N = "Antitank_N"
 Antitank_S = "Antitank_S"
 Antitank_E = "Antitank_E"
@@ -43,15 +59,19 @@ DeadAntitank_N = "DeadAntitank_N"
 DeadAntitank_S = "DeadAntitank_S"
 DeadAntitank_E = "DeadAntitank_E"
 DeadAntitank_W = "DeadAntitank_W"
-Mirror_NW = "Mirror_NW"
-Mirror_NE = "Mirror_NE"
-Mirror_SE = "Mirror_SE"
-Mirror_SW = "Mirror_SW"
+Mirror_N = "Mirror_N"
+Mirror_S = "Mirror_S"
+Mirror_E = "Mirror_E"
+Mirror_W = "Mirror_W"
+
 Glass = "Glass"
-RotMirror_NW = "RotMirror_NW"
-RotMirror_NE = "RotMirror_NE"
-RotMirror_SE = "RotMirror_SE"
-RotMirror_SW = "RotMirror_SW"
+
+RotMirror_N = "RotMirror_N"
+RotMirror_S = "RotMirror_S"
+RotMirror_E = "RotMirror_E"
+RotMirror_W = "RotMirror_W"
+
+
 
 #
 #
