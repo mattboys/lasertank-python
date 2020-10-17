@@ -58,8 +58,8 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
             return None
     playfield_ints, title, hint, author, difficulty_int = struct.unpack(struct_format, chunk)
 
-    def convert_str(bytes):
-        return bytes.rstrip(b"\x00").decode("mbcs")
+    def convert_str(in_bytes):
+        return in_bytes.rstrip(b"\x00").decode("mbcs")
 
     title = convert_str(title)
     hint = convert_str(hint)
@@ -72,7 +72,7 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
         8: "Hard",
         16: "Deadly",
     }
-    difficulty = DIFFICULTY_TEXTS[difficulty_int]
+    difficulty = DIFFICULTY_TEXTS.get(difficulty_int, DIFFICULTY_TEXTS[1])
 
     playfield = [[None for x in range(BOARDSIZE)] for y in range(BOARDSIZE)]
     for col in range(BOARDSIZE):

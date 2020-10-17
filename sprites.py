@@ -32,13 +32,14 @@ class Laser(LaserTankObject):
         LaserTankObject.__init__(self, position)
 
     def update(self):
+        """ Move laser each tick if existing - implementation of MoveLaser() c function """
         if self.exists:
             self.from_direction = Direction.get_opposite(self.direction)  # Save previous direction
 
-            # Reset any glowing glass previously under laser
-            previous_interacting_item = self.gameboard.get_item(self.position)
-            if isinstance(previous_interacting_item, Glass):
-                previous_interacting_item.colour = 'none'
+            # # Reset any glowing glass previously under laser
+            # previous_interacting_item = self.gameboard.get_item(self.position)
+            # if isinstance(previous_interacting_item, Glass):
+            #     previous_interacting_item.colour = 'none'
 
             self.position = vec_add(self.position, Direction.get_xy(self.direction))
 
@@ -49,6 +50,10 @@ class Laser(LaserTankObject):
                 )
                 if self.direction == Direction.NONE:
                     self.die()
+
+                # Implement the LaserBounceOnIce logic where the laser moves twice if reflecting on a sliding mirror
+                if self.exists and self.gameboard.is_sliding(interacting_item):
+                    self.update()
             else:
                 self.die()
 
@@ -290,11 +295,11 @@ class Glass(Item):
 
     def __init__(self, position):
         Item.__init__(self, position)
-        self._colour = 'none'
+        # self._colour = 'none'
 
     def hit_with_laser(self, from_direction):
         # Hit this item with a laser from the direction, return exiting direction
-        self._colour = self.gameboard.get_laser().colour
+        # self._colour = self.gameboard.get_laser().colour
         return Direction.get_opposite(from_direction)
 
     def serialize(self):
@@ -421,7 +426,6 @@ class ThinIce(Terrain):
 
     def effect(self, item_on):
         self.gameboard.put_terrain(self.position, Water(self.position))
-        # TODO: Tank should sink next tick if stopped on thin ice
 
     def serialize(self):
         return constants.ThinIce

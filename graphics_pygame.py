@@ -46,9 +46,9 @@ files = {
     "Mirror_E": ["mirror_NE_0.png", ],
     "Mirror_S": ["mirror_SE_0.png", ],
     "Mirror_W": ["mirror_SW_0.png", ],
-    "Glass_none": ["glass_0.png"],
-    "Glass_red": ["glass_red_0.png"],
-    "Glass_green": ["glass_green_0.png"],
+    "Glass": ["glass_0.png"],
+    "laser_red_glass": ["glass_red_0.png"],
+    "laser_green_glass": ["glass_green_0.png"],
     "RotMirror_N": ["rotmirror_NW_0.png", ],
     "RotMirror_E": ["rotmirror_NE_0.png", ],
     "RotMirror_S": ["rotmirror_SE_0.png", ],
@@ -126,7 +126,7 @@ class Graphics:
                 self.draw(game.get_terrain(position))
                 self.draw(game.get_item(position))
         self.draw(game.get_tank())
-        self.draw_laser(game.get_laser())
+        self.draw_laser(game.get_laser(), game.get_item(game.get_laser().position))
 
         pygame.display.update()
 
@@ -151,25 +151,29 @@ class Graphics:
 
         self.screen.blit(current_fame, location)
 
-    def draw_laser(self, laser: sprites.Laser):
+    def draw_laser(self, laser: sprites.Laser, item_under: sprites.Item):
         if not laser.exists:
             return
         position_x, position_y = laser.position
         location = (self.GAMEBOARD_OFFSET_X + self.SPRITE_SIZE * position_x,
                     self.GAMEBOARD_OFFSET_Y + self.SPRITE_SIZE * position_y)
-        # Fix syntax of directions
-        dir1 = laser.direction
-        if laser.from_direction == sprites.Direction.NONE:
-            dir2 = dir1
+        if isinstance(item_under, sprites.Glass):
+            obj_name = f"laser_{laser.colour}_glass"
         else:
-            dir2 = laser.from_direction
-        obj_name = f"laser_{laser.colour}_{dir1}{dir2}"
-        if obj_name not in self.frames:
-            obj_name = f"laser_{laser.colour}_{dir2}{dir1}"
+            # Fix syntax of directions
+            dir1 = laser.direction
+            if laser.from_direction == sprites.Direction.NONE:
+                dir2 = dir1
+            else:
+                dir2 = laser.from_direction
+            obj_name = f"laser_{laser.colour}_{dir1}{dir2}"
+            if obj_name not in self.frames:
+                obj_name = f"laser_{laser.colour}_{dir2}{dir1}"
 
         if obj_name not in self.frames:
             print(f"ERROR: Cannot find sprite for object {obj_name}")
             return
+
         frame_list = self.frames[obj_name]
         current_fame = frame_list[self.animation_frame_number % len(frame_list)]
 

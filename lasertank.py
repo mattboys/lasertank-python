@@ -1,6 +1,8 @@
-import copy
+import time
+import json
 
 import sprites
+
 
 class GameState:
     GAMEBOARD_SIZE = 16
@@ -18,6 +20,7 @@ class GameState:
         self.sliding_items = []
         self.moves_history = []
         self.moves_buffer = []
+        self.score = {"shots": 0, "moves": 0}
 
         self.undo_state = []
 
@@ -32,8 +35,11 @@ class GameState:
                 else:
                     self.put_item(pos, item)
 
+    def add_undo(self):
+        serialized_state = self.serialize_state()
+        print(json.dumps(serialized_state))
+        self.undo_state.append(serialized_state)  # Save for undos
 
-    # def add_undo(self):
     #     self.history.append(copy.deepcopy(self.gameboard))
 
     def queue_event(self, event):
@@ -59,12 +65,18 @@ class GameState:
             "right": sprites.Direction.E,
         }
         if move == "shoot":
+            self.add_undo()
+            self.score["shots"] += 1
             self.board_tank.shoot()
             self.moves_history.append(sprites.Direction.SHOOT)
+            self.laser_update()  # Laser gets a chance to move immediately after being fired
         else:
             move_dir = move_direction_mapping[move]
             if self.board_tank.direction == move_dir:
+                self.add_undo()
+                self.score["moves"] += 1
                 self.board_tank.move(move_dir)
+                self.board_tank.resolve_momentum()
                 self.moves_history.append(move_dir)
             else:
                 self.board_tank.rotate(move_dir)
@@ -79,16 +91,22 @@ class GameState:
                 if not self.is_within_board(check_pos):
                     continue
                 maybe_antitank = self.get_item(check_pos)
-                if isinstance(maybe_antitank,
-                              sprites.Antitank) and maybe_antitank.direction == sprites.Direction.get_opposite(
-                    check_dir) and check_pos != self.board_tank.position:
+                if isinstance(maybe_antitank, sprites.Antitank) \
+                        and maybe_antitank.direction == sprites.Direction.get_opposite(check_dir) \
+                        and check_pos != self.board_tank.position:
                     maybe_antitank.shoot()  # allow the found antitank to shoot
+                    self.laser_update()  # Laser gets a chance to move immediately after being fired
                     return  # Only one antitank gets a chance to fire
 
     def resolve_momenta(self):
         """ Resolve new positions of each item with momentum such as those sliding on ice. """
         for item in reversed(self.sliding_items):
-            item.resolve_momentum()
+            if not isinstance(item, sprites.Tank):
+                item.resolve_momentum()
+        # Tank momentum is resolved after all items
+        if self.board_tank in self.sliding_items:
+            self.board_tank.resolve_momentum()
+
         self.sliding_items = [
             item for item in self.sliding_items if item._momentum != sprites.Direction.NONE
         ]
@@ -96,6 +114,9 @@ class GameState:
     def start_sliding(self, item: sprites.Item):
         if item not in self.sliding_items:
             self.sliding_items.append(item)
+
+    def is_sliding(self, item: sprites.Item):
+        return item in self.sliding_items
 
     def is_within_board(self, position: (int, int)) -> bool:
         """ Is this square still within the confines of the board? """
@@ -164,15 +185,17 @@ class GameState:
                        range(self.GAMEBOARD_SIZE)]
         board_tank = self.get_tank().serialize()
         board_laser = self.get_laser().serialize()
+        score = self.score
         return {
             "board_terrain": board_terrain,
             "board_items": board_items,
             "board_tank": board_tank,
-            "board_laser": board_laser
+            "board_laser": board_laser,
+            "score": score,
         }
 
     def load_undo(self):
-        """ Pop undo state and unserialize into current state """
+        """ Pop undo state and deserialize into current state """
         if len(self.undo_state) > 0:
             serialized = self.undo_state.pop()
             # Deserialize state
@@ -188,18 +211,15 @@ class GameState:
             self.board_tank = sprites.deserialize_tank(tank_params)
             laser_params = serialized['board_laser']
             self.board_laser = sprites.deserialize_laser(laser_params)
+            self.score = serialized["score"]
 
     def update(self):
         try:
             self.laser_update()
             if self.is_players_turn() and len(self.moves_buffer) > 0:
-                serializeed_state = self.serialize_state()
-                import json
-                print(json.dumps(serializeed_state))
-                self.undo_state.append(serializeed_state)  # Save for undos
                 self.next_move(self.moves_buffer.pop(0))
-            self.resolve_momenta()
             self.ai_move()
+            self.resolve_momenta()
             return True
         except sprites.Solved:
             # TODO: Implement game solved
@@ -224,6 +244,7 @@ def run(gamestate: GameState, input_engine, render_engine):
             else:
                 print(f"Unhandled input: {event}")
         render_engine.render(gamestate)
+        time.sleep(3)
     return "solved or game over"
 
 
@@ -232,7 +253,7 @@ if __name__ == "__main__":
     from graphics_pygame import Graphics
     from inputs_pygame import InputEngine
 
-    level_dict = import_legacy_lvl(level_number=1)
+    level_dict = import_legacy_lvl(level_number=4, filename="legacy_resources/Files/Tricks.lvl")
     game = GameState(**level_dict)
 
     # graphics.render_frame(level.info)
