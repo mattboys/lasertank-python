@@ -16,7 +16,6 @@ myLevel.print_levelinfo()
 
 game = GameBoard(myLevel)
 
-
 pygame.display.init()
 game.draw(screen)
 

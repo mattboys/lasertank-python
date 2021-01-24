@@ -98,6 +98,7 @@ class Item(LaserTankObject):
         """ Hit this item with a laser from the direction, return exiting direction """
         return Direction.get_opposite(from_direction)
 
+
 class ItemMovable(Item):
     def __init__(self, init_pos):
         self.momentum = Direction.NONE
@@ -139,6 +140,7 @@ class Empty(Item):
 
     def destroy(self):
         pass
+
 
 class Tank(ItemMovable):
     def __init__(self, direction, position):
@@ -221,6 +223,7 @@ class AntitankDead(Item):
     def hit_with_laser(self, from_direction):
         return Direction.NONE
 
+
 class Mirror(ItemMovable):
     def __init__(self, direction, position):
         self.direction = direction
@@ -294,6 +297,7 @@ class Flag(Terrain):
         if isinstance(item_on, Tank):
             raise Solved
 
+
 class Water(Terrain):
     def __init__(self, position):
         Terrain.__init__(self, position)
@@ -305,6 +309,7 @@ class Water(Terrain):
         elif isinstance(item_on, Block):
             self._gameboard.put_terrain(self.position, Bridge(self.position))
         item_on.destroy()
+
 
 class Conveyor(Terrain):
     def __init__(self, direction, position):
@@ -331,6 +336,7 @@ class ThinIce(Terrain):
 
     def effect(self, item_on):
         self._gameboard.put_terrain(self.position, Water(self.position))
+
 
 class Bridge(Terrain):
     def __init__(self, position):

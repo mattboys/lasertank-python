@@ -211,11 +211,11 @@ class GameBoard:
                 while self.can_move_into((x, y)):
                     x, y = vec_add((x, y), DIR_TO_XY[check_dir])
                 if (
-                    self.is_within_board((x, y))
-                    and isinstance(self.items[x][y], Antitank)
-                    and self.items[x][y].dir == DIR_OPPOSITE[check_dir]
-                    and (x, y) != self.tank.position
-                    and self.items[x][y].alive
+                        self.is_within_board((x, y))
+                        and isinstance(self.items[x][y], Antitank)
+                        and self.items[x][y].dir == DIR_OPPOSITE[check_dir]
+                        and (x, y) != self.tank.position
+                        and self.items[x][y].alive
                 ):
                     self.items[x][y].shoot()
                     return

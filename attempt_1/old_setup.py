@@ -62,7 +62,6 @@ menu_OptionsSound_checked.set(True)
 menu_OptionsRemeberLastLevel_checked.set(True)
 menu_SizeSmall_checked.set(True)
 
-
 menu_Game = Menu(menu_main_MMenu)
 menu_Game.add_command(
     label="New", accelerator="F2", command=command_New_101, underline=0
@@ -384,11 +383,10 @@ menu_editor_EMenu.add_cascade(label="Help", underline=0, menu=menu_Help)
 
 window_root_MainH.configure(menu=menu_main_MMenu)
 
-
 # ContXPos = 419
 # Frames for GUI layout
 # canvas_game = Canvas(width=GameBoardWidth, height=GameBoardHeight, bg='blue')
-frame_game = Frame(window_root_MainH, width=GameBoardWidth, height=GameBoardHeight,)
+frame_game = Frame(window_root_MainH, width=GameBoardWidth, height=GameBoardHeight, )
 frame_buttons = Frame(width=100, padx=5, pady=5)
 
 # Embed pygame into frame_game
@@ -400,10 +398,8 @@ screen.fill(pygame.Color(255, 255, 255))
 pygame.display.init()
 pygame.display.update()
 
-
 frame_game.pack(fill=BOTH, side=LEFT, expand=TRUE)
 frame_buttons.pack(side=RIGHT, expand=FALSE)
-
 
 # Edit boxes
 lbl_LevelNumber = Label(frame_buttons, text="Level Number")
@@ -453,7 +449,6 @@ btn9_LoadLevel = Button(
     frame_buttons, text=btn9_LoadLevel_text, command=command_LoadLevel_106
 )  # "Load Level"
 
-
 # Layout
 pad_x = 2
 pad_y = 2
@@ -477,7 +472,6 @@ btn8_Restart.grid(row=12, column=1, padx=pad_x, pady=pad_y, sticky=W + E)
 btn9_LoadLevel.grid(row=13, columnspan=2, padx=pad_x, pady=pad_y, sticky=W + E)
 btn5_LevelPrev.grid(row=14, column=0, padx=pad_x, pady=pad_y, sticky=W + E)
 btn6_LevelNext.grid(row=14, column=1, padx=pad_x, pady=pad_y, sticky=W + E)
-
 
 # Set up canvas
 

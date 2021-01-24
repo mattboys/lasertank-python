@@ -1,7 +1,4 @@
 import pygame
-from tkinter import *
-# from PIL import Image, ImageTk
-import time
 
 pygame.init()
 pygame.display.set_mode()
@@ -13,10 +10,10 @@ GameBoardOffsetY = 0
 GameBoardWidth = SPRITE_SIZE * 16 + 2 * GameBoardOffsetX
 GameBoardHeight = SPRITE_SIZE * 16 + 2 * GameBoardOffsetY
 
-DIR_UP = 0
-DIR_RIGHT = 1
-DIR_DOWN = 2
-DIR_LEFT = 3
+DIR_UP = 'N'
+DIR_RIGHT = 'E'
+DIR_DOWN = 'S'
+DIR_LEFT = 'W'
 
 
 def square_to_pixels(square):
@@ -51,11 +48,11 @@ def square_to_pixels(square):
 
 
 def get_sprites(
-    filename_game,
-    rows=6,
-    columns=10,
-    sprite_height_size_h=SPRITE_SIZE,
-    sprite_width_size_w=SPRITE_SIZE,
+        filename_game,
+        rows=6,
+        columns=10,
+        sprite_height_size_h=SPRITE_SIZE,
+        sprite_width_size_w=SPRITE_SIZE,
 ):
     """
     Convert a sprite sheet into an array of sprites
@@ -158,11 +155,11 @@ def get_laser_sprites():
     """ Laser frames as a dict of laser_sprites[DIR in][DIR our]["colour"] """
     laser_sprites = {}
 
-    directions = [DIR_UP, DIR_RIGHT, DIR_DOWN, DIR_LEFT]
+    directions = [DIR_UP, DIR_DOWN, DIR_RIGHT, DIR_LEFT]
     colours = {"red": (255, 0, 0, 255), "green": (0, 255, 0, 255)}
     BLACK = (0, 0, 0, 255)
 
-    beam_thickness = int(SPRITE_SIZE/8)
+    beam_thickness = int(SPRITE_SIZE / 8)
 
     beam = {}
     beam[DIR_LEFT] = pygame.Rect(
@@ -196,9 +193,10 @@ def get_laser_sprites():
                 pygame.draw.rect(frame, BLACK, beam[dir2], 3)
                 pygame.draw.rect(frame, colour, beam[dir1])
                 pygame.draw.rect(frame, colour, beam[dir2])
-                #laser_sprites[dir1][dir2][colour_name] = frame
-                laser_sprites[f"{dir1}_{dir2}_{colour_name}"] = frame
-    laser_sprites["blank"] = pygame.Surface((SPRITE_SIZE, SPRITE_SIZE), pygame.SRCALPHA)
+
+                # laser_sprites[dir1][dir2][colour_name] = frame
+                laser_sprites[f"laser_{colour_name}_{dir1}{dir2}_0"] = frame
+    laser_sprites["laser_blank_0"] = pygame.Surface((SPRITE_SIZE, SPRITE_SIZE), pygame.SRCALPHA)
 
     return laser_sprites
 
@@ -214,7 +212,7 @@ def get_laser_frame(from_direction, dir, colour_name):
     colour = COLOURS[colour_name]
     BLACK = (0, 0, 0, 255)
 
-    beam_thickness = int(SPRITE_SIZE/8)
+    beam_thickness = int(SPRITE_SIZE / 8)
 
     beam = {}
     beam[DIR_LEFT] = pygame.Rect(
@@ -252,35 +250,7 @@ def get_laser_frame(from_direction, dir, colour_name):
 if __name__ == "__main__":
     pygame.init()
     pygame.display.set_mode()
-
-    file_game_bmp = "Files/Game.png"
-    file_mask_bmp = "Files/Mask.BMP"
-
     sprites = init_graphics()
-
-    #     spritesheet_game = pygame.image.load('Files\Game.BMP')
-    #     spritesheet_mask = pygame.image.load('Files\Mask.BMP')
-    #
-    #     GameBoardWidth = 32 * 16
-    #     GameBoardHeight = 32 * 16
-    #
-    #     sprite_height = 32
-    #     sprite_width = 32
-    #
-    #     row = 0
-    #     col = 5
-    #     left = col * sprite_width
-    #     top = row * sprite_height
-    #
-    #     tank = pygame.Surface((sprite_width, sprite_height))
-    #     tank.blit(spritesheet_game, (0, 0), (left, top, sprite_width, sprite_height))
-    #
-    #     tank_mask = pygame.Surface((sprite_width, sprite_height))
-    #     tank_mask.blit(spritesheet_mask, (0, 0), (left, top, sprite_width, sprite_height))
-    #     tank_mask.set_colorkey(pygame.Color(255, 255, 255))
-    #
-    #     combined = tank_mask  # .copy()
-    #     combined.blit(tank, (0, 0), None, pygame.BLEND_RGBA_ADD)
 
     white = (255, 255, 255)
     black = (0, 0, 0)
@@ -311,18 +281,21 @@ if __name__ == "__main__":
     # crop down to individual sprites
     # save into a dict
 
-    pygame.display.init()
-    pygame.display.update()
+    # pygame.display.init()
+    # pygame.display.update()
+    #
+    # while True:
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             pygame.quit()
+    #             quit()
+    #         pygame.display.update()
 
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            pygame.display.update()
+    s = get_laser_sprites()
+    from pathlib import Path
 
-    sprites["laser"]
-
+    for fn, img in s.items():
+        pygame.image.save(img, fn + '.png')
 
     # root = Tk()
     # canvas = Canvas(root, width=1000, height=500)

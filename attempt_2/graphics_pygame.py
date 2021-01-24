@@ -73,6 +73,7 @@ files = {
     "laser_red_WW": ["laser_red_WW_0.png", ],
 }
 
+
 class Graphics:
     SPRITE_SIZE = 32
     GAMEBOARD_OFFSET_X = 0

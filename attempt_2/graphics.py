@@ -26,11 +26,11 @@ def get_frames(name, orientation=None):
 
 
 def split_spritesheet(
-    filename_game,
-    rows=6,
-    columns=10,
-    sprite_height_size_h=SPRITE_SIZE,
-    sprite_width_size_w=SPRITE_SIZE,
+        filename_game,
+        rows=6,
+        columns=10,
+        sprite_height_size_h=SPRITE_SIZE,
+        sprite_width_size_w=SPRITE_SIZE,
 ):
     """
     Convert a sprite sheet into an array of sprites
@@ -442,6 +442,7 @@ def load_from_img_dir():
     print_img_path("laser_outline_S")
     print_img_path("laser_outline_E")
     print_img_path("laser_outline_W")
+
 
 if __name__ == "__main__":
     load_from_img_dir()

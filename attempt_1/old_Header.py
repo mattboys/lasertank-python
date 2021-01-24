@@ -5,9 +5,7 @@ LevelData = "LaserTank.lvl"
 
 FILENAME_LEVELS = os.path.join("legacy_resources/Files", LevelData)
 
-
 INIFileName = "LaserTank.ini"
-
 
 # From lt32l_us.inc
 App_Title = "LaserTank"
@@ -32,7 +30,7 @@ SIZE_EMENU = 24
 SIZE_DIALOGS = 4 + 3 + 9 + 9 + 7 + 3 + 14 + 1 + 4 + 3 + 9 + 4 + 7 + 3 + 10 + 6
 SIZE_ABOUTMSG = 14
 SIZE_ALL = (
-    SIZE_BUTTON + SIZE_TEXT + SIZE_MMENU + SIZE_EMENU + SIZE_ABOUTMSG + SIZE_DIALOGS
+        SIZE_BUTTON + SIZE_TEXT + SIZE_MMENU + SIZE_EMENU + SIZE_ABOUTMSG + SIZE_DIALOGS
 )
 
 # Start LINES in the Language File

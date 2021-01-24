@@ -6,10 +6,23 @@ def get_playback(filename="Files/Playback_0001.lpb"):
     # Data to collect:
     # from tRecordRec PBRec
     {
-	char LName[31];				// Level Name
-	char Author[31];			// Author of the recording
-	WORD Level;					// Level Number
-	WORD Size;					// Size of Data -- Data to fallow
+        char
+    LName[31]; // Level
+    Name
+    char
+    Author[31]; // Author
+    of
+    the
+    recording
+    WORD
+    Level; // Level
+    Number
+    WORD
+    Size; // Size
+    of
+    Data - - Data
+    to
+    fallow
     }
 
     byte_offset = (self.number - 1) * LEVEL_DATA_SIZE

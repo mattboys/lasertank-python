@@ -204,7 +204,7 @@ class Water(Terrain):
             self.gameboard.game_over()
         elif isinstance(item_on, Block):
             x, y = self.position
-            self.gameboard.ground[x][y] = Bridge((x,y))
+            self.gameboard.ground[x][y] = Bridge((x, y))
         item_on.destroy()
 
 
@@ -309,7 +309,7 @@ class Tunnel(Terrain):
         # TODO: Search for open exit or set as waiting
         # Search for open exit
         exits = self.get_exits()
-        if len(exits)==0:
+        if len(exits) == 0:
             # Black Hole
             item_on.destroy()
             return
@@ -318,7 +318,7 @@ class Tunnel(Terrain):
             for link in exits:
                 x, y = link.position
                 if self.gameboard.board_items[x][y] is None:  # is unblocked?
-                    item_on.teleport( (x,y) )  # Teleport
+                    item_on.teleport((x, y))  # Teleport
                     return
             # Only blocked exit(s) so set tunnel as waiting
             # will transport when another tunnel is unblocked        
@@ -346,6 +346,7 @@ class Tunnel(Terrain):
                 link.waiting = False
                 link.effect(link.get_item_waiting())
                 return
+
 
 # Objects
 class Item(LTSprite):
@@ -378,7 +379,6 @@ class Item(LTSprite):
             assert self.gameboard.board_items[dest_x][dest_y] == None, "Can't move item into occupied space!"
             self.gameboard.board_items[dest_x][dest_y] = self
         self.position = destination
-
 
     def set_position(self, destination):
         orig_x, orig_y = self.position
@@ -562,6 +562,7 @@ class Antitank(Item, RotatableItem):
 
     def shoot(self):
         self.gameboard.board_laser.fire(self.position, self.dir, good=False)
+
 
 class Mirror(Item, RotatableItem):
     images = {
