@@ -1,3 +1,51 @@
+from dataclasses import dataclass
+from tkinter import messagebox
+from typing import List
+import struct
+
+
+def GetPrivateProfileString(section, key, default, file_name):
+	"""
+    Read from windows INI file
+    Replacement for GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, lpFileName)
+    where:
+        section: lpAppName
+        key: lpKeyName
+        default: lpDefault
+        file_name: lpFileName
+        return: lpReturnedString
+    """
+	import configparser
+	config = configparser.ConfigParser()
+	config.read(file_name)
+	return config[section].get(key, default)
+
+
+WM_USER = 0  # For custom windows messages
+Message_Queue = []
+
+
+def SendMessage(hWnd, MSg, wParam, lParam):
+	global Message_Queue
+	Message_Queue.append((hWnd, MSg, wParam, lParam))
+
+
+MF_CHECKED = 8
+MF_UNCHECKED = 0
+
+
+def CheckMenuItem(hMenu, uIDCheckItem, uCheck):
+	""" Set tue state of the specified menu item's check-mark attribute """
+	checked = uCheck == MF_CHECKED
+	print(f"Not implemented: set item {hMenu}.{uIDCheckItem} to {checked}")
+	pass
+
+
+def TextOut(handle, x, y, s):
+	# TODO: Implement
+	print(f"Writing text {s} to graphics handle {handle} at coordinate ({x}, {y})")
+
+
 ## // ltank.rc
 ## /*******************************************************
 ##  **             LaserTank ver 4.0                     **
@@ -23,67 +71,83 @@
 ## // Load sounds as RCData type
 
 ## BRICKS RCDATA "sounds\\bricks.wav"
-
+BRICKS = "sounds\\bricks.wav"
 ## FIRE RCDATA "sounds\\fire.wav"
-
+FIRE = "sounds\\fire.wav"
 ## MOVE RCDATA "sounds\\move.wav"
-
+MOVE = "sounds\\move.wav"
 ## HEAD RCDATA "sounds\\head.wav"
-
+HEAD = "sounds\\head.wav"
 ## TURN RCDATA "sounds\\turn.wav"
-
+TURN = "sounds\\turn.wav"
 ## ENDLEV RCDATA "sounds\\endlev.wav"
-
+ENDLEV = "sounds\\endlev.wav"
 ## DIE RCDATA "sounds\\die.wav"
-
+DIE = "sounds\\die.wav"
 ## ANTI1 RCDATA "sounds\\Anti1.wav"
-
+ANTI1 = "sounds\\Anti1.wav"
 ## ANTI2 RCDATA "sounds\\Anti2.wav"
-
+ANTI2 = "sounds\\Anti2.wav"
 ## DEFLB RCDATA "sounds\\deflb.wav"
-
+DEFLB = "sounds\\deflb.wav"
 ## LASER2 RCDATA "sounds\\laser2.wav"
-
+LASER2 = "sounds\\laser2.wav"
 ## PUSH2 RCDATA "sounds\\Push2.wav"
-
+PUSH2 = "sounds\\Push2.wav"
 ## PUSH1 RCDATA "sounds\\Push1.wav"
-
+PUSH1 = "sounds\\Push1.wav"
 ## ROTATE RCDATA "sounds\\rotate.wav"
-
+ROTATE = "sounds\\rotate.wav"
 ## PUSH3 RCDATA "sounds\\Push3.wav"
-
+PUSH3 = "sounds\\Push3.wav"
 ## SINK RCDATA "sounds\\Sink.wav"
-
+SINK = "sounds\\Sink.wav"
 ## // Import Menus, Accelerators & Dialogs from Language file
 
 ## #include "lt32l_us.inc"
 
 ## ABOUT RCDATA "about.txt"
+ABOUT = "about.txt"
 
 ## icon1 	ICON 	"ltank.ico"
+icon1 = "ltank.ico"
 ## jek 	ICON	"jek.ico"
-
+jek = "jek.ico"
 ## 1 VERSIONINFO
-## FILEVERSION 4, 1, 2, 0
-## PRODUCTVERSION 4, 1, 2, 0
-## FILEOS 0x4004L
-## FILETYPE 0x01L
-## BEGIN
-## 	BLOCK "StringFileInfo"
-## 	BEGIN
-## 		BLOCK "040904E4"
-## 		BEGIN
-## 			VALUE "CompanyName", "JEK Software\000\000"
-## 			VALUE "FileDescription", "Laser Tank Logic Game\000"
-## 			VALUE "FileVersion", FILE_VERSION
-## 			VALUE "InternalName", "ltank32\000"
-## 			VALUE "LegalCopyright", "Copyright © JEK Software 2002\000"
-## 			VALUE "OriginalFilename", "LaserTank.EXE\000"
-## 			VALUE "ProductVersion", PRODUCT_VERSION
-## 		END
-## 	END
-## END
-
+VERSIONINFO = {
+	## FILEVERSION 4, 1, 2, 0
+	"FILEVERSION": [4, 1, 2, 0],
+	## PRODUCTVERSION 4, 1, 2, 0
+	"PRODUCTVERSION": [4, 1, 2, 0],
+	## FILEOS 0x4004L  # Should be 0x40004L
+	"FILEOS": "Designed for Windows NT 32-bit",
+	## FILETYPE 0x01L
+	"FILETYPE": "Application",
+	## BEGIN
+	## 	BLOCK "StringFileInfo"
+	"StringFileInfo": {
+		## 	BEGIN
+		## 		BLOCK "040904E4"
+		## 		BEGIN
+		## 			VALUE "CompanyName", "JEK Software\000\000"
+		"CompanyName": "JEK Software",
+		## 			VALUE "FileDescription", "Laser Tank Logic Game\000"
+		"FileDescription": "Laser Tank Logic Game",
+		## 			VALUE "FileVersion", FILE_VERSION
+		"FileVersion": [4, 1, 2, 0],
+		## 			VALUE "InternalName", "ltank32\000"
+		"InternalName": "ltank32",
+		## 			VALUE "LegalCopyright", "Copyright © JEK Software 2002\000"
+		"LegalCopyright": "Copyright © JEK Software 2002",
+		## 			VALUE "OriginalFilename", "LaserTank.EXE\000"
+		"OriginalFilename": "LaserTank.EXE",
+		## 			VALUE "ProductVersion", PRODUCT_VERSION
+		"ProductVersion": [4, 1, 2, 0],
+		## 		END
+		## 	END
+	}
+	## END
+}
 
 ## // lt32l_us.inc
 ## /*******************************************************
@@ -2712,137 +2776,252 @@
 
 ## // Game Defaults
 ## #define LevelData       "LaserTank.lvl"    // Default Level Data File
+LevelData = "LaserTank.lvl"
 ## #define INIFileName     "LaserTank.ini"
+INIFileName = "LaserTank.ini"
 ## // MAX text size for a lang_text
 ## #define MAX_LANG_SIZE    300
+MAX_LANG_SIZE = 300
 
 
 ## #define MaxObjects	    26              // Maximum number of game objects used
+MaxObjects = 26  # Maximum number of game objects used
 ## #define MaxBitMaps      58             	// the maximum number of BitMaps ( + 1 )
+MaxBitMaps = 58  # the maximum number of BitMaps ( + 1 )
 ## #define XOffset         17             	// Game Board Offset from Left
+XOffset = 17  # Game Board Offset from Left
 ## #define YOffset         17             	// Game Board Offset from top
+YOffset = 17  # Game Board Offset from top
 ## #define ani_delay       4              	// animation Delay in GameDelay units
+ani_delay = 4  # animation Delay in GameDelay units
 ## #define GameDelay       50             	// Main Operation Loop
+GameDelay = 50  # Main Operation Loop
 ## #define WM_GameOver     WM_USER +1     	// Send Message if there are no more levels
+WM_GameOver = WM_USER + 1  # Send Message if there are no more levels
 ## #define WM_Dead         WM_USER +2     	// Send Message when you die
+WM_Dead = WM_USER + 2  # Send Message when you die
 ## #define WM_NewHS	    WM_USER +3      // Send to Display New High Score Dialog
+WM_NewHS = WM_USER + 3  # Send to Display New High Score Dialog
 ## #define WM_SaveRec      WM_USER +4      // Send to Save Recording
+WM_SaveRec = WM_USER + 4  # Send to Save Recording
 ## #define App_Class		"LaserTC2"		// The Class Name
+App_Class = "LaserTC2"  # The Class Name
 ## #define UndoBufStep		200				// Groth Amount of Undo Buffer
+UndoBufStep = 200  # Groth Amount of Undo Buffer
 ## #define UndoMax			10000			// Max Amount of Undo Buffer
+UndoMax = 10000  # Max Amount of Undo Buffer
 ## #define RecBufStep		10000			// Groth amount of Rec Buffer
+RecBufStep = 10000  # Groth amount of Rec Buffer
 ## #define RecMax			65500			// Max recording steps saved to file
+RecMax = 65500  # Max recording steps saved to file
 ## #define SlowPBSet		5				// Delay of Slow Playback setting
+SlowPBSet = 5  # Delay of Slow Playback setting
 ## #define MaxMBuffer		20				// Size of Mouse Buffer
+MaxMBuffer = 20  # Size of Mouse Buffer
 ## #define Obj_Water		3				// Object Number 3 is water
+Obj_Water = 3  # Object Number 3 is water
 ## #define Obj_Ice			24				// Ice Object
+Obj_Ice = 24  # Ice Object
 ## #define Obj_ThinIce		25				// Object Number of Thin Ice
+Obj_ThinIce = 25  # Object Number of Thin Ice
 ## #define Obj_Tunnel		0x40			// Object 01dddddX = Tunnel
+Obj_Tunnel = 0x40  # Object 01dddddX = Tunnel
 ## #define LTG_ID			"LTG1"			// ID field of LTG file
+LTG_ID = "LTG1"  # ID field of LTG file
 ## #define psRLLOn			"RLL"          // Profile String for remember last level
+psRLLOn = "RLL"  # Profile String for remember last level
 ## #define psRLLN			"RLLFilename"  // remember last level file name
+psRLLN = "RLLFilename"  # remember last level file name
 ## #define psRLLL			"RLLLevel"     // Level number
+psRLLL = "RLLLevel"  # Level number
 ## #define psAni			"Animation"
+psAni = "Animation"
 ## #define psSound			"Sound"
+psSound = "Sound"
 ## #define psSize			"Size"			// 1 = small, 3 = large
+psSize = "Size"  # 1 = small, 3 = large
 ## #define psXpos			"PosX"
+psXpos = "PosX"
 ## #define psYpos			"PosY"
+psYpos = "PosY"
 ## #define psUser 			"Player"
+psUser = "Player"
 ## #define psPBA 			"Record Author"
+psPBA = "Record Author"
 ## #define psARec			"Auto_Record"
+psARec = "Auto_Record"
 ## #define psSCL			"SkipComLev"
+psSCL = "SkipComLev"
 ## #define psDiff			"Diff_Setting"
+psDiff = "Diff_Setting"
 ## #define psGM			"Graphics_Mode"
+psGM = "Graphics_Mode"
 ## #define psGFN			"Graphics_File"
+psGFN = "Graphics_File"
 ## #define psGDN			"Graphics_Dir"
+psGDN = "Graphics_Dir"
 ## #define psDW			"DisableWarnings"
+psDW = "DisableWarnings"
 ## #define psYes			"Yes"
+psYes = "Yes"
 ## #define psNET			"NETWORK_INI"	// 1 = Use INI file from C:\Windows
+psNET = "NETWORK_INI"  # 1 = Use INI file from C:\Windows
 ## #define BADMOVE 		256
+BADMOVE = 256
 
 ## typedef char TPLAYFIELD [16][16]; 		// Matrix of G.O. types
-
+TPLAYFIELD = List[List[int]]
 ## typedef struct tLevel               // Level Data from File
-## {
-##   TPLAYFIELD PF;               // Object Grid
-##   char LName[31];  			// Level Name
-##   char Hint[256];  			// Hint for this level
-##   char Author[31]; 			// the Author of the Level
-##   WORD SDiff; 				// Score Difficulty
+@dataclass
+class tLevel:
+	## {
+	##   TPLAYFIELD PF;               // Object Grid
+	PF: TPLAYFIELD
+	##   char LName[31];  			// Level Name
+	LName: str
+	##   char Hint[256];  			// Hint for this level
+	Hint: str
+	##   char Author[31]; 			// the Author of the Level
+	Author: str
+	##   WORD SDiff; 				// Score Difficulty
+	SDiff: int
 ## }TLEVEL;
+tLevel_c_struct_format = "<256s31s256s31sH"  # tLevel C structure
 
 ## typedef struct tRecordRec		// Recording Header
-## {
-## 	char LName[31];				// Level Name
-## 	char Author[31];			// Author of the recording
-## 	WORD Level;					// Level Number
-## 	WORD Size;					// Size of Data -- Data to fallow
+@dataclass
+class tRecordRec:
+	## {
+	## 	char LName[31];				// Level Name
+	LName: str
+	## 	char Author[31];			// Author of the recording
+	Author: str
+	## 	WORD Level;					// Level Number
+	Level: int
+	## 	WORD Size;					// Size of Data -- Data to fallow
+	Size: int
 ## }TRECORDREC;
 
 ## typedef struct tSearch			// Search Record used in Level Load
-## {
-## 	int mode,					// 1=title, 2 = author
-## 		SkipComp;				// True = Skip Completed
-## 	WORD Diff;					// Difficulty charecter
-## 	char data[61];				// Search String
+@dataclass
+class tSearch:
+	## {
+	## 	int mode,					// 1=title, 2 = author
+	mode: int
+	## 		SkipComp;				// True = Skip Completed
+	SkipComp: bool
+	## 	WORD Diff;					// Difficulty charecter
+	Diff: int
+	## 	char data[61];				// Search String
+	data: str
 ## }TSEARCH;
 
 ## typedef struct tTankRec              // Store the Tank & Laser information
 ## {
-##   int X, Y, Dir, Firing, Good;		// Good is used for Tunnel Wait in Game.Tank
+@dataclass
+class tTankRec:
+	##   int X, Y, Dir, Firing, Good;		// Good is used for Tunnel Wait in Game.Tank
+	X: int
+	Y: int
+	Dir: int
+	Firing: int
+	Good: int  # Good is used for Tunnel Wait in Game.Tank
 ## }TTANKREC;
 
 ## typedef struct tGameRec
 ## {
-##   TPLAYFIELD	PF,               // Store Game Objects
-##   				PF2,              // Store Objects Under Stuff ( Ground, conveyor)
-##   				BMF,              // Bitmaps for Objects
-##   				BMF2;             // Bitmaps for Under Stuff ( Bridges )
-##   WORD 			ScoreMove,        // Move Counter
-##   				ScoreShot;        // Shot Counter
-##   DWORD			RecP;			  // Recording Pointer
-##   TTANKREC		Tank;             // Tank Data
+@dataclass
+class tGameRec:
+	##   TPLAYFIELD	PF,               // Store Game Objects
+	PF: list[list[int]]
+	##   				PF2,              // Store Objects Under Stuff ( Ground, conveyor)
+	PF2: TPLAYFIELD()
+	##   				BMF,              // Bitmaps for Objects
+	BMF: TPLAYFIELD()
+	##   				BMF2;             // Bitmaps for Under Stuff ( Bridges )
+	BMF2: TPLAYFIELD()
+	##   WORD 			ScoreMove,        // Move Counter
+	ScoreMove: int
+	##   				ScoreShot;        // Shot Counter
+	ScoreShot: int
+	##   DWORD			RecP;			  // Recording Pointer
+	RecP: int
+	##   TTANKREC		Tank;             // Tank Data
+	Tank: tTankRec()
 ## }TGAMEREC, *PGAMEREC;
 
 ## typedef struct tXYRec			// Use in BMA
 ## {
-## 	int X,Y;					// X & Y Location in Big Butmap
+@dataclass
+class tXYRec:
+	## 	int X,Y;					// X & Y Location in Big Butmap
+	X: int
+	Y: int
 ## }TXYREC;
 
 ## typedef struct tXYZRec			// Use for Mouse Buffer
 ## {
-## 	int X,Y,Z;
+@dataclass
+class tXYZRec:
+	## 	int X,Y,Z;
+	X: int
+	Y: int
+	Z: int
 ## }TXYZREC;
 
 ## typedef struct tHSRec					// High Score Record
 ## {
-## 	WORD moves, shots;
-## 	char name[6];						// Initials
+@dataclass
+class tHSRec:
+	## 	WORD moves, shots;
+	moves: int
+	shots: int
+	## 	char name[6];						// Initials
+	name: str
 ## }THSREC;
 
 ## typedef struct tLTGRec			// Record for LTG graphics
 ## {
-## 	char Name[40];		// Name of Graphic Set
-## 	char Author[30];	// Author of Graphics set
-## 	char Info[245];		// 3 line Description of Graphics Set
-## 	char ID[5];			// LTG ID = "LTG1"+0
-## 	DWORD MaskOffset;	// Offset from the biggining of file to Mask Bitmap
+@dataclass
+class tLTGRec:
+	## 	char Name[40];		// Name of Graphic Set
+	Name: str
+	## 	char Author[30];	// Author of Graphics set
+	Author: str
+	## 	char Info[245];		// 3 line Description of Graphics Set
+	Info: str
+	## 	char ID[5];			// LTG ID = "LTG1"+0
+	ID: str
+	## 	DWORD MaskOffset;	// Offset from the biggining of file to Mask Bitmap
+	MaskOffset: int
 ## }TLTGREC;
 
 ## typedef struct tIceRec	// Record used for sliding on the Ice
 ## {
-## 	int x,y,			// Last XY position of object to move
-## 		dx,dy,			// Direction to move in Delta Cords
-## 		s;				// True if Sliding
+@dataclass
+class tIceRec:
+	## 	int x,y,			// Last XY position of object to move
+	x: int
+	y: int
+	## 		dx,dy,			// Direction to move in Delta Cords
+	dx: int
+	dy: int
+	## 		s;				// True if Sliding
+	s: bool
 
 ## }TICEREC;
 
 ## /// ------------ MGY -----------
 ## #define MAX_TICEMEM 16
+MAX_TICEMEM = 16
 ## typedef struct tIceMem	// Record used for sliding objects on the Ice
 ## {
-## 	TICEREC Objects[MAX_TICEMEM];  // MGY - mem up 16 sliding objects
-## 	int count;          // number of current sliding objects
+@dataclass
+class tIceMem:
+	## 	TICEREC Objects[MAX_TICEMEM];  // MGY - mem up 16 sliding objects
+	Objects: list[tIceRec]
+	## 	int count;          // number of current sliding objects
+	count: int
 ## }TICEMEM;
 ## extern TICEMEM SlideMem;
 ## /// ------------ MGY -----------
@@ -2935,16 +3114,22 @@
 
 ## /* Lets try some Macros */
 ## #define GetTunnelID(x,y) ((Game.PF[x][y] & 0x0F)  >> 1)			// 0 - 7
+def GetTunnelID(x, y):
+	return ((Game.PF[x][y] & 0x0F) >> 1)
 
 ## // mgy 18-05-2003 Tunnel is limited to 0-7.
 ## #define GetTunnelOldID(x,y) ((Game.PF[x][y] & 0x0F)  >> 1)			// 0 - 7
+def GetTunnelOldID(x, y):
+	return ((Game.PF[x][y] & 0x0F) >> 1)
 ## //#define GetTunnelOldID(x,y) ((Game.PF[x][y] & 0x3F)  >> 1)		// 0 - 32
 
 ## #define ISTunnel(x,y) ((Game.PF[x][y] & Obj_Tunnel) == Obj_Tunnel)
+def ISTunnel(x, y):
+	return ((Game.PF[x][y] & Obj_Tunnel) == Obj_Tunnel)
 ## #define GameInProg Game.RecP && (Game.PF[Game.Tank.X][Game.Tank.Y] != 2) && (!DWarn)
+def GameInProg():
+	return Game.RecP and (Game.PF[Game.Tank.X][Game.Tank.Y] != 2) and (not DWarn)
 
-
-## // ltank.c
 ## /*******************************************************
 ##  **             LaserTank ver 4.0                     **
 ##  **               By Jim Kindley                      **
@@ -2963,26 +3148,55 @@
 ## #include "lt_sfx.h"
 
 ## const int GetNextBMArray[MaxObjects+1] = {0,1,2,3,4,5,6,8,9,10,7,12,13,14,11,16,17,18,15,19,21,22,23,20,24};
+GetNextBMArray = [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 7, 12, 13, 14, 11, 16, 17, 18, 15, 19, 21, 22, 23, 20, 24, 0, 0]
 ## const int OpeningBMA[16] = {4,6,1,9,56,57,33,19,16,13,14,45,15,55,21,47};
+OpeningBMA = [4, 6, 1, 9, 56, 57, 33, 19, 16, 13, 14, 45, 15, 55, 21, 47]
 ## int EditorOn   	= FALSE;		// true when in editor mode
+EditorOn = False
 ## int QHELP		= FALSE;		// True when Quick Help is On
+QHELP = False
 ## extern const long DifCList[6];
 ## HINSTANCE hInst;					// Globally Defined Instance
+hInst = None
 ## HBITMAP OpenScreen;		 			// Instruction Bitmap
+OpenScreen = None
 ## HFONT MyFont;
+MyFont = None
 ## int FileHand,RB_TOS,PBHold,VHSOn;
+FileHand = 0
+RB_TOS = 0
+PBHold = 0
+VHSOn = 0
 ## HWND MainH,Ed1,Ed2,BT1,BT2,BT3,BT4,BT5,BT6,BT7,BT8,BT9;
+MainH = None  # Main window instance
+Ed1 = None
+Ed2 = None
+BT1 = None
+BT2 = None
+BT3 = None
+BT4 = None
+BT5 = None
+BT6 = None
+BT7 = None
+BT8 = None
+BT9 = None
 ## TPLAYFIELD ShiftPF,ShiftBMF;
+ShiftPF = TPLAYFIELD()
+ShiftBMF = TPLAYFIELD()
 ## HMENU EMenu,MMenu;
+EMenu = None
+MMenu = None
 ## char PrintJobName[100];
+PrintJobName = ""
 ## char HelpFile[MAX_PATH];
+HelpFile = ""
 
 
 ## extern int Backspace[10];			// Backspace Buffer
 ## extern int BS_SP;					// StackPointer for Backspace
 ## extern int OKtoSave;
 
-
+##https://docs.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilename_nt4a
 ## OPENFILENAME OFN = {sizeof(OPENFILENAME),
 ## 					0,
 ## 					0,
@@ -3029,186 +3243,331 @@
 
 ## // Local Work
 ## void EditDiffSet(int t)
-## {
-##   CheckMenuItem(EMenu,701,0);
-##   CheckMenuItem(EMenu,702,0);
-##   CheckMenuItem(EMenu,703,0);
-##   CheckMenuItem(EMenu,704,0);
-##   CheckMenuItem(EMenu,705,0);
-##   switch (t)
-##   {
-##     case 1: CheckMenuItem(EMenu,701,MF_CHECKED);
-## 			break;
-##     case 2: CheckMenuItem(EMenu,702,MF_CHECKED);
-## 			break;
-##     case 4: CheckMenuItem(EMenu,703,MF_CHECKED);
-## 			break;
-##     case 8: CheckMenuItem(EMenu,704,MF_CHECKED);
-## 			break;
-##     case 16: CheckMenuItem(EMenu,705,MF_CHECKED);
-##   }
-##   CurRecData.SDiff = t;
+def EditDiffSet(t):
+	global CurRecData
+	## {
+	##   CheckMenuItem(EMenu,701,0);
+	CheckMenuItem(EMenu, 701, 0)
+	##   CheckMenuItem(EMenu,702,0);
+	CheckMenuItem(EMenu, 702, 0)
+	##   CheckMenuItem(EMenu,703,0);
+	CheckMenuItem(EMenu, 703, 0)
+	##   CheckMenuItem(EMenu,704,0);
+	CheckMenuItem(EMenu, 704, 0)
+	##   CheckMenuItem(EMenu,705,0);
+	CheckMenuItem(EMenu, 705, 0)
+	##   switch (t)
+	switch = t
+	##   {
+	if switch == 1:
+		##     case 1: CheckMenuItem(EMenu,701,MF_CHECKED);
+		CheckMenuItem(EMenu, 701, MF_CHECKED)
+	## 			break;
+	elif switch == 2:
+		##     case 2: CheckMenuItem(EMenu,702,MF_CHECKED);
+		CheckMenuItem(EMenu, 702, MF_CHECKED)
+	## 			break;
+	elif switch == 4:
+		##     case 4: CheckMenuItem(EMenu,703,MF_CHECKED);
+		CheckMenuItem(EMenu, 703, MF_CHECKED)
+	## 			break;
+	elif switch == 8:
+		##     case 8: CheckMenuItem(EMenu,704,MF_CHECKED);
+		CheckMenuItem(EMenu, 704, MF_CHECKED)
+	## 			break;
+	elif switch == 16:
+		##     case 16: CheckMenuItem(EMenu,705,MF_CHECKED);
+		CheckMenuItem(EMenu, 705, MF_CHECKED)
+	##   }
+	##   CurRecData.SDiff = t;
+	CurRecData.SDiff = t
+
+
 ## }
 
-## BOOL LoadPlayback()
-## {
-## 	HANDLE F;
-## 	char temps[200];
+class tLevel:
+	## {
+	##   TPLAYFIELD PF;               // Object Grid
+	PF: TPLAYFIELD
+	##   char LName[31];  			// Level Name
+	LName: str
+	##   char Hint[256];  			// Hint for this level
+	Hint: str
+	##   char Author[31]; 			// the Author of the Level
+	Author: str
+	##   WORD SDiff; 				// Score Difficulty
+	SDiff: int
 
-## 	if (Recording) SendMessage(MainH,WM_COMMAND,123,0); // Turn Off Recording
-## 	if ((F = CreateFile(PBFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-## 			FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE) return(FALSE);
-## 	PBOpen = TRUE;		// this will also tell autorecord not to turn on
-## 	ReadFile(F, &PBRec, sizeof(PBRec), &BytesMoved, NULL);
-## 	if (RecBufSize <= PBRec.Size)
-## 	{										// RecBuffer needs to be bigger
-## 		RecBufSize = PBRec.Size+1;
-## 		RecBuffer = GlobalReAlloc(RecBuffer,RecBufSize,GMEM_MOVEABLE);
-## 	}
-## 	ReadFile(F, RecBuffer, PBRec.Size, &BytesMoved, NULL);			// Load RecBuffer W data
-## 	CloseHandle(F);
-## 	CurLevel = PBRec.Level - 1;
-## 	// this will error if the levels have moved
-## 	if ((!LoadNextLevel(TRUE,TRUE)) || (strcmp(CurRecData.LName,PBRec.LName) != 0))
-## 	{
-## 		// Do a hard file search for the level name
-## 		F1 = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-## 					FILE_FLAG_SEQUENTIAL_SCAN, NULL);
-## 		CurLevel = 0;
-## 		ReadFile(F, &CurRecData, sizeof(CurRecData), &BytesMoved, NULL);
-## 		while ((BytesMoved == sizeof(CurRecData)) && (strcmp(CurRecData.LName,PBRec.LName) != 0))
-## 		{
-## 			CurLevel++;
-## 			ReadFile(F, &CurRecData, sizeof(CurRecData), &BytesMoved, NULL);
-## 		}
-## 		CloseHandle(F1);
-## 		if (BytesMoved == sizeof(CurRecData))
-## 		{
-## 			LoadNextLevel(TRUE,TRUE);
-## 		}
-## 	}
-## 	Game.RecP = 0;
-## 	RB_TOS = PBRec.Size;
-## 	if (strcmp(CurRecData.LName,PBRec.LName) != 0)
-## 	{
-## 		strcpy(temps,txt013);
-## 		strcat(temps,PBRec.LName);
-## 		strcat(temps,txt015);
-## 		strcat(temps,FileName); strcat(temps," >");
-## 		MessageBox(MainH,temps,txt007,MB_OK | MB_ICONERROR);
-## 		PlayBack = FALSE;
-## 		PBOpen = FALSE;
-## 		PBHold = FALSE;
-## 		SendMessage(MainH,WM_COMMAND,101,0);
-## 		return(FALSE);
-## 	}
-## 	return(TRUE);
+
+## BOOL LoadPlayback()
+def LoadPlayback():
+	global PBOpen
+	global PBRec
+	global RecBuffer
+	global RecBufSize
+	global CurLevel
+	global CurRecData
+
+	## {
+	## 	HANDLE F;
+	## 	char temps[200];
+	temps = ""
+
+	## 	if (Recording) SendMessage(MainH,WM_COMMAND,123,0); // Turn Off Recording
+	if Recording:
+		SendMessage(MainH, WM_COMMAND, 123, 0)
+	## 	if ((F = CreateFile(PBFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+	## 			FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE) return(FALSE);
+	try:
+		F = open(PBFileName, "r")
+	except FileNotFoundError:
+		return False
+	## 	PBOpen = TRUE;		// this will also tell autorecord not to turn on
+	PBOpen = True
+	## 	ReadFile(F, &PBRec, sizeof(PBRec), &BytesMoved, NULL);
+	ReadFile(F, PBRec, sizeof_PBRec, BytesMoved, None)  # TODO: Convert bytes to struct
+	## 	if (RecBufSize <= PBRec.Size)
+	if RecBufSize <= PBRec.Size:
+		## 	{										// RecBuffer needs to be bigger
+		## 		RecBufSize = PBRec.Size+1;
+		RecBufSize = PBRec.Size + 1
+	## 		RecBuffer = GlobalReAlloc(RecBuffer,RecBufSize,GMEM_MOVEABLE);
+	## 	}
+	## 	ReadFile(F, RecBuffer, PBRec.Size, &BytesMoved, NULL);			// Load RecBuffer W data
+	ReadFile(F, RecBuffer, PBRec.Size, BytesMoved, None)  # TODO: Convert bytes to struct
+	## 	CloseHandle(F);
+	F.close()
+	## 	CurLevel = PBRec.Level - 1;
+	CurLevel = PBRec.Level - 1
+	## 	// this will error if the levels have moved
+	## 	if ((!LoadNextLevel(TRUE,TRUE)) || (strcmp(CurRecData.LName,PBRec.LName) != 0))
+	if not LoadNextLevel(True, True) or (CurRecData.LName != PBRec.LName):
+		## 	{
+		## 		// Do a hard file search for the level name
+		## 		F1 = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+		## 					FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+		F1 = open(FileName, "r")
+		## 		CurLevel = 0;
+		CurLevel = 0
+		## 		ReadFile(F, &CurRecData, sizeof(CurRecData), &BytesMoved, NULL);
+		ReadFile(F, RecBuffer, PBRec.Size, BytesMoved, None)  # TODO: Convert bytes to struct
+		## 		while ((BytesMoved == sizeof(CurRecData)) && (strcmp(CurRecData.LName,PBRec.LName) != 0))
+		while CurRecData is not None and CurRecData.LName != PBRec.LName:
+			## 		{
+			## 			CurLevel++;
+			CurLevel += 1
+			## 			ReadFile(F, &CurRecData, sizeof(CurRecData), &BytesMoved, NULL);
+			ReadFile(F, RecBuffer, PBRec.Size, BytesMoved, None)  # TODO: Convert bytes to struct
+		## 		}
+		## 		CloseHandle(F1);
+		F1.close()
+		## 		if (BytesMoved == sizeof(CurRecData))
+		if CurRecData is not None:
+			## 		{
+			LoadNextLevel(True, True)
+	## 			LoadNextLevel(TRUE,TRUE);
+	## 		}
+	## 	}
+	## 	Game.RecP = 0;
+	Game.RecP = 0
+	## 	RB_TOS = PBRec.Size;
+	RB_TOS = PBRec.Size
+	## 	if (strcmp(CurRecData.LName,PBRec.LName) != 0)
+	if CurRecData.LName == PBRec.LName:
+		## 	{
+		## 		strcpy(temps,txt013);
+		temps = txt013
+		## 		strcat(temps,PBRec.LName);
+		temps += PBRec.LName
+		## 		strcat(temps,txt015);
+		temps += txt015
+		## 		strcat(temps,FileName); strcat(temps," >");
+		temps += FileName + " >"
+		## 		MessageBox(MainH,temps,txt007,MB_OK | MB_ICONERROR);
+		messagebox.showerror(title=txt007, message=temps)
+		## 		PlayBack = FALSE;
+		PlayBack = False
+		## 		PBOpen = FALSE;
+		PBOpen = False
+		## 		PBHold = FALSE;
+		PBHold = False
+		## 		SendMessage(MainH,WM_COMMAND,101,0);
+		SendMessage(MainH, WM_COMMAND, 101, 0)
+		## 		return(FALSE);
+		return False
+	## 	}
+	## 	return(TRUE);
+	return True
 ## }
 
 ## void VHSPlayback()
-## {
-## 	gDC = GetDC(MainH);
-## 	GameOn(FALSE);
-## 	if (FindTank)
-## 	{
-## 		FindTank = FALSE;
-## 		PutLevel();
-## 	}
-## 	VHSOn = TRUE;
-## 	while (Game.RecP < RB_TOS)
-## 	{
-## 		if (Game.Tank.Firing) MoveLaser();   	// Move laser if one was fired
-## 		// Check Key Press }
-## 		if (!(Game.Tank.Firing || ConvMoving || SlideO.s || SlideT.s ))
-## 		{
-## 			switch (RecBuffer[Game.RecP])
-## 			{
-## 			case VK_UP:
-## 				MoveTank(1); // Move tank Up one
-## 				break;
-## 			case VK_RIGHT:
-## 				MoveTank(2);
-## 				break;
-## 			case VK_DOWN:
-## 				MoveTank(3);
-## 				break;
-## 			case VK_LEFT:
-## 				MoveTank(4);
-## 				break;
-## 			case VK_SPACE:
-## 				{
-## 					UpdateUndo();
-## 					Game.ScoreShot++;  // do here Not in FireLaser
-## 					FireLaser(Game.Tank.X,Game.Tank.Y,Game.Tank.Dir,S_Fire); // Bang
-## 				}
-## 			}
-## 			Game.RecP++;	// Point to next charecter
-## 			AntiTank();  // give the Anti-Tanks a turn to play
-## 		}
-## 		if (SlideO.s) IceMoveO();
-## 		if (SlideT.s) IceMoveT();
-## 		ConvMoving = FALSE;    // used to disable Laser on the conveyor
-## 		switch (Game.PF[Game.Tank.X][Game.Tank.Y])
-## 		{
-## 		case 2:
-## 			if (Game_On)                   // Reached the Flag
-## 			{
-## 				GameOn(FALSE);
-## 				ReleaseDC(gDC,MainH);
-## 				VHSOn= FALSE;
-## 				return;					// We shouldn't be here
+def VHSPlayback():
+	global FindTank
+	global Game
+	## {
+	## 	gDC = GetDC(MainH);
+	gDC = GetDC(MainH)
+	## 	GameOn(FALSE);
+	GameOn(False)
+	## 	if (FindTank)
+	if FindTank:
+		## 	{
+		## 		FindTank = FALSE;
+		FindTank = False
+		## 		PutLevel();
+		PutLevel()
+	## 	}
+	VHSOn = True
+	## 	VHSOn = TRUE;
+	while Game.RecP < RB_TOS:
+		## 	while (Game.RecP < RB_TOS)
+		## 	{
+		## 		if (Game.Tank.Firing) MoveLaser();   	// Move laser if one was fired
+		if Game.Tank.Firing:
+			MoveLaser()
+		## 		// Check Key Press }
+		## 		if (!(Game.Tank.Firing || ConvMoving || SlideO.s || SlideT.s ))
+		if not Game.Tank.Firing or ConvMoving or SlideO.s or SlideT.s:
+			## 		{
+			## 			switch (RecBuffer[Game.RecP])
+			switch = (RecBuffer[Game.RecP])
+			## 			{
+			if switch == VK_UP:
+				## 			case VK_UP:
+				MoveTank(1)
+			## 				MoveTank(1); // Move tank Up one
+			## 				break;
+			## 			case VK_RIGHT:
+			elif switch == VK_RIGHT:
+				## 				MoveTank(2);
+				MoveTank(2)
+			## 				break;
+			## 			case VK_DOWN:
+			elif switch == VK_DOWN:
+				## 				MoveTank(3);
+				MoveTank(3)
+			## 				break;
+			## 			case VK_LEFT:
+			elif switch == VK_LEFT:
+				## 				MoveTank(4);
+				MoveTank(4)
+			## 				break;
+			## 			case VK_SPACE:
+			elif switch == VK_SPACE:
+				## 				{
+				## 					UpdateUndo();
+				UpdateUndo()
+				## 					Game.ScoreShot++;  // do here Not in FireLaser
+				Game.ScoreShot += 1
+				## 					FireLaser(Game.Tank.X,Game.Tank.Y,Game.Tank.Dir,S_Fire); // Bang
+				FireLaser(Game.Tank.X, Game.Tank.Y, Game.Tank.Dir, S_Fire)
+			## 				}
+			## 			}
+			## 			Game.RecP++;	// Point to next charecter
+			Game.RecP += 1
+			## 			AntiTank();  // give the Anti-Tanks a turn to play
+			AntiTank()
+		## 		}
+		## 		if (SlideO.s) IceMoveO();
+		if SlideO.s:
+			IceMoveO()
+		## 		if (SlideT.s) IceMoveT();
+		if SlideT.s:
+			IceMoveT()
+		## 		ConvMoving = FALSE;    // used to disable Laser on the conveyor
+		ConvMoving = False
+		## 		switch (Game.PF[Game.Tank.X][Game.Tank.Y])
+		switch = (Game.PF[Game.Tank.X][Game.Tank.Y])
+		## 		{
+		## 		case 2:
+		if switch == 2:
+			## 			if (Game_On)                   // Reached the Flag
+			if Game_On:
+				## 			{
+				## 				GameOn(FALSE);
+				GameOn(False)
+				## 				ReleaseDC(gDC,MainH);
+				ReleaseDC(gDC, MainH)
+				## 				VHSOn= FALSE;
+				VHSOn = False
+				## 				return;					// We shouldn't be here
+				return
 
-## 			}
-## 			break;
-## 		case 3:
-## 			PostMessage(MainH,WM_Dead,0,0);  // Water
-## 			break;
-## 		case 15:
-## 			if (CheckLoc(Game.Tank.X,Game.Tank.Y-1)) // Conveyor Up
-## 				ConvMoveTank(0,-1,TRUE);
-## 			break;
-## 		case 16:
-## 			if (CheckLoc(Game.Tank.X+1,Game.Tank.Y))
-## 				ConvMoveTank(1,0,TRUE);
-## 			break;
-## 		case 17:
-## 			if (CheckLoc(Game.Tank.X,Game.Tank.Y+1))
-## 				ConvMoveTank(0,1,TRUE);
-## 			break;
-## 		case 18:
-## 			if (CheckLoc(Game.Tank.X-1,Game.Tank.Y))
-## 				ConvMoveTank(-1,0,TRUE);
-## 		}
-## 	}
-## 	ReleaseDC(gDC,MainH);
-## 	UpDateTank();
-## 	GameOn(TRUE);
-## 	VHSOn= FALSE;
+		## 			}
+		## 			break;
+		## 		case 3:
+		elif switch == 3:
+			## 			PostMessage(MainH,WM_Dead,0,0);  // Water
+			PostMessage(MainH, WM_Dead, 0, 0)
+		## 			break;
+		## 		case 15:
+		elif switch == 15:
+			## 			if (CheckLoc(Game.Tank.X,Game.Tank.Y-1)) // Conveyor Up
+			if CheckLoc(Game.Tank.X, Game.Tank.Y - 1):
+				## 				ConvMoveTank(0,-1,TRUE);
+				ConvMoveTank(0, -1, True)
+		## 			break;
+		## 		case 16:
+		elif switch == 16:
+			## 			if (CheckLoc(Game.Tank.X+1,Game.Tank.Y))
+			if CheckLoc(Game.Tank.X + 1, Game.Tank.Y):
+				## 				ConvMoveTank(1,0,TRUE);
+				ConvMoveTank(1, 0, True)
+		## 			break;
+		## 		case 17:
+		elif switch == 17:
+			## 			if (CheckLoc(Game.Tank.X,Game.Tank.Y+1))
+			if CheckLoc(Game.Tank.X, Game.Tank.Y + 1):
+				## 				ConvMoveTank(0,1,TRUE);
+				ConvMoveTank(0, 1, True)
+		## 			break;
+		## 		case 18:
+		elif switch == 18:
+			## 			if (CheckLoc(Game.Tank.X-1,Game.Tank.Y))
+			if CheckLoc(Game.Tank.X - 1, Game.Tank.Y):
+				## 				ConvMoveTank(-1,0,TRUE);
+				ConvMoveTank(-1, 0
+				True)
+		## 		}
+		## 	}
+		## 	ReleaseDC(gDC,MainH);
+		ReleaseDC(gDC, MainH)
+		## 	UpDateTank();
+		UpDateTank()
+		## 	GameOn(TRUE);
+		GameOn(True)
+		## 	VHSOn= FALSE;
+		VHSOn = False
 ## }
 
 ## BOOL CALLBACK CancelProc( HDC hdc, int nCode)
-## {
-## 	MSG msg;
-
-## 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-## 	{
-## 		TranslateMessage(&msg);
-## 		DispatchMessage(&msg);
-## 	}
+	def CancelProc(hdc, nCode):
+		## {
+		## 	MSG msg;
+		## 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		while msg := MessageQueue.pop(0):
+			## 	{
+			## 		TranslateMessage(&msg);
+			TranslateMessage(msg)
+			## 		DispatchMessage(&msg);
+			DispatchMessage(msg)
+		## 	}
+		return True
 ## 	return(TRUE);
 ## }
 
 ## void Print()
-## {
-## 	PRINTDLG PrintInfo;
-## 	char temps[100];
-## 	TEXTMETRIC TextInfo;
-## 	int XLog,YLog,x,y,ch;
-## 	HDC tempDC;
-## 	HPALETTE hPal;
-## 	LPLOGPALETTE lpLogPal;
-## 	BITMAPINFO bmi;
-## 	HBITMAP hbm;
+	def Print_ltank():
+		## {
+		## 	PRINTDLG PrintInfo;
+		## 	char temps[100];
+		## 	TEXTMETRIC TextInfo;
+		## 	int XLog,YLog,x,y,ch;
+		## 	HDC tempDC;
+		## 	HPALETTE hPal;
+		## 	LPLOGPALETTE lpLogPal;
+		## 	BITMAPINFO bmi;
+		## 	HBITMAP hbm;
 ## 	LPBYTE pBits;
 ## 	DIBSECTION ds;
 ## 	DOCINFO DocInfo = {sizeof(DOCINFO),
@@ -3216,17 +3575,14 @@
 ## 						0,
 ## 						0,
 ## 						0};
-
 ## 	PrintInfo.hwndOwner = MainH;
 ##  	PrintInfo.hDevMode = 0;
 ##  	PrintInfo.hDevNames = 0;
 ##  	PrintInfo.lStructSize = sizeof(PrintInfo);
 ## 	PrintInfo.Flags =  PD_RETURNDC | PD_NOPAGENUMS | PD_NOSELECTION | PD_USEDEVMODECOPIES;
 ## 	if (!PrintDlg(&PrintInfo)) return;
-
 ## 	UpdateWindow(MainH);		// We need to redraw it first
 ## 	gDC = GetDC(MainH);
-
 ## 	ZeroMemory(&bmi,sizeof(bmi));
 ## 	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 ## 	bmi.bmiHeader.biWidth = 16* SpBm_Width;
@@ -3239,7 +3595,6 @@
 ## 	// Prep surface for drawing
 ## 	tempDC = CreateCompatibleDC(gDC);
 ## 	SelectObject(tempDC,hbm);
-
 ## 	if ((GetDeviceCaps(gDC, RASTERCAPS) & RC_PALETTE))	// Are we Palette Based ?
 ## 	{
 ## 		// YES we are - Get Palette
@@ -3249,83 +3604,102 @@
 ## 		GetSystemPaletteEntries(gDC,0,256,(LPPALETTEENTRY)(lpLogPal->palPalEntry));
 ## 		hPal = CreatePalette(lpLogPal);
 ## 		GlobalFree(lpLogPal);
-
 ## 		// Apply the Palette to Game WIndow
 ## 		SelectPalette(gDC, hPal, FALSE);
 ## 		RealizePalette(gDC);
-## 		// Apply the Palette to the tempDC
-## 		SelectPalette(tempDC, hPal, FALSE);
-## 		RealizePalette(tempDC);
-## 		DeleteObject(hPal);
-## 	}
-## 	// Copy Bits to the memory DC
-## 	BitBlt(tempDC,0,0,16 * SpBm_Width, 16 * SpBm_Height, gDC,XOffset,YOffset,SRCCOPY);
-## 	ReleaseDC(MainH,gDC);
+		## 		// Apply the Palette to the tempDC
+		## 		SelectPalette(tempDC, hPal, FALSE);
+		## 		RealizePalette(tempDC);
+		## 		DeleteObject(hPal);
+		## 	}
+		## 	// Copy Bits to the memory DC
+		## 	BitBlt(tempDC,0,0,16 * SpBm_Width, 16 * SpBm_Height, gDC,XOffset,YOffset,SRCCOPY);
+		## 	ReleaseDC(MainH,gDC);
+		## 	EnableWindow(MainH,FALSE);
+		## 	sprintf(PrintJobName,"%s %d",txt036,CurLevel);
+		PrintJobName = "{:s} {:d}".format(txt036, CurLevel)
+		## 	DocInfo.lpszDocName = PrintJobName;
+		## 	if (!StartDoc(PrintInfo.hDC,&DocInfo)) return;
 
-## 	EnableWindow(MainH,FALSE);
-## 	sprintf(PrintJobName,"%s %d",txt036,CurLevel);
-## 	DocInfo.lpszDocName = PrintJobName;
-## 	if (!StartDoc(PrintInfo.hDC,&DocInfo)) return;
+		## 	SetAbortProc(PrintInfo.hDC,CancelProc);
+		## 	StartPage(PrintInfo.hDC);
+		## 	GetTextMetrics(PrintInfo.hDC,&TextInfo);
+		## 	ch = TextInfo.tmHeight;
+		## 	XLog = GetDeviceCaps(PrintInfo.hDC,LOGPIXELSX);		// pixles per inch
+		## 	YLog = GetDeviceCaps(PrintInfo.hDC,LOGPIXELSY);
 
-## 	SetAbortProc(PrintInfo.hDC,CancelProc);
-## 	StartPage(PrintInfo.hDC);
-## 	GetTextMetrics(PrintInfo.hDC,&TextInfo);
-## 	ch = TextInfo.tmHeight;
-## 	XLog = GetDeviceCaps(PrintInfo.hDC,LOGPIXELSX);		// pixles per inch
-## 	YLog = GetDeviceCaps(PrintInfo.hDC,LOGPIXELSY);
+		## 		// Now we can start to print
+		## 	SetBkMode(PrintInfo.hDC,TRANSPARENT);
+		## 	SetTextAlign(PrintInfo.hDC,TA_CENTER);
+		## 	TextOut(PrintInfo.hDC,(XLog * 3),(YLog / 2),PrintJobName,strlen(PrintJobName));
+		print(PrintJobName)
+		## 	if (CurLevel)		// This is if we print the opening Screen
+		if CurLevel:
+			## 	{
+			## 		sprintf(temps,"( %s )",CurRecData.LName);
+			## 		TextOut(PrintInfo.hDC,(XLog * 3),(YLog / 2)+ch,temps,strlen(temps));
+			print("( {:s} )".format(CurRecData.LName))
+		## 	}
+		## 	y = (YLog * 5)+ch;
+		## 	SetTextAlign(PrintInfo.hDC,TA_LEFT);
+		## 	sprintf(temps,"Moves = %d    Shots = %d",Game.ScoreMove,Game.ScoreShot);
+		## 	TextOut(PrintInfo.hDC,XLog,y,temps,strlen(temps));
+		print("Moves = {:d}    Shots = {:d}".format(Game.ScoreMove, Game.ScoreShot))
 
-## 		// Now we can start to print
-## 	SetBkMode(PrintInfo.hDC,TRANSPARENT);
-## 	SetTextAlign(PrintInfo.hDC,TA_CENTER);
-## 	TextOut(PrintInfo.hDC,(XLog * 3),(YLog / 2),PrintJobName,strlen(PrintJobName));
-## 	if (CurLevel)		// This is if we print the opening Screen
-## 	{
-## 		sprintf(temps,"( %s )",CurRecData.LName);
-## 		TextOut(PrintInfo.hDC,(XLog * 3),(YLog / 2)+ch,temps,strlen(temps));
-## 	}
-## 	y = (YLog * 5)+ch;
-## 	SetTextAlign(PrintInfo.hDC,TA_LEFT);
-## 	sprintf(temps,"Moves = %d    Shots = %d",Game.ScoreMove,Game.ScoreShot);
-## 	TextOut(PrintInfo.hDC,XLog,y,temps,strlen(temps));
+	## 	GetObject(hbm,sizeof(DIBSECTION),&ds);
+	## 	StretchDIBits(PrintInfo.hDC,XLog,YLog,XLog * 4,YLog * 4,
+	## 					0,0,(SpBm_Width * 16),(SpBm_Height * 16),
+	## 					ds.dsBm.bmBits,(LPBITMAPINFO)&ds.dsBmih,DIB_RGB_COLORS,SRCCOPY);
+	# TODO: Output image of board
+	## 	EndPage(PrintInfo.hDC);					// Send Page
+	## 	EndDoc(PrintInfo.hDC);
+	## 	DeleteDC(tempDC);
+	## 	DeleteDC(PrintInfo.hDC);
+	## 	DeleteObject(hbm);
+	## 	EnableWindow(MainH,TRUE);
+	## }
 
-## 	GetObject(hbm,sizeof(DIBSECTION),&ds);
-## 	StretchDIBits(PrintInfo.hDC,XLog,YLog,XLog * 4,YLog * 4,
-## 					0,0,(SpBm_Width * 16),(SpBm_Height * 16),
-## 					ds.dsBm.bmBits,(LPBITMAPINFO)&ds.dsBmih,DIB_RGB_COLORS,SRCCOPY);
-
-## 	EndPage(PrintInfo.hDC);					// Send Page
-## 	EndDoc(PrintInfo.hDC);
-## 	DeleteDC(tempDC);
-## 	DeleteDC(PrintInfo.hDC);
-## 	DeleteObject(hbm);
-## 	EnableWindow(MainH,TRUE);
-## }
-
-
-## void ToggleOpt( int ID, HMENU Menu, int *Opt, LPCTSTR psText)
-## {
-## 	if (GetMenuState(Menu,ID,0) & MF_CHECKED)
-## 	{
-## 		CheckMenuItem(Menu,ID,0);
-## 		*Opt = FALSE;
-## 		WritePrivateProfileString("OPT",psText,"No",INIFile);
-## 	}
-## 	else {
-## 		CheckMenuItem(Menu,ID,MF_CHECKED);
-## 		*Opt = TRUE;
-## 		WritePrivateProfileString("OPT",psText,"Yes",INIFile);
+	## void ToggleOpt( int ID, HMENU Menu, int *Opt, LPCTSTR psText)
+	def ToggleOpt(ID, Menu, Opt, psText):
+		## {
+		## 	if (GetMenuState(Menu,ID,0) & MF_CHECKED)
+		if GetMenuState(Menu, ID, 0) == MF_CHECKED:
+			## 	{
+			## 		CheckMenuItem(Menu,ID,0);
+			CheckMenuItem(Menu, ID, 0)
+			## 		*Opt = FALSE;
+			Opt = False
+			## 		WritePrivateProfileString("OPT",psText,"No",INIFile);
+			WritePrivateProfileString("OPT", psText, "No", INIFile)
+		## 	}
+		## 	else {
+		else:
+			## 		CheckMenuItem(Menu,ID,MF_CHECKED);
+			CheckMenuItem(Menu, ID, MF_CHECKED)
+			## 		*Opt = TRUE;
+			Opt = True
+			## 		WritePrivateProfileString("OPT",psText,"Yes",INIFile);
+			WritePrivateProfileString("OPT", psText, "Yes", INIFile)
 ## 	}
 ## }
 
 ## void BuildPB_Name ()
-## {
-## 	char temps[100];
-## 	char *P;
+	def BuildPB_Name():
+		global PBSRec
+		global PBFileName
+		## {
+		## 	char temps[100];
+		## 	char *P;
 
-## 	PBSRec.Level = CurLevel;
-## 	sprintf(temps,"_%04d.lpb",PBSRec.Level);
-## 	P = strrchr(PBFileName,'_');
-## 	if (P) strcpy(P,temps);			// add to name
+		## 	PBSRec.Level = CurLevel;
+		PBSRec.Level = CurLevel
+		## 	sprintf(temps,"_%04d.lpb",PBSRec.Level);
+		temps = "_{:04d}.lpb".format(PBSRec.Level)
+		## 	P = strrchr(PBFileName,'_');
+		P = PBFileName.rfind("_")
+		## 	if (P) strcpy(P,temps);			// add to name
+		if P >= 0:
+			PBFileName = PBFileName[0:P] + temps
 ## }
 
 ## // --- Main Window Procedure --- }
@@ -3333,182 +3707,303 @@
 ## // function MainWindowProc(Window: HWnd; Message, WParam: Word; LParam: Longint): Longint; export;
 ## LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam)
 ## {
-## 	char temps[100];
-## 	HDC tDC,pdc;
-## 	HBITMAP tBM;
-## 	RECT Box;
-## 	HMENU Menu;
-## 	PAINTSTRUCT PI;
-## 	int i,j,x,y,LastLevel;
-## 	char *P;
-## 	WINDOWPLACEMENT twp;
+	def WndProc(Window, Message, wparam, lparam):
+		global FileName
+		global Sound_On
+		global SkipCL
+		global ARecord
+		global DWarn
+		global RLL
+		## 	char temps[100];
+		## 	HDC tDC,pdc;
+		## 	HBITMAP tBM;
+		## 	RECT Box;
+		## 	HMENU Menu;
+		## 	PAINTSTRUCT PI;
+		## 	int i,j,x,y,LastLevel;
+		## 	char *P;
+		## 	WINDOWPLACEMENT twp;
 
-## 	switch (Message)
-## 	{
-## 	case WM_CREATE:
-## 		strcpy(FileName,LevelData);    // set up default file name
-## 		Menu = GetMenu(Window);
-## 		GetPrivateProfileString("OPT",psAni,psYes,temps,5,INIFile);
-## 		// Check if Animation is enabled or disabled }
-## 		if (strcmp(temps,psYes))
-## 		{
-## 			Ani_On = FALSE;
-## 			CheckMenuItem(Menu,104,0);	// Yes I Know we should write MF_BYCOMMAND | MF_UNCHECKED
-## 		}
-## 		GetPrivateProfileString("OPT",psSound,psYes,temps,5,INIFile);
-## 		// Check if Sound is enabled or disabled
-## 		if (strcmp(temps,psYes))
-## 		{
-## 			Sound_On = FALSE;
-## 			CheckMenuItem(Menu,102,0);
-## 		}
-## 		GetPrivateProfileString("OPT",psSCL,"No",temps,5,INIFile);
-## 		// Check if Skip Complete Level is enabled or disabled
-## 		if (strcmp(temps,psYes) == 0)
-## 		{
-## 			CheckMenuItem(Menu,116,MF_CHECKED);
-## 			SkipCL = TRUE;
-## 		}
-## 		GetPrivateProfileString("OPT",psARec,"No",temps,5,INIFile);
-## 		// Check if AutoRecord is enabled or disabled
-## 		if (strcmp(temps,psYes) == 0)
-## 		{
-## 			CheckMenuItem(Menu,115,MF_CHECKED);
-## 			ARecord = TRUE;
-## 		}
-## 		GetPrivateProfileString("OPT",psDW,"No",temps,5,INIFile);
-## 		// Check if DisableWarnings is enabled or disabled
-## 		if (strcmp(temps,psYes) == 0)
-## 		{
-## 			CheckMenuItem(Menu,127,MF_CHECKED);
-## 			DWarn = TRUE;
-## 		}
-## 		Difficulty = GetPrivateProfileInt("DATA",psDiff,0,INIFile);
-## 		GetPrivateProfileString("OPT",psRLLOn,psYes,temps,5,INIFile);
-## 		// Check if Remember Last Level is enabled or disabled
-## 		if (strcmp(temps,psYes))
-## 		{
-## 			RLL = FALSE;
-## 			CheckMenuItem(Menu,109,0);
-## 		}
-## 		else GetPrivateProfileString("DATA",psRLLN,LevelData,FileName,100,INIFile);
-## 		PBSRec.Author[0] = (char)0;
-## 		LaserColorG = CreateSolidBrush(0x0000FF00);
-## 		LaserColorR = CreateSolidBrush(0x000000FF);
-## 		InitBuffers();
-## 		SFxInit();
-## 		PBHold = FALSE;							// used by playback to hold charecters
-## 		VHSOn = FALSE;
-## 		AssignHSFile();
-## 		break;
-## 	case WM_PAINT:
-## 		pdc = BeginPaint(Window,&PI);
-## 		gDC = pdc;							// we use gDC for most graphics stuff
-## 		SelectObject(gDC,MyFont);
-## 		GetClientRect(Window,&Box);
-## 		// draw 3D frames }
-## 		JK3dFrame(pdc,XOffset-1,YOffset-1,(SpBm_Width*16)+XOffset,(SpBm_Height*16)+YOffset,FALSE);
-## 		JK3dFrame(pdc,XOffset-2,YOffset-2,(SpBm_Width*16)+XOffset+1,(SpBm_Height*16)+YOffset+1,FALSE);
-## 		JK3dFrame(pdc,1,1,ContXPos-5,Box.bottom-2,TRUE);
-## 		JK3dFrame(pdc,ContXPos-1,1,ContXPos+181,Box.bottom-2,TRUE);
-## 		if (!EditorOn) JK3dFrame(pdc,ContXPos+10,250,ContXPos+165,405,FALSE);
-## 		tDC = CreateCompatibleDC(pdc);
-## 		OpenScreen = LoadImageFile(hInst,"CONTROLBM",CONTROL_BMP);
-## 		tBM = SelectObject(tDC,OpenScreen);
-## 		// put up control bitmap }
-## 		BitBlt (pdc,ContXPos,2,180,245,tDC,0,0,SRCCOPY);
-## 		SelectObject (tDC,tBM);
-## 		DeleteObject(OpenScreen);
-## 		SetBkMode(pdc,TRANSPARENT);
-## 		SetTextAlign(pdc,TA_CENTER);
-## 		SetTextColor(pdc,0x00808080);
-## 		if ((CurLevel == 0) || QHELP )
-## 		{
-## 			// come here in the beggining before a level is loaded
-## 			OpenScreen = LoadImageFile(hInst,"OPENING", OPENING_BMP);
-## 			tBM = SelectObject(tDC,OpenScreen);
-## 			StretchBlt (gDC,XOffset,YOffset,SpBm_Width*16,SpBm_Height*16,tDC,0,0,384,384,SRCCOPY);
-## 			SelectObject (tDC,tBM);
-## 			DeleteObject(OpenScreen);
-## 			x = XOffset+3;
-## 			y = YOffset + (SpBm_Height*8);
-## 			j = 1;
-## 			for (i=0;i<16;i++)
-## 			{
-## 				PutSprite(OpeningBMA[i],x,y);
-##    			 	x += (SpBm_Width*4);
-## 				j++;
-## 				if (j > 4)
-## 				{
-## 					x = XOffset+3; y += (SpBm_Height*2); j = 1;
-##   			   	}
-## 			}
-## 			// desactive  2004/05/09 - mgy
-## 			// TextOut(pdc,(SpBm_Width*13),(SpBm_Height*16),App_Version,strlen(App_Version));
-## 		}
-## 		else {
-## 			// Lable Game Grid
-## 			x = SpBm_Width / 2;
-## 			y = (SpBm_Height-15) /2;
-## 			for (i=1; i<17; i++)
-## 			{
-## 				TextOut(pdc,8,YOffset+y+((i-1) * SpBm_Height),itoa(i,temps,10),strlen(temps));
-## 				if ( i<10 )
-## 				{
-## 					TextOut(pdc,8+XOffset+(16*SpBm_Width) ,YOffset+y+((i-1) * SpBm_Height),itoa(i,temps,10),strlen(temps));
-## 				}
-## 				else
-## 				{
-## 					strcpy(temps, "1 ");
-## 					TextOut(pdc,-1+8+XOffset+(16*SpBm_Width) ,YOffset+y+((i-1) * SpBm_Height),temps, strlen(temps));
-## 					itoa(i-10,temps,10);
-## 					TextOut(pdc,3+8+XOffset+(16*SpBm_Width) ,YOffset+y+((i-1) * SpBm_Height),temps,strlen(temps));
-## 				}
+		## 	switch (Message)
+		switch = Message
+		## 	{
+		## 	case WM_CREATE:
+		if switch == WM_CREATE:
+			## 		strcpy(FileName,LevelData);    // set up default file name
+			FileName = LevelData
+			## 		Menu = GetMenu(Window);
+			Menu = GetMenu(Window)
+			## 		GetPrivateProfileString("OPT",psAni,psYes,temps,5,INIFile);
+			## 		// Check if Animation is enabled or disabled }
+			## 		if (strcmp(temps,psYes))
+			if GetPrivateProfileString("OPT", psAni, psYes, 5, INIFile) == psYes:
+				## 		{
+				## 			Ani_On = FALSE;
+				Ani_On = False
+				## 			CheckMenuItem(Menu,104,0);	// Yes I Know we should write MF_BYCOMMAND | MF_UNCHECKED
+				CheckMenuItem(Menu, 104, 0)
+			## 		}
+			##		GetPrivateProfileString("OPT",psSound,psYes,temps,5,INIFile);
+			## 		// Check if Sound is enabled or disabled
+			## 		if (strcmp(temps,psYes))
+			if GetPrivateProfileString("OPT", psSound, psYes, INIFile) == psYes:
+				## 		{
+				## 			Sound_On = FALSE;
+				Sound_On = False
+				## 			CheckMenuItem(Menu,102,0);
+				CheckMenuItem(Menu, 102, 0)
+			## 		}
+			## 		GetPrivateProfileString("OPT",psSCL,"No",temps,5,INIFile);
+			## 		// Check if Skip Complete Level is enabled or disabled
+			## 		if (strcmp(temps,psYes) == 0)
+			## 		{
+			if GetPrivateProfileString("OPT", psSCL, "No", INIFile) == psYes:
+				## 			CheckMenuItem(Menu,116,MF_CHECKED);
+				CheckMenuItem(Menu, 116, MF_CHECKED)
+				## 			SkipCL = TRUE;
+				SkipCL = True
+			## 		}
+			## 		GetPrivateProfileString("OPT",psARec,"No",temps,5,INIFile);
+			## 		// Check if AutoRecord is enabled or disabled
+			## 		if (strcmp(temps,psYes) == 0)
+			## 		{
+			if GetPrivateProfileString("OPT", psARec, "No", INIFile) == psYes:
+				## 			CheckMenuItem(Menu,115,MF_CHECKED);
+				CheckMenuItem(Menu, 115, MF_CHECKED)
+				## 			ARecord = TRUE;
+				ARecord = True
+			## 		}
+			## 		GetPrivateProfileString("OPT",psDW,"No",temps,5,INIFile);
+			## 		// Check if DisableWarnings is enabled or disabled
+			## 		if (strcmp(temps,psYes) == 0)
+			## 		{
+			if GetPrivateProfileString("OPT", psDW, "No", INIFile) == psYes:
+				## 			CheckMenuItem(Menu,127,MF_CHECKED);
+				CheckMenuItem(Menu, 127, MF_CHECKED)
+				## 			DWarn = TRUE;
+				DWarn = True
+			## 		}
+			## 		Difficulty = GetPrivateProfileInt("DATA",psDiff,0,INIFile);
+			Difficulty = int(GetPrivateProfileString("DATA", psDiff, 0, INIFile))
+			## 		GetPrivateProfileString("OPT",psRLLOn,psYes,temps,5,INIFile);
+			## 		// Check if Remember Last Level is enabled or disabled
+			## 		if (strcmp(temps,psYes))
+			if GetPrivateProfileString("OPT", psRLLOn, psYes, INIFile) == psYes:
+				## 		{
+				## 			RLL = FALSE;
+				RLL = False
+				## 			CheckMenuItem(Menu,109,0);
+				CheckMenuItem(Menu, 109, 0)
+			## 		}
+			## 		else GetPrivateProfileString("DATA",psRLLN,LevelData,FileName,100,INIFile);
+			else:
+				FileName = GetPrivateProfileString("DATA", psRLLN, LevelData, INIFile)
+			## 		PBSRec.Author[0] = (char)0;
+			PBSRec.Author = ""
+			## 		LaserColorG = CreateSolidBrush(0x0000FF00);
+			LaserColorG = CreateSolidBrush(0x0000FF00)
+			## 		LaserColorR = CreateSolidBrush(0x000000FF);
+			LaserColorR = CreateSolidBrush(0x000000FF)
+			## 		InitBuffers();
+			InitBuffers()
+			## 		SFxInit();
+			SFxInit()
+			## 		PBHold = FALSE;							// used by playback to hold charecters
+			PBHold = False
+			## 		VHSOn = FALSE;
+			VHSOn = False
+			## 		AssignHSFile();
+			AssignHSFile()
+		## 		break;
+		## 	case WM_PAINT:
+		elif switch == WM_PAINT:
+			## 		pdc = BeginPaint(Window,&PI);
+			pdc = BeginPaint(Window, PI)
+			## 		gDC = pdc;							// we use gDC for most graphics stuff
+			gDC = pdc
+			## 		SelectObject(gDC,MyFont);
+			SelectObject(gDC, MyFont)
+			## 		GetClientRect(Window,&Box);
+			GetClientRect(Window, Box)
+			## 		// draw 3D frames }
+			## 		JK3dFrame(pdc,XOffset-1,YOffset-1,(SpBm_Width*16)+XOffset,(SpBm_Height*16)+YOffset,FALSE);
+			JK3dFrame(pdc, XOffset - 1, YOffset - 1, (SpBm_Width * 16) + XOffset, (SpBm_Height * 16) + YOffset, False)
+			## 		JK3dFrame(pdc,XOffset-2,YOffset-2,(SpBm_Width*16)+XOffset+1,(SpBm_Height*16)+YOffset+1,FALSE);
+			JK3dFrame(pdc, XOffset - 2, YOffset - 2, (SpBm_Width * 16) + XOffset + 1, (SpBm_Height * 16) + YOffset + 1,
+					  False)
+			## 		JK3dFrame(pdc,1,1,ContXPos-5,Box.bottom-2,TRUE);
+			JK3dFrame(pdc, 1, 1, ContXPos - 5, Box.bottom - 2, True)
+			## 		JK3dFrame(pdc,ContXPos-1,1,ContXPos+181,Box.bottom-2,TRUE);
+			JK3dFrame(pdc, ContXPos - 1, 1, ContXPos + 181, Box.bottom - 2, True)
+			## 		if (!EditorOn) JK3dFrame(pdc,ContXPos+10,250,ContXPos+165,405,FALSE);
+			if not EditorOn:
+				JK3dFrame(pdc, ContXPos + 10, 250, ContXPos + 165, 405, False)
+			## 		tDC = CreateCompatibleDC(pdc);
+			tDC = CreateCompatibleDC(pdc)
+			## 		OpenScreen = LoadImageFile(hInst,"CONTROLBM",CONTROL_BMP);
+			OpenScreen = LoadImageFile(hInst, "CONTROLBM", CONTROL_BMP)
+			## 		tBM = SelectObject(tDC,OpenScreen);
+			tBM = SelectObject(tDC, OpenScreen)
+			## 		// put up control bitmap }
+			## 		BitBlt (pdc,ContXPos,2,180,245,tDC,0,0,SRCCOPY);
+			BitBlt(pdc, ContXPos, 2, 180, 245, tDC, 0, 0, SRCCOPY)
+			## 		SelectObject (tDC,tBM);
+			SelectObject(tDC, tBM)
+			## 		DeleteObject(OpenScreen);
+			DeleteObject(OpenScreen)
+			## 		SetBkMode(pdc,TRANSPARENT);
+			SetBkMode(pdc, TRANSPARENT)
+			## 		SetTextAlign(pdc,TA_CENTER);
+			SetTextAlign(pdc, TA_CENTER)
+			## 		SetTextColor(pdc,0x00808080);
+			SetTextColor(pdc, 0x00808080)
+			## 		if ((CurLevel == 0) || QHELP )
+			if CurLevel == 0 or QHELP:
+				## 		{
+				## 			// come here in the beggining before a level is loaded
+				## 			OpenScreen = LoadImageFile(hInst,"OPENING", OPENING_BMP);
+				OpenScreen = LoadImageFile(hInst, "OPENING", OPENING_BMP)
+				## 			tBM = SelectObject(tDC,OpenScreen);
+				tBM = SelectObject(tDC, OpenScreen)
+				## 			StretchBlt (gDC,XOffset,YOffset,SpBm_Width*16,SpBm_Height*16,tDC,0,0,384,384,SRCCOPY);
+				StretchBlt(gDC, XOffset, YOffset, SpBm_Width * 16, SpBm_Height * 16, tDC, 0, 0, 384, 384, SRCCOPY)
+				## 			SelectObject (tDC,tBM);
+				SelectObject(tDC, tBM)
+				## 			DeleteObject(OpenScreen);
+				DeleteObject(OpenScreen)
+				## 			x = XOffset+3;
+				x = XOffset + 3
+				## 			y = YOffset + (SpBm_Height*8);
+				y = YOffset + (SpBm_Height * 8)
+				## 			j = 1;
+				j = 1
+				## 			for (i=0;i<16;i++)
+				for i in range(16):
+					## 			{
+					## 				PutSprite(OpeningBMA[i],x,y);
+					PutSprite(OpeningBMA[i], x, y)
+					##    			 	x += (SpBm_Width*4);
+					x += (SpBm_Width * 4)
+					## 				j++;
+					j + +
+					## 				if (j > 4)
+					if j > 4:
+						## 				{
+						## 					x = XOffset+3; y += (SpBm_Height*2); j = 1;
+						x = XOffset + 3
+						y += (SpBm_Height * 2)
+						j = 1
+			##   			}
+			## 			}
+			## 			// desactive  2004/05/09 - mgy
+			## 			// TextOut(pdc,(SpBm_Width*13),(SpBm_Height*16),App_Version,strlen(App_Version));
+			## 		}
+			## 		else {
+			else:
+				## 			// Lable Game Grid
+				## 			x = SpBm_Width / 2;
+				x = SpBm_Width / 2
+				## 			y = (SpBm_Height-15) /2;
+				y = (SpBm_Height - 15) / 2
+				## 			for (i=1; i<17; i++)
+				for i in range(1, 17):
+					## 			{
+					## 				TextOut(pdc,8,YOffset+y+((i-1) * SpBm_Height),itoa(i,temps,10),strlen(temps));
+					TextOut(pdc, 8, YOffset + y + ((i - 1) * SpBm_Height), str(i))
+					## 				if ( i<10 )
+					if i < 10:
+						## 				{
+						## 					TextOut(pdc,8+XOffset+(16*SpBm_Width) ,YOffset+y+((i-1) * SpBm_Height),itoa(i,temps,10),strlen(temps));
+						TextOut(pdc, 8 + XOffset + (16 * SpBm_Width), YOffset + y + ((i - 1) * SpBm_Height), str(i))
+					## 				}
+					## 				else
+					else:
+						## 				{
+						## 					strcpy(temps, "1 ");
+						temps = "1 "
+						## 					TextOut(pdc,-1+8+XOffset+(16*SpBm_Width) ,YOffset+y+((i-1) * SpBm_Height),temps, strlen(temps));
+						TextOut(pdc, -1 + 8 + XOffset + (16 * SpBm_Width), YOffset + y + ((i - 1) * SpBm_Height), temps)
+						## 					itoa(i-10,temps,10);
+						temps = f"{i - 10}"
+						## 					TextOut(pdc,3+8+XOffset+(16*SpBm_Width) ,YOffset+y+((i-1) * SpBm_Height),temps,strlen(temps));
+						TextOut(pdc, 3 + 8 + XOffset + (16 * SpBm_Width), YOffset + y + ((i - 1) * SpBm_Height), temps)
+					## 				}
 
+					## 				strcpy(temps,"@"); temps[0] = temps[0] + i;
+					temps = chr(ord('@') + i)
+					## 				TextOut(pdc,XOffset+x+((i-1) * SpBm_Width),1,temps,strlen(temps));
+					TextOut(pdc, XOffset + x + ((i - 1) * SpBm_Width), 1, temps)
+					## 				TextOut(pdc,XOffset+x+((i-1) * SpBm_Width),YOffset+1+(16 * SpBm_Height),temps,strlen(temps));
+					TextOut(pdc, XOffset + x + ((i - 1) * SpBm_Width), YOffset + 1 + (16 * SpBm_Height), temps)
 
-## 				strcpy(temps,"@"); temps[0] = temps[0] + i;
-## 				TextOut(pdc,XOffset+x+((i-1) * SpBm_Width),1,temps,strlen(temps));
-## 				TextOut(pdc,XOffset+x+((i-1) * SpBm_Width),YOffset+1+(16 * SpBm_Height),temps,strlen(temps));
-
-## 			}
-## 			PutLevel();
-## 			if (EditorOn)
-## 			{
-## 				PutSelectors();
-## 				ShowTunnelID();
-## 			}
-## 			else {
-## 				SetTextColor(pdc,DifCList[0]);
-## 				itoa(CurLevel,temps,10);
-## 				switch (CurRecData.SDiff)
-## 				{
-## 				case 1:
-## 					strcat(temps,txt023);
-## 					SetTextColor(pdc,DifCList[1]);
-## 					break;
-## 				case 2:
-## 					strcat(temps,txt024);
-## 					SetTextColor(pdc,DifCList[2]);
-## 					break;
-## 				case 4:
-## 					strcat(temps,txt025);
-## 					SetTextColor(pdc,DifCList[3]);
-## 					break;
-## 				case 8:
-## 					strcat(temps,txt026);
-## 					SetTextColor(pdc,DifCList[4]);
-## 					break;
-## 				case 16:
-## 					strcat(temps,txt027);
-## 					SetTextColor(pdc,DifCList[5]);
-## 					break;
-## 				}
-## 				TextOut(pdc,ContXPos+91,43,temps,strlen(temps));
-## 				TextOut(pdc,ContXPos+91,100,CurRecData.LName,strlen(CurRecData.LName));
-## 				TextOut(pdc,ContXPos+91,150,CurRecData.Author,strlen(CurRecData.Author));
-## 				SetTextColor(pdc,0x0000FF00);
-## 				TextOut(pdc,ContXPos+48,207,itoa(Game.ScoreMove,temps,10),strlen(temps));
-## 				TextOut(pdc,ContXPos+134,207,itoa(Game.ScoreShot,temps,10),strlen(temps));
+				## 			}
+				## 			PutLevel();
+				PutLevel()
+				## 			if (EditorOn)
+				if EditorOn:
+					## 			{
+					## 				PutSelectors();
+					PutSelectors()
+					## 				ShowTunnelID();
+					ShowTunnelID()
+				## 			}
+				## 			else {
+				else:
+					## 				SetTextColor(pdc,DifCList[0]);
+					SetTextColor(pdc, DifCList[0])
+					## 				itoa(CurLevel,temps,10);
+					temps = f"{CurLevel}"
+					## 				switch (CurRecData.SDiff)
+					## 				{
+					switch = CurRecData.SDiff:
+					## 				case 1:
+					if switch == 1:
+						## 					strcat(temps,txt023);
+						temps += txt023
+						## 					SetTextColor(pdc,DifCList[1]);
+						SetTextColor(pdc, DifCList[1])
+					## 					break;
+					## 				case 2:
+					elif switch == 2:
+						## 					strcat(temps,txt024);
+						temps += txt024
+						## 					SetTextColor(pdc,DifCList[2]);
+						SetTextColor(pdc, DifCList[2])
+					## 					break;
+					## 				case 4:
+					elif switch == 4:
+						## 					strcat(temps,txt025);
+						temps += txt025
+						## 					SetTextColor(pdc,DifCList[3]);
+						SetTextColor(pdc, DifCList[3])
+					## 					break;
+					## 				case 8:
+					elif switch == 8:
+						## 					strcat(temps,txt026);
+						temps += txt026
+						## 					SetTextColor(pdc,DifCList[4]);
+						SetTextColor(pdc, DifCList[4])
+					## 					break;
+					## 				case 16:
+					elif switch == 16:
+						## 					strcat(temps,txt027);
+						temps += txt027
+						## 					SetTextColor(pdc,DifCList[5]);
+						SetTextColor(pdc, DifCList[5])
+					## 					break;
+					## 				}
+					## 				TextOut(pdc,ContXPos+91,43,temps,strlen(temps));
+					TextOut(pdc, ContXPos + 91, 43, temps)
+					## 				TextOut(pdc,ContXPos+91,100,CurRecData.LName,strlen(CurRecData.LName));
+					TextOut(pdc, ContXPos + 91, 100, CurRecData.LName)
+					## 				TextOut(pdc,ContXPos+91,150,CurRecData.Author,strlen(CurRecData.Author));
+					TextOut(pdc, ContXPos + 91, 150, CurRecData.Author)
+					## 				SetTextColor(pdc,0x0000FF00);
+					SetTextColor(pdc, 0x0000FF00)
+					## 				TextOut(pdc,ContXPos+48,207,itoa(Game.ScoreMove,temps,10),strlen(temps));
+					TextOut(pdc, ContXPos + 48, 207, str(Game.ScoreMove))
+					## 				TextOut(pdc,ContXPos+134,207,itoa(Game.ScoreShot,temps,10),strlen(temps));
+					TextOut(pdc, ContXPos + 134, 207, str(Game.ScoreShot))
 ## 			}
 ## 		}
 ## 		DeleteDC(tDC);
@@ -4531,68 +5026,104 @@
 
 ## #include <windows.h>
 ## #include <windowsx.h>
-## #include <commdlg.h>
-## #include <string.h>
-## #include <mmsystem.h>
-## #include <stdio.h>
-## #include "ltank.h"
-## #include "ltank_d.h"
-## #include "lt_sfx.h"
+	## #include <commdlg.h>
+	## #include <string.h>
+	## #include <mmsystem.h>
+	## #include <stdio.h>
+	## #include "ltank.h"
+	## #include "ltank_d.h"
+	## #include "lt_sfx.h"
 
-## // Declare the Global Varables
+	## // Declare the Global Varables
 
-## int GFXError      	= 0;            // error used for load
-## int GFXOn			= FALSE;		// True when Graphics are loaded
-## int TankDirty		= FALSE;		// if true then we need to repaint the tank
-## int NoLevel     	= TRUE;         // if true Main Paint will show Openning
-## int Game_On     	= FALSE;        // true when game is running
-## int Ani_On      	= TRUE;         // true when Animation is On
-## int RLL         	= TRUE;         // remember last level
-## int ConvMoving   	= FALSE;        // true when moving on the conveyor belts
-## int OKtoHS			= TRUE;			// true if OK to Set HighScore
-## int OKtoSave		= FALSE;		// true if OK to Set HighScore
-## int Recording		= FALSE;		// true if Recording
-## int PlayBack		= FALSE;		// true if PlayBack is recording
-## int PBOpen			= FALSE;		// true when Playback window is open
-## int ARecord			= FALSE;		// AutoRecord is On/Off
-## int SkipCL			= FALSE;		// true if Skip Complete Level is on
-## int DWarn			= FALSE;		// Disable Warning
-## int CurLevel       	= 0;            // Used to Figure out the Current Level
-## int AniLevel        = 0;            // Used for Animation Position
-## int AniCount        = 0;            // counter for animation
-## int CurSelBM_L     	= 3;            // current selected bm in editor
-## int CurSelBM_R     	= 0;            // current selected bm in editor
-## int SpBm_Width		= 32;			// Width of Sprite
-## int SpBm_Height		= 32;			// Height of Sprite
-## int LaserOffset		= 10;			// Offset of Laser Size
-## int ContXPos		= 540;			// Position of Control Side
-## int EditBMWidth		= 5;			// # of bitmaps across edit select area
-## int Speed			= 1;			// Playback speed
-## int SlowPB			= 1;
-## int RecBufSize		= 10000;		// Size of recording buffer
-## int UndoBufSize		= 3200;			// Size of Undo Buffer ( * sizeof(TGAMEREC))
-## int Difficulty		= 0;			// Difficulty Enable ( use Bits )
-## int GraphM			= 0;			// Graphics Mode 0=int; 1=ext; 2=ltg
-## int FindTank		= FALSE;		// True when First starting a level
-## int BlackHole		= FALSE;		// True if we TunnleTranslae to a Black Hole
+	## int GFXError          = 0;            // error used for load
+	GFXError = 0  # error used for load
+	## int GFXOn         = FALSE;        // True when Graphics are loaded
+	GFXOn = False  # True when Graphics are loaded
+	## int TankDirty     = FALSE;        // if true then we need to repaint the tank
+	TankDirty = False  # if true then we need to repaint the tank
+	## int NoLevel       = TRUE;         // if true Main Paint will show Openning
+	NoLevel = True  # if true Main Paint will show Openning
+	## int Game_On       = FALSE;        // true when game is running
+	Game_On = False  # true when game is running
+	## int Ani_On        = TRUE;         // true when Animation is On
+	Ani_On = True  # true when Animation is On
+	## int RLL           = TRUE;         // remember last level
+	RLL = True  # remember last level
+	## int ConvMoving    = FALSE;        // true when moving on the conveyor belts
+	ConvMoving = False  # true when moving on the conveyor belts
+	## int OKtoHS            = TRUE;         // true if OK to Set HighScore
+	OKtoHS = True  # true if OK to Set HighScore
+	## int OKtoSave      = FALSE;        // true if OK to Set HighScore
+	OKtoSave = False  # true if OK to Set HighScore
+	## int Recording     = FALSE;        // true if Recording
+	Recording = False  # true if Recording
+	## int PlayBack      = FALSE;        // true if PlayBack is recording
+	PlayBack = False  # true if PlayBack is recording
+	## int PBOpen            = FALSE;        // true when Playback window is open
+	PBOpen = False  # true when Playback window is open
+	## int ARecord           = FALSE;        // AutoRecord is On/Off
+	ARecord = False  # AutoRecord is On/Off
+	## int SkipCL            = FALSE;        // true if Skip Complete Level is on
+	SkipCL = False  # true if Skip Complete Level is on
+	## int DWarn         = FALSE;        // Disable Warning
+	DWarn = False  # Disable Warning
+	## int CurLevel          = 0;            // Used to Figure out the Current Level
+	CurLevel = 0  # Used to Figure out the Current Level
+	## int AniLevel        = 0;            // Used for Animation Position
+	AniLevel = 0  # Used for Animation Position
+	## int AniCount        = 0;            // counter for animation
+	AniCount = 0  # counter for animation
+	## int CurSelBM_L        = 3;            // current selected bm in editor
+	CurSelBM_L = 3  # current selected bm in editor
+	## int CurSelBM_R        = 0;            // current selected bm in editor
+	CurSelBM_R = 0  # current selected bm in editor
+	## int SpBm_Width        = 32;           // Width of Sprite
+	SpBm_Width = 32  # Width of Sprite
+	## int SpBm_Height       = 32;           // Height of Sprite
+	SpBm_Height = 32  # Height of Sprite
+	## int LaserOffset       = 10;           // Offset of Laser Size
+	LaserOffset = 10  # Offset of Laser Size
+	## int ContXPos      = 540;          // Position of Control Side
+	ContXPos = 540  # Position of Control Side
+	## int EditBMWidth       = 5;            // # of bitmaps across edit select area
+	EditBMWidth = 5  # # of bitmaps across edit select area
+	## int Speed         = 1;            // Playback speed
+	Speed = 1  # Playback speed
+	## int SlowPB            = 1;
+	SlowPB = 1
+	## int RecBufSize        = 10000;        // Size of recording buffer
+	RecBufSize = 10000  # Size of recording buffer
+	## int UndoBufSize       = 3200;         // Size of Undo Buffer ( * sizeof(TGAMEREC))
+	UndoBufSize = 3200  # Size of Undo Buffer ( * sizeof(TGAMEREC))
+	## int Difficulty        = 0;            // Difficulty Enable ( use Bits )
+	Difficulty = 0  # Difficulty Enable ( use Bits )
+	## int GraphM            = 0;            // Graphics Mode 0=int; 1=ext; 2=ltg
+	GraphM = 0  # Graphics Mode 0=int; 1=ext; 2=ltg
+	## int FindTank      = FALSE;        // True when First starting a level
+	FindTank = False  # True when First starting a level
+	## int BlackHole     = FALSE;        // True if we TunnleTranslae to a Black Hole
+	BlackHole = False  # True if we TunnleTranslae to a Black Hole
 
+	## TGAMEREC Game,SaveGame;		  // The Level Data
+	## TLEVEL CurRecData;
+	## HBRUSH LaserColor,LaserColorR, LaserColorG;
+	## HDC gDC;                      		  // Use this game dc for all ops
+	## char FileName[MAX_PATH], HFileName[MAX_PATH], GHFileName[MAX_PATH];
+	FileName = ""
+	## char PBFileName[MAX_PATH], GraphFN[MAX_PATH], GraphDN[MAX_PATH],INIFile[MAX_PATH];
+	PBFileName = ""
+	INIFile = ""
+	## int Modified;
+	## TICEREC SlideO,SlideT;
+	## TICEMEM SlideMem; // MGY - mem up MAX_TICEMEM sliding objects
+	## int wasIce;				// CheckLoc will set this to true if Ice
+	## int WaitToTrans;
 
-## TGAMEREC Game,SaveGame;		  // The Level Data
-## TLEVEL CurRecData;
-## HBRUSH LaserColor,LaserColorR, LaserColorG;
-## HDC gDC;                      		  // Use this game dc for all ops
-## char FileName[MAX_PATH], HFileName[MAX_PATH], GHFileName[MAX_PATH];
-## char PBFileName[MAX_PATH], GraphFN[MAX_PATH], GraphDN[MAX_PATH],INIFile[MAX_PATH];
-## int Modified;
-## TICEREC SlideO,SlideT;
-## TICEMEM SlideMem; // MGY - mem up MAX_TICEMEM sliding objects
-## int wasIce;				// CheckLoc will set this to true if Ice
-## int WaitToTrans;
+	## // Global Varables
 
-## // Global Varables
-
-## TXYREC BMA[MaxBitMaps+1]; 		// Bit Map Array
-## TTANKREC laser;
+	## TXYREC BMA[MaxBitMaps+1]; 		// Bit Map Array
+	## TTANKREC laser;
 ## HDC BuffDC,MaskDC;              // used to bitblat all sprites
 ## HBITMAP BuffBMH,MaskBMH;		// Handle to Bitmaps in above DC's
 ## const int GetOBMArray[MaxObjects+1] = {1,2,6,9,13,14,15,16,36,39,42,20,21,22,23,24,27,30,33,45,47,48,49,50,56,57,55};
