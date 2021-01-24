@@ -1,6 +1,6 @@
-from old_Header import *
-from old_Sprites import *
-from old_VectorFuncs import *
+from attempt_1.old_Header import *
+from attempt_1.old_Sprites import *
+from attempt_1.old_VectorFuncs import *
 
 from functools import partial
 

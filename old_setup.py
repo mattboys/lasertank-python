@@ -1,9 +1,8 @@
 from tkinter import *
 import pygame
 
-from old_Header import *
-from old_menu_commands import *
-from old_language import *
+from attempt_1.old_menu_commands import *
+from attempt_1.old_language import *
 
 # from LTank2 import *
 

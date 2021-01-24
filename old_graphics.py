@@ -88,7 +88,7 @@ def get_sprites(
 
 
 def init_graphics():
-    spritelist = get_sprites("images/all.png")
+    spritelist = get_sprites("../images/all.png")
     laser_sprites = get_laser_sprites()
     sprites = {
         "grass": spritelist[1],

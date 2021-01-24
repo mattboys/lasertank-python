@@ -1,5 +1,3 @@
-from old_Header import *
-
 App_Strings = [
     # This is the Button Text
     "Undo",

@@ -1,10 +1,8 @@
 from pathlib import Path
-from enum import Enum
 
 import pygame
 
-import lasertank
-import sprites
+from attempt_2 import sprites, lasertank
 
 files = {
     "Grass": ["grass_0.png", ],
@@ -162,7 +160,7 @@ class Graphics:
         else:
             # Fix syntax of directions
             dir1 = laser.direction
-            if laser.from_direction == sprites.Direction.NONE:
+            if laser.from_direction == attempt_2.Direction.NONE:
                 dir2 = dir1
             else:
                 dir2 = laser.from_direction

@@ -1,6 +1,5 @@
-import pygame
-from old_graphics import *
-from old_VectorFuncs import *
+from attempt_1.old_graphics import *
+from attempt_1.old_VectorFuncs import *
 
 DIR_UP = 0
 DIR_RIGHT = 1
