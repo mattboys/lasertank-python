@@ -1,0 +1,483 @@
+	##### LTank32 Language File 4.0 ###########
+	#                                         #
+	# Language : English - ( Example )        #
+	# Author   : Jim Kindley                  #
+	# Date     : 10 July 2002 - v  1.0        #
+	#                                         #
+	###########################################
+	
+	##### IMPORTANT NOTE TO THE TRANSLATORS #################
+	#                                                       #
+	# You have to translate all the lines except those      #
+	# beginning with a pound sign. ( # )                    #
+	#                                                       #
+	# No lines must be removed or added.                    #                  
+	#                                                       #
+	# All lines must stay at their original position.       #                  
+	#                                                       #
+	# In some cases changing the length of a message can    #
+	# produce strange results. You will have to make tests. #
+	#                                                       #
+	#########################################################
+	
+	##### MAIN MENU ##########################
+0	00,--,--,&Game
+1	00,00,--,&New\tF2
+2	00,01,--,&Load Level...\tL
+3	00,02,--,&Skip Level\tS
+4	00,03,--,&Previous Level\tP
+5	00,04,--,Last Level Playe&d\tBkSp
+6	00,05,--,SEPARATOR
+7	00,06,--,&Open Data File...\tO
+8	00,07,--,SEPARATOR
+9	00,08,--,&View High Scores\tV
+10	00,09,--,&Global High Score List\tG
+11	00,10,--,SEPARATOR
+12	00,11,--,&Record Game\tF5
+13	00,12,--,S&ave Recording\tF6
+14	00,13,--,Resume Re&cording\tF8
+15	00,14,--,Play&back Game...\tF7
+16	00,15,--,SEPARATOR
+17	00,16,--,Pr&int GameBoard
+18	00,17,--,SEPARATOR
+19	00,18,--,&Exit
+20	01,--,--,&Move
+21	01,00,--,&ReStart\tR
+22	01,01,--,&Undo Last Move/Shot\tU
+23	01,02,--,&Save Position\tCtrl+C
+24	01,03,--,Restore &Position\tCrtl+V
+25	01,04,--,RePla&y\tF4
+26	02,--,--,&Options
+27	02,00,--,&Animation\tA
+28	02,01,--,Soun&d\tN
+29	02,02,--,&Remember Last Level
+30	02,03,--,S&kip Completed Levels
+31	02,04,--,Au&toRecord
+32	02,05,--,Disable &Warnings
+33	02,06,--,SEPARATOR
+34	02,07,--,&Size
+35	02,07,00,&Small
+36	02,07,01,&Medium
+37	02,07,02,&Large
+38	02,08,--,Change &Difficulty...\tD
+39	02,09,--,Change &Graphics ...\tCtrl+G
+40	03,--,--,&Editor [F9]
+41	04,--,--,&Help
+42	04,00,--,&Hint\tH
+43	04,01,--,SEPARATOR
+44	04,02,--,&Index
+45	04,03,--,&Quick Help\tF1
+46	04,04,--,&Revisions (History)
+47	04,05,--,SEPARATOR
+48	04,06,--,&About
+	
+	##### EDITOR MENU ######################
+49	00,--,--,&Editor
+50	00,00,--,&Clear Field\tCtrl+C
+51	00,01,--,&Load Level...\tCtrl+L
+52	00,02,--,&Save Level\tCtrl+S
+53	00,03,--,Save &As...
+54	00,04,--,&Exit
+55	01,--,--,&Hint
+56	02,--,--,&Shift
+57	02,00,--,&Right\tCtrl+Direction
+58	02,01,--,&Left
+59	02,02,--,&Up
+60	02,03,--,&Down
+61	03,--,--,&Close Editor [F9]
+62	04,--,--,&Difficulty
+63	04,00,--,&Kids
+64	04,01,--,&Easy
+65	04,02,--,&Medium
+66	04,03,--,&Hard
+67	04,04,--,&Deadly
+68	05,--,--,&Help
+69	05,00,--,&Editor\tF1
+70	05,01,--,&Writing Levels
+71	05,02,--,SEPARATOR
+72	05,03,--,&About
+	
+	##### MAIN BUTONS  ( 9 lines) #########
+	#Undo
+73	Undo
+	#Save Position
+74	Save Position
+	#Restore Position
+75	Restore Position
+	#New
+76	New
+	#<< Level
+77	<< Level
+	#Level >>
+78	Level >>
+	#Hint
+79	Hint
+	#Restart
+80	Restart
+	#Load Level
+81	Load Level
+	
+	##### MESSAGES  ( 44 lines ) ###########
+	#The Level file can not be found\nPlease select a new one
+82	The Level file can not be found\nPlease select a new one
+	#Level Files (*.LVL)
+83	Level Files (*.LVL)
+	#Pick LaserTank Level File
+84	Pick LaserTank Level File
+	#Playback Files (*.LPB)
+85	Playback Files (*.LPB)
+	#Save Playback File
+86	Save Playback File
+	#LaserTank Error
+87	LaserTank Error
+	#Old High Score > M:
+88	Old High Score > M:
+	#M: 
+89	M: 
+	# S: 
+90	 S: 
+	# I: 
+91	 I: 
+	#Congratulation's You beat it !!
+92	Congratulation's You beat it !!
+	#Playback Level : 
+93	Playback Level : 
+	#\nRecorded by 
+94	\nRecorded by 
+	#\nCan Not be found in the current level file\n< 
+95	\nCan Not be found in the current level file\n< 
+	#Do You want to Continue Recording ?
+96	Do You want to Continue Recording ?
+	#&Play
+97	&Play
+	#&Pause
+98	&Pause
+	#Out of Memory - Undo Roll Over
+99	Out of Memory - Undo Roll Over
+	#Open Playback file
+100	Open Playback file
+	#LaserTank Hint
+101	LaserTank Hint
+	#Level NOT Saved, Save Data ?
+102	Level NOT Saved, Save Data ?
+	# - Kids
+103	 - Kids
+	# - Easy
+104	 - Easy
+	# - Medium
+105	 - Medium
+	# - Hard
+106	 - Hard
+	# - Deadly
+107	 - Deadly
+	# - [Editor]
+108	 - [Editor]
+	#LaserTank Editor
+109	LaserTank Editor
+	#NOT a Valid LaserTank Graphics Set
+110	NOT a Valid LaserTank Graphics Set
+	#game.bmp and/or mask.bmp Not Found
+111	game.bmp and/or mask.bmp Not Found
+	#Open Playback file for Resume
+112	Open Playback file for Resume
+	#Return to Game
+113	Return to Game
+	#< NO HINT SUBMITTED FOR THIS LEVEL >
+114	< NO HINT SUBMITTED FOR THIS LEVEL >
+	#LaserTank Level #
+115	LaserTank Level #
+	#Select LaserTank Graphics Directory
+116	Select LaserTank Graphics Directory
+	#Game in Progress ...
+117	Game in Progress ...
+	#You will lose game data.\nDo you want to save the game ?
+118	You will lose game data.\nDo you want to save the game ?
+	#Beat
+119	Beat
+	#All
+120	All
+	#Completed %d of %d levels
+121	Completed %d of %d levels
+	#Difficulty Set = 
+122	Difficulty Set = 
+	#KEMHD  (means: Kids, Easy, Medium, Hard, Deadly)
+123	KEMHD
+	#LaserTank Graphics file Not Found !
+124	LaserTank Graphics file Not Found !
+	# LaserTank *** RECORDING ***
+125	 LaserTank *** RECORDING ***
+	
+	
+	##### HELP SECTIONS : ( 4 lines) ########
+	#Editor Instructions
+	#Revisions
+	#Writing Your Own Levels
+	#LaserTank.hlp
+	#####
+126	Editor Instructions
+127	Revisions
+128	Writing Your Own Levels
+129	Language\LaserTank.hlp
+	
+	
+	##### ABOUTBOX DIALOG : ( 4 lines) ########
+	#About LaserTank
+	#&Ok
+	#By Jim Kindley
+	#Version
+	#####
+130	About LaserTank
+131	&Ok
+132	By Jim Kindley
+133	Version
+	
+	##### DEADBOX DIALOG :  ( 3 lines) ########
+	#&Undo Last Move
+	#YOU ARE DEAD ! ! !
+	#&ReStart
+	#####
+134	&Undo Last Move
+135	YOU ARE DEAD ! ! !
+136	&ReStart
+	
+	##### DIFFBOX DIALOG :  ( 9 lines) ########
+	#Game Difficulty
+	#&Ok
+	#&Kids
+	#&Easy
+	#&Medium
+	#&Hard
+	#&Deadly
+	#&All
+	#Select
+	#####
+137	Game Difficulty
+138	&Ok
+139	&Kids
+140	&Easy
+141	&Medium
+142	&Hard
+143	&Deadly
+144	&All
+145	Select
+	
+	##### GRAPHBOX DIALOG :  ( 9 lines) ######
+	#Select Graphics Set
+	#Select One
+	#&Internal Graphics
+	#&User Graphics 
+	#&Close
+	#Author :
+	#LaserTank Graphic Set Description
+	#&View Opening Screen 
+	#Change &Directory
+	#####
+146	Select Graphics Set
+147	Select One
+148	&Internal Graphics
+149	&User Graphics 
+150	&Close
+151	Author :
+152	LaserTank Graphic Set Description
+153	&View Opening Screen 
+154	Change &Directory
+	
+	##### LOADLEV DIALOG :  ( 7 lines) ######
+	#Pick Level to Load
+	#&Cancel
+	#&Filter
+	#File:
+	#- File Loading Error -
+	#Lev#   Name                           Author
+	#or Direct Level Number Entry >>
+	#####      
+155	Pick Level to Load
+156	&Cancel
+157	&Filter
+158	File:
+159	- File Loading Error -
+160	Lev#   Name                           Author
+161	or Direct Level Number Entry >>
+	
+	
+	#### HINTBOX DIALOG :  ( 3 lines) ######
+	#Modify Hint
+	#&Ok
+	#&Cancel
+	#####
+162	Modify Hint
+163	&Ok
+164	&Cancel
+	
+	#### SEARCH DIALOG :   ( 14 lines) ######
+	#Filter Level Data
+	#Enter Search String :
+	#Search By
+	#&Title
+	#&Author
+	#&Cancel
+	#&Ok
+	#&Only Unsolved Levels
+	#&Filter by Difficulty
+	#&Kids
+	#&Easy
+	#&Medium
+	#&Hard
+	#&Deadly
+	#####
+165	Filter Level Data
+166	Enter Search String :
+167	Search By
+168	&Title
+169	&Author
+170	&Cancel
+171	&Ok
+172	&Only Unsolved Levels
+173	&Filter by Difficulty
+174	&Kids
+175	&Easy
+176	&Medium
+177	&Hard
+178	&Deadly
+	
+	#### RETBOX DIALOG :   ( 1 line) ##########
+	#&Return to Game
+	#####
+179	&Return to Game
+	
+	
+	#### WINBOX DIALOG :   ( 4 lines) #########
+	#&Ok
+	#You Won ! ! !
+	#File :
+	#- Error -
+	#####
+180	&Ok
+181	You Won ! ! !
+182	File :
+183	- Error -
+	
+	#### LOADTID DIALOG :   ( 3 lines) ########
+	#Pick Tunnel ID #
+	#&Ok
+	#Enter the ID Number for this Tunnel
+	#####
+184	Pick Tunnel ID #
+185	&Ok
+186	Enter the ID Number for this Tunnel
+	
+	
+	
+	#### HIGHBOX DIALOG :   ( 9 lines) ########
+	#! New High Score !
+	#&Ok
+	#Level Number :
+	#Level Name :
+	#Moves :
+	#Shots :
+	#Initials :
+	#Global HS :
+	#- No Data -
+	#####
+187	! New High Score !
+188	&Ok
+189	Level Number :
+190	Level Name :
+191	Moves :
+192	Shots :
+193	Initials :
+194	Global HS :
+195	- No Data -
+	
+	#### HIGHLIST DIALOG :   ( 4 lines) #######
+	#High Scores
+	#&Ok
+	#- File Loading Error -
+	#Lev#  Name                          Moves  Shots  Initials
+	#####
+196	High Scores
+197	&Ok
+198	- File Loading Error -
+199	Lev#  Name                          Moves  Shots  Initials
+	
+	
+	#### GHIGHLIST DIALOG :   ( 7 lines) #######
+	#Global High Scores
+	#&Ok
+	#Lev#  Name                             M      S   Init   M     S  Init
+	#Global
+	#Local
+	#- No Data -
+	#&Beat
+	#####
+200	Global High Scores
+201	&Ok
+202	Lev#  Name                             M      S   Init   M     S  Init
+203	Global
+204	Local
+205	- No Data -
+206	&Beat
+	
+	#### RECBOX DIALOG :   ( 3 lines) #######
+	#Recording Game
+	#Please Enter Your Name
+	#&Ok
+	#####
+207	Recording Game
+208	Please Enter Your Name
+209	&Ok
+	
+	#### PLAYBOX DIALOG :   ( 10 lines) ######
+	#Playback Game
+	#&Close
+	#&Play
+	#&Reset
+	#&Fast
+	#&Slow
+	#S&tep
+	#Step :
+	#of
+	#Speed
+	#####
+210	Playback Game
+211	&Close
+212	&Play
+213	&Reset
+214	&Fast
+215	&Slow
+216	S&tep
+217	Step :
+218	of
+219	Speed
+	
+	#### PICKLEVEL DIALOG :   ( 6 lines) ######
+	#Save LaserTank Level
+	#&Ok
+	#Enter the Level Number to
+	#Save :
+	#= Add
+	#&Clear High Score
+	######
+220	Save LaserTank Level
+221	&Ok
+222	Enter the Level Number to
+223	Save :
+224	= Add
+225	&Clear High Score
+	
+	
+	##### ABOUTBOX MESSAGE : (14 lines Max, 300 bytes each max) ###
+226	LaserTank is HelpWare and you can use it for free.\n\n
+227	After you became a skilled player, maybe you will want to make one or more levels, using the Level Editor, and send them to us, with your playback (LPB files).\n\n
+228	We will update the software every now and then and add all the good levels that are sent. 
+229	See  "Writing your own levels" and "Recording & Playback" in the help file.\n\n
+230	(Please, be inventive and do try not to replicate waht is already existing).\n\n
+231	(There is already so many levels available on the LaserTank WEB site).\n\n
+232	If you beat any of the High Scores, make sure you have the most recent Global High Score file, send a zip file with the playbacks for the levels you beat and your LaserTank.hs file.\n\n
+233	You can e-mail the file's to: lasertank@globetrotter.net\n\n
+234	For more levels, Graphics files, & the most recent Global High Score file check out the\n
+235	LaserTanks WEB site : http://www.jccontrols.net/laser\n\n
+236	For Help or more info about this game join or check out the Yahoo Group at :\n
+237	   http://groups.yahoo.com/lasertank\n
+	################ END ######################
+	
