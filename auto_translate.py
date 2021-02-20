@@ -2241,13 +2241,14 @@ def TPLAYFIELD():  # Matrix of G.O. (Game Object) types
 	return [[0 for y in range(16) ] for x in range(16)]
 
 class TLEVEL:   # Level Data from File
-	def __init__(self):
-		self.PF = TPLAYFIELD()  # Object Grid
-		self.LName = ""  # Level Name
-		self.Hint = ""  # Hint for this level
-		self.Author = ""  # the Author of the Level
-		SDiff = 0  # Score Difficulty
-
+	def __init__(self, PF=None, LName="", Hint="", Author="", SDiff = 0):
+		if PF is None:
+			PF = TPLAYFIELD() 
+		self.PF = PF  # Object Grid
+		self.LName = LName  # Level Name
+		self.Hint = Hint  # Hint for this level
+		self.Author = Author  # the Author of the Level
+		self.SDiff = SDiff  # Score Difficulty
 
 class TRECORDREC: # Recording Header
 	def __init__(self):
@@ -3343,18 +3344,19 @@ def WndProc( Window,  Message,  wparam,  lparam) :
 	elif Message ==  WM_COMMAND:
 		if (!EditorOn) SetFocus(Window)  # We need this for the buttons
 		switch5 =  (LOWORD(wparam)) :
-		elif switch5 ==  101: # New Game
-			LastLevel = CurLevel
-			CurLevel = 0
-			if (RLL) # Remember Last Level
-			:
-				GetPrivateProfileString("DATA", psRLLL, "1", temps, 5, INIFile)
-				CurLevel = atoi(temps)
-				CurLevel -= 1
+		if switch5 ==  101: # New Game
+			command_new_game()
+			# LastLevel = CurLevel
+			# CurLevel = 0
+			# if (RLL) # Remember Last Level
+			# :
+			# 	GetPrivateProfileString("DATA", psRLLL, "1", temps, 5, INIFile)
+			# 	CurLevel = atoi(temps)
+			# 	CurLevel -= 1
 			
-			if (!LoadNextLevel(True, False))
-				CurLevel = LastLevel
-			return (0)
+			# if (!LoadNextLevel(True, False))
+			# 	CurLevel = LastLevel
+			# return (0)
 		elif switch5 ==  102: # Toggle Sound Option
 			ToggleOpt(102, MMenu, & Sound_On, psSound)
 			return (0)
