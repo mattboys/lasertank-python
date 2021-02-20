@@ -2962,7 +2962,7 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 			// desactive  2004/05/09 - mgy
 			// TextOut(pdc,(SpBm_Width*13),(SpBm_Height*16),App_Version,strlen(App_Version));
 		} else {
-			// Lable Game Grid
+			// Label Game Grid
 			x = SpBm_Width / 2;
 			y = (SpBm_Height - 15) / 2;
 			for (i = 1; i < 17; i++) {
@@ -3510,7 +3510,7 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 			InvalidateRect(Window, NULL, TRUE);
 			return (0);
 			
-		case 123:
+		case 123: // Turn Off Recording if on
 			if (GetMenuState(MMenu, 123, MF_BYCOMMAND) && MF_CHECKED != 0) {
 				CheckMenuItem(MMenu, 123, 0);
 				Recording = FALSE;
