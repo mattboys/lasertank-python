@@ -1,0 +1,103 @@
+Lt = Lasertank.lvl	Ch1=Challenge-1.lvl		Ch2= Challenge-2.lvl
+
+Level 	Level		 Name				Level Author
+1	LT	112	Lock Pick			Anonymous
+2	LT	113	Fire Away!			Anonymous
+3	LT	229	Blasted mote			KEITH HALL
+4	LT	244	THE STREET # 2			KEITH HALL
+5	LT	412	Mirrors 4 You			marten.mellberg@telia.com
+6	LT	546	Also Messed Up!			Andy C.
+7	LT	734	A-mazing Grace			Andy C.
+8	LT	793	Running From The States		James Hallam
+9	LT	935	tank to flag No3of 3		BOKI
+10	LT	1014	Dream on baby			Gx2
+11	LT	1161	Magicians Boat 			Steve Myerscough
+12	LT	1734	Elephant's Head			D & E Paterson
+13	Ch1	15	sexy ice			blood sucker
+14	Ch1	36	Deadly Run			Luke Perkins
+15	Ch1	274	Going against the flow		Don Mattingly
+16	Ch1	277	Neato				Vegikachu (SPD)
+17	Ch1	293	Assignment			ßlade
+18	Ch1	436	bad brothers			Etre Zen
+19	Ch1	673	Trick Shot 2			Chrisi
+20	Ch1	731	Think first.			Jorgen Rask
+21	Ch1	945	Dammit, I change it again	JPLima
+22	Ch2	1	Organized Chaos			Rik v L
+23	Ch2	8	who's on first?			teverson
+24	Ch2	85	follow the bleeder		Donkey Nick	
+25	Ch2	124	Tight Squeeze			David A. White
+26	Ch2	417	Kriss Kross			Nic01
+27	Ch2	705	Tricky Operation		Junior
+28	Ch2	746	Noid-Lane!			Junior
+29	LT	8	castle siege			Gerd Platl
+30	LT	29	Try Not to Get Shot		Michael Welsh Duggan
+31	LT	107	blazzing			Lord Fletcher
+32	LT	194	Symmetry (skoro)		Ivosh
+33	LT	337	So Close - Yet So Far		Justin Sojda
+34	LT	628	Miracle				Alexis Monnerot
+35	LT	1005	Mission Madness			Keith hall
+36	LT	1228	Quick Game 2			THZ
+37	Ch1	45	Malvinas War			EienBuruu (ARG)
+38	Ch1	142	Liso Leso & Loco		JPLima
+39	Ch1	401	on and off			James O'Kelly
+40	Ch1	482	Crystal Cage			Andy KS
+41	Ch1	632	Miscellany 1			Alex Itkes
+42	Ch1	633	Miscellany 2			Alex Itkes
+43	Ch1	634	Miscellany 3			Alex Itkes
+44	Ch1	635	Miscellany 4			Alex Itkes
+45	Ch1	636	Miscellany 5			Alex Itkes
+46	Ch1	637	Miscellany 6			Alex Itkes
+47	Ch1	638	Miscellany 7			Alex Itkes
+48	Ch1	639	Miscellany 8			Alex Itkes
+49	Ch1	642	Miscellany 9			Alex Itkes
+50	Ch1	643	Miscellany 10			Alex Itkes
+51	Ch1	653	Clear The Way			Jim Charles
+52	Ch1	720	Desert locks			Junior
+53	Ch1	957	Cross-over			Tere
+54	Ch1	1078	The Little One's Mess II	Simeon
+55	Ch1	1109	LaserTank 4.0 Challenge		Simeon
+56	Ch1	1201	Flag under cover		Ron Meijer
+57	Ch1	1215	Cave Labyrinth			Alex Itkes
+58	Ch1	1344	Look for the hint		Flyke
+59	Ch1	1387	Escape-Artist!			Sven Egevad
+60	Ch2	14	First things first		teverson
+61	Ch2	17	Around the horn			teverson
+62	Ch2	19	Simanzi		   		teverson
+63	Ch2	199	Wet feet			Sven Egevad
+64	Ch2	214	First Aid		 	Sven Egevad
+65	Ch2	250	Little boxes	 		Sven Egevad	
+66	Ch2	342	turret trouble			teverson
+67	Ch2	396	Lost Worlds			Simeon
+68	Ch2	654	Simple Outside Bridge		Junior
+69	Ch2	811	Fort Verdegris			Junior
+70	Ch2	817	What do you suggest?		Spug & Eienburuu
+71	LT	27	tactical moves			Gerd Platl
+72	LT	63	more than just walk around	Gerd Platl
+73	LT	76	A Splash of Everything		Blake Ormand & Brent Briggs
+74	LT	99	Tricks and Traps		Manzi
+75	LT	103	Frustration Island		Mike King
+76	LT	114	Death Trap?			Chris Kaeser
+77	LT	141	so near so far!			glaud
+78	LT	241	Which flag?			Ivosh
+79	LT	900	Florida Keys with tolls		horst ledpeddle
+80	LT	952	Labyrinth II			Zoran Radojevic
+81	LT	968	Aisle Tour			MingS
+82	LT	1181	A flag too far			Boleslav Bobcik
+83	LT	1275	First Circle			Chris Beyt
+84	Ch1	22	Big Soko Ice Trouble		Ron Meijer
+85	Ch1	1008	Rage Of Ice			Rahul Batra
+86	Ch1	1101	Mr. Ping-Pong VI		Ron Meijer
+87	Ch1	1150	Area 51				Simeon
+88	Ch1	1258	Travel by			Sven Egevad
+89	Ch1	1392	Need Space!			Sven Egevad
+90	Ch1	1467	Ostrich Hospital		Simeon
+91	Ch1	1468	Master Of The Olympus		Simeon
+92	Ch2	1220	Lost in Moscow			Yono in Jkt.
+93	Ch2	1381	Jump-A-Way			Thipper & Ducky
+94	Ch2	1607	Hijacking in outer space	Yono in Jkt.
+95	Ch2	1613	Restrictedness in diversity	Yono in Jkt.
+96	Ch2	1630	The subway ride			Donald Drouin
+97	Ch1	9	The Ducky's Journey		Donald Drouin
+98	Ch1	242	Dante's Inferno			GerrW
+99	LT	283	Dazed and Confused		Jim Kindley
+100	LT	964	Road to Hell			DjKovach@hotmail.com

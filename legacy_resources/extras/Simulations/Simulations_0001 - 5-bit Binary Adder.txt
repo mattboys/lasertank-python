@@ -1,0 +1,39 @@
+			+========================+
+			|   5-bit Binary Adder   |
+			+========================+
+
+This level can add any two 5 digit binary numbers using the same playback file.
+eg. 01110 + 00111 = 10101
+
+
+How to use adder
+=================
+
+1. Open the editor
+
+2. Put two 5-digit binary numbers at "A5,B5,C5,D5,E5" and "A7,B7,C7,D7,E7" by using movable blocks
+   (block = 1, ground = 0,  eg, "ground,block,ground,ground,block" = "01001" = 9)
+
+3. Close editor
+
+4.a) Do the following moves:  (some of the shots may not always be neccessary)
+	- Shoot down twice from column E, ie. from E3
+	    - go to A2
+	    - go to P4 and shoot up
+	    - go to N8 and shoot up
+	    - go to K8 and shoot left
+	    - go to G6 and shoot right
+	    - go to G5 and shoot right
+	    - go to G2 and shoot right
+	    - go to F2
+	- Repeat for column D, C, B then A
+ OR
+  b) playback "5-bit adder_0001.lpb"
+
+5. Read 5-digit binary answer at "A10,B10,C10,D10,E10"
+   Overflow is indicated by a block being at H11, ie. answer > 31
+
+
+Author -  LFE the FLE
+February 2006
+=====================

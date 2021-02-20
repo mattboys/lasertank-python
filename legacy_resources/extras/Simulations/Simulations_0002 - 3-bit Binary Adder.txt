@@ -1,0 +1,57 @@
+                             +====================+
+                             | 3-BIT BINARY ADDER |
+                             +====================+
+
+Adds two 3-bit binary numbers together.
+
+There is an LPB included as an example. It shows 101 (5) being added to 100 (4)
+to produce 1001 (9).
+
+The numbers are selected within the game so no editing is required.
+
+The path you take is always the same and you are not required to shoot anything
+(other than for choosing the numbers you wish to add together).
+
+The numbers that are available to choose range from 000 (0) to 111 (7). The
+maximum result is therefore 1110 (14).
+
+
+Instructions
+============
+
+1. Choose the two numbers you wish to add by pushing the appropriate blocks at
+   Row 15 onto the tunnels at Row 16.
+
+      1st number: F15-J15, 2nd number: L15-P15
+
+      The digit "1" is represented by a block being pushed onto a tunnel at that
+      position, "0" by doing nothing; eg if you wish to add 101 and 011 then
+      push the blocks in columns F, J, N, and P down
+
+      Note: your entry is rectified for computation (just like a real
+      calculator!) but the result will display correctly
+
+2. Move onto the RED tunnel at P14.
+
+3. Move LEFT, RIGHT, DOWN, then RIGHT onto the GREEN tunnel at E3.
+
+4. Move RIGHT, DOWN, UP, UP.
+
+5. Move RIGHT, RIGHT, DOWN, RIGHT back to where you started.
+
+6. The result is displayed in the ice-bordered mantissa at M8-P8.
+
+7. To perform another addition, RESTART the level.
+
+_______________________________________________________________________________
+
+Playable version created March 2005 (it was a weak level and I had not got
+around to releasing it)
+
+Modified to be non-playable 5 February 2006 in response to LFE the FLE's
+non-playable 5-bit adder
+
+
+Secret Squïrrel
+February 2006
+
