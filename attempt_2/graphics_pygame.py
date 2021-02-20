@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pygame
 
-from attempt_2 import sprites, lasertank
 
 files = {
     "Grass": ["grass_0.png", ],

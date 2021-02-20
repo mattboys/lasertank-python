@@ -1,6 +1,6 @@
 import struct
 
-from attempt_2.constants import *
+from constants import *
 
 # See LTANK.H for C-structs
 # See https://docs.python.org/3/library/struct.html#struct-format-strings

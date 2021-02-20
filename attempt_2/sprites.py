@@ -1,4 +1,4 @@
-from attempt_2 import Direction
+import Direction
 
 
 class Solved(Exception):

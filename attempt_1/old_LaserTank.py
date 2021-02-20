@@ -1,6 +1,6 @@
-from attempt_1.old_setup import *
-from attempt_1.old_LTank2 import *
-from attempt_1.old_Sprites import *
+from old_setup import *
+from old_LTank2 import *
+from old_Sprites import *
 
 from pygame.locals import *
 

@@ -2,8 +2,8 @@ import json
 import time
 from typing import List
 
-from attempt_2 import sprites
-from attempt_2.constants import *
+import sprites
+from constants import *
 
 
 class Board:
@@ -263,11 +263,11 @@ def run(gamestate: GameState, input_engine, render_engine):
 
 
 if __name__ == "__main__":
-    from attempt_2.level_importer import import_legacy_lvl
-    from attempt_2.graphics_pygame import Graphics
-    from attempt_2.inputs_pygame import InputEngine
+    from level_importer import import_legacy_lvl
+    from graphics_pygame import Graphics
+    from inputs_pygame import InputEngine
 
-    level_dict = import_legacy_lvl(level_number=4, filename="../legacy_resources/Files/Tricks.lvl")
+    level_dict = import_legacy_lvl(level_number=4, filename="./legacy_resources/Files/Tricks.lvl")
     game = GameState(**level_dict)
 
     # graphics.render_frame(level.info)

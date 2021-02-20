@@ -1,5 +1,5 @@
 import struct
-from attempt_2 import constants
+import constants
 
 
 def import_legacy_lpb(playback_filename="legacy_resources/Files/Playback_0001.lpb"):
