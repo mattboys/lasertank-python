@@ -81,7 +81,7 @@ class Graphics:
     GAMEBOARD_OFFSET_Y = 0
     ANIMATION_SPEED = 8
     MAX_FRAMES_LCM = 3
-    FPS = 60
+    FPS = 10
 
     frames = {}  # Same structure as files but with pygame.Surface objects
 
@@ -91,12 +91,12 @@ class Graphics:
             image_dir = Path.cwd() / image_dir
 
         pygame.init()
-        pygame.display.set_mode()
+        # pygame.display.set_mode()
         self.clock = pygame.time.Clock()
 
         DISPLAY_SIZE = (self.GAMEBOARD_OFFSET_X * 2 + self.SPRITE_SIZE * 16,
                         self.GAMEBOARD_OFFSET_Y * 2 + self.SPRITE_SIZE * 16)
-        self.screen = pygame.display.set_mode(DISPLAY_SIZE)
+        self.screen = pygame.display.set_mode(size=DISPLAY_SIZE, flags=0)
         self.screen.fill(pygame.Color('white'))
         # Populate frames dir with the image files from files
         for obj_name, file_list in files.items():
