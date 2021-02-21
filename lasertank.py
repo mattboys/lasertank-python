@@ -37,7 +37,7 @@ class GameState:
 
     def add_undo(self):
         serialized_state = self.serialize_state()
-        print(json.dumps(serialized_state))
+        # print(json.dumps(serialized_state))
         self.undo_state.append(serialized_state)  # Save for undos
 
     #     self.history.append(copy.deepcopy(self.gameboard))
@@ -100,9 +100,22 @@ class GameState:
 
     def resolve_momenta(self):
         """ Resolve new positions of each item with momentum such as those sliding on ice. """
+        # TODO: Fix logic to match original
+        # IceMoveO()  (move an object on the ice)
+        # IceMoveT()  (move tank on the ice)
+        # If tank on converyor:
+        #     CheckLoc( dest_x, dest_y )
+        #     ConvMoveTank( dir_x, dir_y, True )
+
         for item in reversed(self.sliding_items):
+            item.resolve_momentum()
+
+
+
+
             if not isinstance(item, sprites.Tank):
                 item.resolve_momentum()
+                self.ai_move()
         # Tank momentum is resolved after all items
         if self.board_tank in self.sliding_items:
             self.board_tank.resolve_momentum()
@@ -155,19 +168,18 @@ class GameState:
         x, y = position
         self.board_terrain[y][x] = terrain
 
-    def is_square_empty(self, position):
-        x, y = position
-        return isinstance(self.board_items[y][x], sprites.Empty)
-
     def is_tank_in_square(self, position: (int, int)):
         return self.board_tank.position == position
 
     def can_move_into(self, position: (int, int)):
         """ Can an item move into this square? or Is this square on the board and empty? """
-        if self.is_within_board(position):
-            return self.is_square_empty(position)
+        if not self.is_within_board(position):
+            # Off gameboard
+            return False
         else:
-            return False  # Off gameboard
+            is_empty = isinstance(self.get_item(position),  sprites.Empty)
+            is_tank = self.get_tank().position == position
+            return is_empty and not is_tank
 
     def get_tunnels(self, tunnel_id):
         found_set = []
@@ -219,7 +231,7 @@ class GameState:
             if self.is_players_turn() and len(self.moves_buffer) > 0:
                 self.next_move(self.moves_buffer.pop(0))
             self.ai_move()
-            self.resolve_momenta()
+            self.resolve_momenta()  # 3108
             return True
         except sprites.Solved:
             # TODO: Implement game solved
@@ -244,7 +256,7 @@ def run(gamestate: GameState, input_engine, render_engine):
             else:
                 print(f"Unhandled input: {event}")
         render_engine.render(gamestate)
-        time.sleep(3)
+        # time.sleep(3)
     return "solved or game over"
 
 
@@ -253,7 +265,7 @@ if __name__ == "__main__":
     from graphics_pygame import Graphics
     from inputs_pygame import InputEngine
 
-    level_dict = import_legacy_lvl(level_number=4, filename="legacy_resources/Files/Tricks.lvl")
+    level_dict = import_legacy_lvl(level_number=3, filename="legacy_resources/Files/Tricks.lvl")
     game = GameState(**level_dict)
 
     # graphics.render_frame(level.info)

@@ -109,23 +109,23 @@ class ItemMovable(Item):
         self.gameboard.start_sliding(self)
 
     def resolve_momentum(self):
+        """ Try to move item in the direction of it's momentum """
         destination = vec_add(self.position, Direction.get_xy(self._momentum))
         if self.gameboard.can_move_into(destination):
-            # Set new position
             original_position = self.position
-            if not isinstance(self, Tank):
-                self.gameboard.put_item(original_position, Empty(original_position))
-                assert self.gameboard.is_square_empty(destination), "Can't move item into occupied space!"
-                self.gameboard.put_item(destination, self)
-            self.position = destination
+            # Set new position
+            self.change_position(destination)
             # Resolve effects on terrain
             self.gameboard.get_terrain(original_position).obj_leaving()
             self.gameboard.get_terrain(destination).effect(self)
         else:
             self._momentum = Direction.NONE
+            # Melt ThinIce if on currently
+            if isinstance(self.gameboard.get_terrain(self.position), ThinIce):
+                self.gameboard.get_terrain(self.position).obj_leaving()
             self.gameboard.get_terrain(self.position).effect(self)
 
-    def teleport(self, destination):
+    def change_position(self, destination):
         if not isinstance(self, Tank):
             self.gameboard.put_item(self.position, Empty(self.position))
             assert self.gameboard.is_square_empty(destination), "Can't move item into occupied space!"
@@ -347,6 +347,7 @@ class Terrain(LaserTankObject):
         item_on._momentum = Direction.NONE
 
     def obj_leaving(self):
+        """ An item is sliding off the square """
         pass
 
 
@@ -424,7 +425,7 @@ class ThinIce(Terrain):
     def __init__(self, position):
         Terrain.__init__(self, position)
 
-    def effect(self, item_on):
+    def obj_leaving(self):
         self.gameboard.put_terrain(self.position, Water(self.position))
 
     def serialize(self):
@@ -461,7 +462,7 @@ class Tunnel(Terrain):
             # Find an unblocked exit
             for exit_tunnel in exits:
                 if self.gameboard.is_square_empty(exit_tunnel.position):  # is unblocked?
-                    item_on.teleport(exit_tunnel.position)  # Teleport
+                    item_on.change_position(exit_tunnel.position)  # Teleport
                     return
             # Only blocked exit(s) so set tunnel as waiting
             # will transport when another tunnel is unblocked
