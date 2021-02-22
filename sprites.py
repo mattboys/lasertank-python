@@ -103,6 +103,9 @@ class ItemMovable(Item):
         self._momentum = Direction.NONE
         Item.__init__(self, init_pos)
 
+    def is_sliding(self):
+        return self._momentum != Direction.NONE
+
     def push(self, direction):
         """ Assumes this object can legally move in direction, then set momentum and add to gameboard.sliding list """
         self._momentum = direction
@@ -116,14 +119,14 @@ class ItemMovable(Item):
             # Set new position
             self.change_position(destination)
             # Resolve effects on terrain
-            self.gameboard.get_terrain(original_position).obj_leaving()
             self.gameboard.get_terrain(destination).effect(self)
+            self.gameboard.get_terrain(original_position).obj_leaving()
         else:
             self._momentum = Direction.NONE
             # Melt ThinIce if on currently
             if isinstance(self.gameboard.get_terrain(self.position), ThinIce):
                 self.gameboard.get_terrain(self.position).obj_leaving()
-            self.gameboard.get_terrain(self.position).effect(self)
+                self.gameboard.get_terrain(self.position).effect(self)
 
     def change_position(self, destination):
         if not isinstance(self, Tank):

@@ -109,19 +109,16 @@ class GameState:
 
         for item in reversed(self.sliding_items):
             item.resolve_momentum()
-
-
-
-
             if not isinstance(item, sprites.Tank):
                 item.resolve_momentum()
                 self.ai_move()
         # Tank momentum is resolved after all items
         if self.board_tank in self.sliding_items:
             self.board_tank.resolve_momentum()
-
+            self.ai_move()
+        # Trim list down to items that still have momentum
         self.sliding_items = [
-            item for item in self.sliding_items if item._momentum != sprites.Direction.NONE
+            item for item in self.sliding_items if item.is_sliding()
         ]
 
     def start_sliding(self, item: sprites.Item):
@@ -245,6 +242,7 @@ class GameState:
 
 def run(gamestate: GameState, input_engine, render_engine):
     while gamestate.update():
+        print(gamestate.serialize_state())
         for event in input_engine.get_inputs():
             if event == "quit":
                 return "quit"

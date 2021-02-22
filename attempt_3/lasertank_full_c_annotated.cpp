@@ -3107,7 +3107,7 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 
 		// resolve momenta
 		if (SlideO.s)
-			IceMoveO();
+			IceMoveO();  // NOTE: IceMoveO includes additional AntiTank() moves
 		if (SlideT.s)
 			IceMoveT();
 		if (TankDirty)
@@ -5750,6 +5750,8 @@ void IceMoveO() // Move an Object on the Ice
 				Game.PF2[SlideO.x][SlideO.y] = Obj_Water; // Ice to Water
 			}
 
+			// if destination is empty (not item and not tank)
+			// note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
 			if (CheckLoc(SlideO.x + SlideO.dx, SlideO.y + SlideO.dy) &&
 				(!((SlideO.x + SlideO.dx == Game.Tank.X) && (SlideO.y + SlideO.dy == Game.Tank.Y)))) {
 				savei = wasIce;
