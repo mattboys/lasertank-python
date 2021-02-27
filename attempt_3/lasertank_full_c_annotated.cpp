@@ -5588,6 +5588,9 @@ void MoveTank(int d) {
 }
 
 int CheckLoc(int x, int y) {
+	// Sets wasIce to True if the square is ice or thin ice
+	// then checks if space can be moved into by tank
+
 	// Check if Tank can move
 	if ((x < 0) || (x > 15) || (y < 0) || (y > 15))
 		return (0);

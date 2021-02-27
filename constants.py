@@ -7,166 +7,67 @@ MOVES_E = "E"
 MOVES_W = "W"
 
 # Terrain
-Grass = "Grass"
-Flag = "Flag"
-Water = "Water"
-Conveyor_N = "Conveyor_N"
-Conveyor_S = "Conveyor_S"
-Conveyor_E = "Conveyor_E"
-Conveyor_W = "Conveyor_W"
-Ice = "Ice"
-ThinIce = "ThinIce"
-Bridge = "Bridge"
+Grass = "__"
+Flag = "Fg"
+Water = "Wt"
+Conveyor_N = "^^"
+Conveyor_S = "vv"
+Conveyor_E = ">>"
+Conveyor_W = "<<"
+Ice = "Ic"
+ThinIce = "TI"
+Bridge = "Br"
 
-Tunnel_0 = "Tunnel_0"
-Tunnel_1 = "Tunnel_1"
-Tunnel_2 = "Tunnel_2"
-Tunnel_3 = "Tunnel_3"
-Tunnel_4 = "Tunnel_4"
-Tunnel_5 = "Tunnel_5"
-Tunnel_6 = "Tunnel_6"
-Tunnel_7 = "Tunnel_7"
-Tunnel_8 = "Tunnel_8"
-Tunnel_9 = "Tunnel_9"
+Tunnel_0 = "T0"
+Tunnel_1 = "T1"
+Tunnel_2 = "T2"
+Tunnel_3 = "T3"
+Tunnel_4 = "T4"
+Tunnel_5 = "T5"
+Tunnel_6 = "T6"
+Tunnel_7 = "T7"
+Tunnel_8 = "T8"
+Tunnel_9 = "T9"
 
-Tunnel_0_waiting = "Tunnel_0"
-Tunnel_1_waiting = "Tunnel_1"
-Tunnel_2_waiting = "Tunnel_2"
-Tunnel_3_waiting = "Tunnel_3"
-Tunnel_4_waiting = "Tunnel_4"
-Tunnel_5_waiting = "Tunnel_5"
-Tunnel_6_waiting = "Tunnel_6"
-Tunnel_7_waiting = "Tunnel_7"
-Tunnel_8_waiting = "Tunnel_8"
-Tunnel_9_waiting = "Tunnel_9"
+Tunnel_0_waiting = "t0"
+Tunnel_1_waiting = "t1"
+Tunnel_2_waiting = "t2"
+Tunnel_3_waiting = "t3"
+Tunnel_4_waiting = "t4"
+Tunnel_5_waiting = "t5"
+Tunnel_6_waiting = "t6"
+Tunnel_7_waiting = "t7"
+Tunnel_8_waiting = "t8"
+Tunnel_9_waiting = "t9"
 
 # Items
-Tank_N = "Tank_N"
-Tank_S = "Tank_S"
-Tank_E = "Tank_E"
-Tank_W = "Tank_W"
+Tank_N = "@^"
+Tank_S = "@v"
+Tank_E = "@>"
+Tank_W = "@<"
 
-Empty = "Empty"
-Solid = "Solid"
-Block = "Block"
-Wall = "Wall"
+Empty = "  "
+Solid = "XX"
+Block = "Bk"
+Wall = "Wl"
 
-Antitank_N = "Antitank_N"
-Antitank_S = "Antitank_S"
-Antitank_E = "Antitank_E"
-Antitank_W = "Antitank_W"
-DeadAntitank_N = "DeadAntitank_N"
-DeadAntitank_S = "DeadAntitank_S"
-DeadAntitank_E = "DeadAntitank_E"
-DeadAntitank_W = "DeadAntitank_W"
-Mirror_N = "Mirror_N"
-Mirror_S = "Mirror_S"
-Mirror_E = "Mirror_E"
-Mirror_W = "Mirror_W"
+Antitank_N = "A^"
+Antitank_S = "Av"
+Antitank_E = "A>"
+Antitank_W = "A<"
+DeadAntitank_N = "D^"
+DeadAntitank_S = "Dv"
+DeadAntitank_E = "D>"
+DeadAntitank_W = "D<"
+Mirror_N = "M^"
+Mirror_S = "Mv"
+Mirror_E = "M>"
+Mirror_W = "M<"
 
-Glass = "Glass"
+Glass = "Gs"
 
-RotMirror_N = "RotMirror_N"
-RotMirror_S = "RotMirror_S"
-RotMirror_E = "RotMirror_E"
-RotMirror_W = "RotMirror_W"
+RotMirror_N = "R^"
+RotMirror_S = "Rv"
+RotMirror_E = "R>"
+RotMirror_W = "R<"
 
-
-
-#
-#
-# DIRECTIONS = ["N", "S", "E", "W"]
-#
-# ANGLES = ["NW", "NE", "SE", "SW"]
-#
-# TERRAIN_NAMES = {
-#     "Grass": {},
-#     "Flag": {},
-#     "Water": {},
-#     "Conveyor": {"direction": DIRECTIONS},
-#     "Ice": {},
-#     "ThinIce": {},
-#     "Bridge": {},
-#     "Tunnel": {"tunnel_id": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
-# }
-#
-# ITEM_NAMES = {
-#     "Tank": {"direction": DIRECTIONS},
-#     "Solid": {},
-#     "Block": {},
-#     "Wall": {},
-#     "Antitank": {"direction": DIRECTIONS},
-#     "DeadAntitank": {"direction": DIRECTIONS},
-#     "Mirror": {"angle": ANGLES},
-#     "Glass": {},
-#     "RotMirror": {"angle": ANGLES},
-# }
-#
-# if __name__ == "__main__":
-#     for t, v in ITEM_NAMES.items():
-#         if v:
-#             for name, p in v.items():
-#                 for pa in p:
-#                     print(f"{t}_{pa}")
-#         else:
-#             print(f"{t}")
-
-
-    # print("TERRAIN:")
-    # for s in TERRAIN_NAMES:
-    #     print(s[:2])
-    #
-    # for s in ITEM_NAMES:
-    #     print(s[:2])
-    #
-    # all_s = {
-    #     "Gr",
-    #     "Fl",
-    #     "Wa",
-    #     "Co",
-    #     "Ic",
-    #     "Th",
-    #     "Br",
-    #     "Tu",
-    #     "Ta",
-    #     "So",
-    #     "Bl",
-    #     "Wa",
-    #     "An",
-    #     "De",
-    #     "Mi",
-    #     "Gl",
-    #     "Ro",
-    #        }
-
-
-
-
-# print("Printing all sprites with their parameters")
-    # i = 0
-    #
-    # def iprint(str):
-    #     global i
-    #     print(f"{i}{str}")
-    #     i+=1
-    #
-    # print("TERRAIN:")
-    # for terrain, parameters in TERRAIN_NAMES.items():
-    #     if parameters:
-    #         print(f"        {terrain}")
-    #         for para_name, options in parameters.items():
-    #             for opt in options:
-    #                 iprint(f"          {para_name} : {opt}")
-    #     else:
-    #         iprint(f"       {terrain}")
-    #
-    # print()
-    # print("ITEMS:")
-    # for item, parameters in ITEM_NAMES.items():
-    #     if parameters:
-    #         print(f"         {item}")
-    #         for para_name, options in parameters.items():
-    #             for opt in options:
-    #                 iprint(f"           {para_name} : {opt}")
-    #     else:
-    #         iprint(f"       {item}")

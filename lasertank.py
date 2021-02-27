@@ -241,8 +241,12 @@ class GameState:
 
 
 def run(gamestate: GameState, input_engine, render_engine):
+    prev = None
     while gamestate.update():
-        print(gamestate.serialize_state())
+        s = gamestate.serialize_state()
+        if s != prev:
+            print(s)
+            prev = s
         for event in input_engine.get_inputs():
             if event == "quit":
                 return "quit"
