@@ -1,5 +1,12 @@
 GAMEBOARD_SIZE = 16
 
+Direction_N = 1
+Direction_E = 2
+Direction_S = 3
+Direction_W = 4
+Direction_NONE = 0
+
+
 MOVES_SHOOT = "F"
 MOVES_N = "N"
 MOVES_S = "S"

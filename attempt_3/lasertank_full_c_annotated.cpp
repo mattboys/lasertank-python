@@ -3610,7 +3610,7 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 				GameOn(TRUE);
 			}
 			return (0);
-		case 601: // New Level  [Editor]
+		case 601: // New Level  [Editor] New Game
 			for (x = 0; x < 16; x++)
 				for (y = 0; y < 16; y++) {
 					Game.PF[x][y] = 0;

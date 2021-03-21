@@ -1,7 +1,13 @@
-import time
-import json
+import constants
 
-import sprites
+
+class TankRec:
+    def __init__(self, x, y, dir):
+        self.X = x
+        self.Y = y
+        self.Dir = dir
+        self.Firing = False
+        self.Good = False  # Good is used for Tunnel Wait in Game.Tank
 
 
 class GameState:
@@ -10,13 +16,12 @@ class GameState:
     def __init__(self, number, title, hint, author, difficulty, playfield):
         self.level_info = {"number": number, "title": title, "hint": hint, "difficulty": difficulty, "author": author}
 
-        sprites.LaserTankObject.gameboard = self
-        self.board_terrain = [[sprites.Grass((x, y)) for y in range(self.GAMEBOARD_SIZE)] for x in
+        self.board_terrain = [[constants.Grass for y in range(self.GAMEBOARD_SIZE)] for x in
                               range(self.GAMEBOARD_SIZE)]
-        self.board_items = [[sprites.Empty((x, y)) for y in range(self.GAMEBOARD_SIZE)] for x in
+        self.board_items = [[constants.Empty for y in range(self.GAMEBOARD_SIZE)] for x in
                             range(self.GAMEBOARD_SIZE)]
-        self.board_tank = sprites.Tank(position=(7, 15), direction=1)
-        self.board_laser = sprites.Laser()
+        self.board_tank = TankRec(x=7, y=15, dir=1)
+        self.board_laser = TankRec
         self.sliding_items = []
         self.moves_history = []
         self.moves_buffer = []
@@ -51,6 +56,7 @@ class GameState:
         # TODO: Handle undo
 
     def laser_update(self):
+        # Translation of the MoveLaser function
         self.board_laser.update()
 
     def is_players_turn(self):
@@ -223,21 +229,26 @@ class GameState:
             self.score = serialized["score"]
 
     def update(self):
-        try:
+        if self.board_tank.firing:
             self.laser_update()
-            if self.is_players_turn() and len(self.moves_buffer) > 0:
-                self.next_move(self.moves_buffer.pop(0))
-            self.ai_move()
-            self.resolve_momenta()  # 3108
-            return True
-        except sprites.Solved:
-            # TODO: Implement game solved
-            print("Solved!")
-            return False
-        except sprites.GameOver:
-            # TODO: Implement game over
-            print("Game over!")
-            return False
+
+
+
+        # try:
+        #     self.laser_update()
+        #     if self.is_players_turn() and len(self.moves_buffer) > 0:
+        #         self.next_move(self.moves_buffer.pop(0))
+        #     self.ai_move()
+        #     self.resolve_momenta()  # 3108
+        #     return True
+        # except sprites.Solved:
+        #     # TODO: Implement game solved
+        #     print("Solved!")
+        #     return False
+        # except sprites.GameOver:
+        #     # TODO: Implement game over
+        #     print("Game over!")
+        #     return False
 
 
 def run(gamestate: GameState, input_engine, render_engine):

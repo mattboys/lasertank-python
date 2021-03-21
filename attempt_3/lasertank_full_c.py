@@ -2950,7 +2950,7 @@ class tTankRec:
 		self.Y = int()
 		self.Dir = int()
 		self.Firing = bool()
-		self.Firing = bool()
+		self.Good = bool()
 	X: int
 	Y: int
 	Dir: int

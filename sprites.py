@@ -150,6 +150,7 @@ class Empty(Item):
 class Tank(ItemMovable):
     def __init__(self, direction, position):
         self.direction = direction
+        self.firing = False
         ItemMovable.__init__(self, position)
 
     def shoot(self):
