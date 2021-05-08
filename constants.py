@@ -6,6 +6,11 @@ Direction_S = 3
 Direction_W = 4
 Direction_NONE = 0
 
+DirectionXY_1 = (0, -1)
+DirectionXY_2 = (1, 0)
+DirectionXY_3 = (0, 1)
+DirectionXY_4 = (-1, 0)
+DirectionXY_NONE = (0, 0)
 
 MOVES_SHOOT = "F"
 MOVES_N = "N"

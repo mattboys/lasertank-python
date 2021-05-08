@@ -74,15 +74,15 @@ def import_legacy_lvl(level_number=1, filename="legacy_resources/Files/LaserTank
     }
     difficulty = DIFFICULTY_TEXTS.get(difficulty_int, DIFFICULTY_TEXTS[1])
 
-    playfield = [[None for x in range(BOARDSIZE)] for y in range(BOARDSIZE)]
+    playfield = [[None for y in range(BOARDSIZE)] for x in range(BOARDSIZE)]
     for col in range(BOARDSIZE):
         for row in range(BOARDSIZE):
-            # Note that lvl files are saved in columns and playfield is in [y][x]
-            x = col
-            y = row
+            # Note that lvl files are saved in columns and playfield is in [x][y]
+            x = row
+            y = col
             i = int(playfield_ints[row + col * BOARDSIZE])
             terrain, item = decode_table[i]
-            playfield[y][x] = (terrain, item)
+            playfield[x][y] = (terrain, item)
 
     return {
         "number": level_number,

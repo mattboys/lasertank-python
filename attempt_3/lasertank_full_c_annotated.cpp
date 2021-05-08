@@ -2221,7 +2221,7 @@ typedef struct tRecordRec // Recording Header
 	char LName[31]; // Level Name
 	char Author[31]; // Author of the recording
 	WORD Level; // Level Number
-	WORD Size; // Size of Data -- Data to fallow
+	WORD Size; // Size of Data -- Data to follow
 }
 TRECORDREC;
 
@@ -2254,7 +2254,7 @@ TGAMEREC, * PGAMEREC;
 
 typedef struct tXYRec // Use in BMA
 {
-	int X, Y; // X & Y Location in Big Butmap
+	int X, Y; // X & Y Location in Big Bitmap
 }
 TXYREC;
 

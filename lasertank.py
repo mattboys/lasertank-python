@@ -6,12 +6,12 @@ class TankRec:
         self.X = x
         self.Y = y
         self.Dir = dir
-        self.Firing = False
+        self.Firing = False  # Is laser on the board
         self.Good = False  # Good is used for Tunnel Wait in Game.Tank
 
 
 class GameState:
-    GAMEBOARD_SIZE = 16
+    GAMEBOARD_SIZE = constants.GAMEBOARD_SIZE
 
     def __init__(self, number, title, hint, author, difficulty, playfield):
         self.level_info = {"number": number, "title": title, "hint": hint, "difficulty": difficulty, "author": author}
@@ -21,24 +21,30 @@ class GameState:
         self.board_items = [[constants.Empty for y in range(self.GAMEBOARD_SIZE)] for x in
                             range(self.GAMEBOARD_SIZE)]
         self.board_tank = TankRec(x=7, y=15, dir=1)
-        self.board_laser = TankRec
+        self.board_laser = TankRec(x=0, y=0, dir=1)
         self.sliding_items = []
         self.moves_history = []
         self.moves_buffer = []
         self.score = {"shots": 0, "moves": 0}
-
         self.undo_state = []
 
+        # Fill board from playfield
         for y in range(self.GAMEBOARD_SIZE):
             for x in range(self.GAMEBOARD_SIZE):
-                terrain_str, item_str = playfield[y][x]
+                terrain, item = playfield[y][x]
                 pos = (x, y)
-                self.put_terrain(pos, sprites.map_strings_to_objects(terrain_str, pos))
-                item = sprites.map_strings_to_objects(item_str, pos)
-                if isinstance(item, sprites.Tank):
-                    self.board_tank = item
+                self.board_terrain[x][y] = terrain
+
+                if item in [constants.Tank_N, constants.Tank_S, constants.Tank_E, constants.Tank_W] :
+                    self.board_tank.X = x
+                    self.board_tank.Y = y
+                    if item == constants.Tank_N:
+                        self.board_tank.Dir = constants.Direction_N
+                    elif # TODO
+
+
                 else:
-                    self.put_item(pos, item)
+                    self.board_terrain[x][y] = item_str
 
     def add_undo(self):
         serialized_state = self.serialize_state()
