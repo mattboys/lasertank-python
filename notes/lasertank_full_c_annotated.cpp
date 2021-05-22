@@ -4847,8 +4847,10 @@ void UpDateLaser()
 	ob = SelectObject(gDC, LaserColor);
 	x = XOffset + (laser.X * SpBm_Width);
 	y = YOffset + (laser.Y * SpBm_Height);
-	if ((laser.Dir & 1) == 1) Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + SpBm_Height);
-	else Rectangle(gDC, x, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
+	if ((laser.Dir & 1) == 1)
+		Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + SpBm_Height);
+	else
+		Rectangle(gDC, x, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
 	SelectObject(gDC, ob);
 }
 
@@ -4877,30 +4879,30 @@ void UpDateLaserBounce(int a, int b)
 
 	// Draw two parts of the reflecting laser
 	switch (a) {
-	case 1:
-		Rectangle(gDC, x + LaserOffset, y + h, x + SpBm_Width - LaserOffset, y + SpBm_Height);
-		break;
-	case 2:
-		Rectangle(gDC, x, y + LaserOffset, x + h, y + SpBm_Height - LaserOffset);
-		break;
-	case 3:
-		Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + h);
-		break;
-	case 4:
-		Rectangle(gDC, x + h, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
+		case 1:
+			Rectangle(gDC, x + LaserOffset, y + h, x + SpBm_Width - LaserOffset, y + SpBm_Height);
+			break;
+		case 2:
+			Rectangle(gDC, x, y + LaserOffset, x + h, y + SpBm_Height - LaserOffset);
+			break;
+		case 3:
+			Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + h);
+			break;
+		case 4:
+			Rectangle(gDC, x + h, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
 	}
 	switch (b) {
-	case 1:
-		Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + h);
-		break;
-	case 2:
-		Rectangle(gDC, x + h, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
-		break;
-	case 3:
-		Rectangle(gDC, x + LaserOffset, y + h, x + SpBm_Width - LaserOffset, y + SpBm_Height);
-		break;
-	case 4:
-		Rectangle(gDC, x, y + LaserOffset, x + h, y + SpBm_Height - LaserOffset);
+		case 1:
+			Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + h);
+			break;
+		case 2:
+			Rectangle(gDC, x + h, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
+			break;
+		case 3:
+			Rectangle(gDC, x + LaserOffset, y + h, x + SpBm_Width - LaserOffset, y + SpBm_Height);
+			break;
+		case 4:
+			Rectangle(gDC, x, y + LaserOffset, x + h, y + SpBm_Height - LaserOffset);
 	}
 	SelectObject(gDC, ob);
 }
@@ -5622,7 +5624,8 @@ void MoveObj(int x, int y, int dx, int dy, int sf)
 		ok = FALSE;
 		for (cy = 0; cy < 16; cy++)
 			for (cx = 0; cx < 16; cx++)
-				if ((Game.PF2[cx][cy] == bb) && (!((x == cx) && (y == cy)))) {
+				if ((Game.PF2[cx][cy] == bb) && (!((x == cx) && (y == cy))))
+				{
 					// Search PF2[y,x] for another covered tunnel with same id (bb) & not same square
 					// Search for other end of blocked tunnel
 					ok = TRUE;
@@ -5630,7 +5633,7 @@ void MoveObj(int x, int y, int dx, int dy, int sf)
 					// Ok if something wants to move here; cx & cy set to orig
 				}
 		MoveObj1:
-			if (ok) // We are Moving an Object
+		if (ok) // We are Moving an Object
 		{
 			// Other end of blocked tunnel had an object so move it through now
 			//Move object through a tunnel (from xy to cx,cy)
@@ -6006,17 +6009,17 @@ LaserMoveJump:
 	x = 0;
 	y = 0;
 	switch (laser.Dir) {
-	case 1:
-		y = -1;
-		break;
-	case 2:
-		x = +1;
-		break;
-	case 3:
-		y = +1;
-		break;
-	case 4:
-		x = -1;
+		case 1:
+			y = -1;
+			break;
+		case 2:
+			x = +1;
+			break;
+		case 3:
+			y = +1;
+			break;
+		case 4:
+			x = -1;
 	}
 	if (CheckLLoc(laser.X + x, laser.Y + y, x, y)) // Check destination square and start objects there moving if needed
 	{
@@ -6027,9 +6030,10 @@ LaserMoveJump:
 		
 		laser.Y += y;
 		laser.X += x;
-		if (((Game.PF[laser.X][laser.Y] > 10) && (Game.PF[laser.X][laser.Y] < 15)) //Is mirror
-			||
-			((Game.PF[laser.X][laser.Y] > 19) && (Game.PF[laser.X][laser.Y] < 24))) //Is Rotating Mirror
+		if (
+			((Game.PF[laser.X][laser.Y] > 10) && (Game.PF[laser.X][laser.Y] < 15)) //Is mirror
+			|| ((Game.PF[laser.X][laser.Y] > 19) && (Game.PF[laser.X][laser.Y] < 24)) //Is Rotating Mirror
+		)
 		{
 
 			// Reflect off mirror
@@ -6040,26 +6044,34 @@ LaserMoveJump:
 			switch (Game.PF[laser.X][laser.Y]) {
 			case 11: // mirror_left_up
 			case 20: // rotmirror_left_up
-				if (laser.Dir == 2) laser.Dir = 1;
-				else laser.Dir = 4;
+				if (laser.Dir == 2)
+					laser.Dir = 1;
+				else
+					laser.Dir = 4;
 				break;
 
 			case 12: // mirror_up_right
 			case 21:
-				if (laser.Dir == 3) laser.Dir = 2;
-				else laser.Dir = 1;
+				if (laser.Dir == 3)
+					laser.Dir = 2;
+				else
+					laser.Dir = 1;
 				break;
 
 			case 13: // mirror_right_down
 			case 22:
-				if (laser.Dir == 1) laser.Dir = 2;
-				else laser.Dir = 3;
+				if (laser.Dir == 1)
+					laser.Dir = 2;
+				else
+					laser.Dir = 3;
 				break;
 
 			case 14: // mirror_down_left
 			case 23:
-				if (laser.Dir == 1) laser.Dir = 4;
-				else laser.Dir = 3;
+				if (laser.Dir == 1)
+					laser.Dir = 4;
+				else
+					laser.Dir = 3;
 			}
 
 			// Draw laser in two halves, original direction and final direction

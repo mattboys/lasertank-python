@@ -184,6 +184,13 @@ SPRITE_MAPPING = {
     THINICE: 57,
 }
 
+GetTankDirectional = {
+    D_UP: TANK_UP,
+    D_RIGHT: TANK_RIGHT,
+    D_DOWN: TANK_DOWN,
+    D_LEFT: TANK_LEFT,
+}
+
 BMP_TUNNEL_MASK = 55
 BMP_GLASS_RED = 51
 BMP_GLASS_GREEN = 46
@@ -195,3 +202,6 @@ DIFFICULTY_TEXTS = {
             8: "Hard",
             16: "Deadly",
         }
+
+LaserColorR = "RED"
+LaserColorG = "GREEN"
