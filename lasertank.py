@@ -20,8 +20,8 @@ class TankRec:
 
 class LaserRec:
     def __init__(self):
-        self.X = 0
-        self.Y = 0
+        self.X = 5
+        self.Y = 10
         self.Dir = id.D_UP
         self.Firing = False  # Does it exist on the board?
         self.Good = False
@@ -150,7 +150,7 @@ class Graphics:
                 self._draw_sprite(board.terrain[x][y], x, y)
                 self._draw_sprite(board.items[x][y], x, y)
         self._draw_tank(board.tank.X, board.tank.Y, board.tank.Dir)
-        self._draw_laser(board.laser.Dir, board.laser.oDir, board.laser.X, board.laser.Y, board.laser.LaserColor)
+        self._draw_laser(board.laser)
         pygame.display.update()
         self._increment_animation_counter()
 
@@ -200,100 +200,100 @@ class Graphics:
         )
         self.screen.blit(self.spritesheet, board_location, sprite_sheet_location)
 
-    def _draw_laser(self, direction_a, direction_b, square_x, square_y, laser_colour_id):
-        colour = self.LASER_COLOURS[laser_colour_id]
-        x = self.GAMEBOARD_OFFSET_X_PX + (square_x * self.SPRITE_SIZE)
-        y = self.GAMEBOARD_OFFSET_Y_PX + (square_y * self.SPRITE_SIZE)
-        h = self.SPRITE_SIZE / 2
-        if direction_a == direction_b:
-            # Not deflecting
-            if direction_a == id.D_UP or direction_a == id.D_DOWN:
-                # Vertical
-                beam = pygame.Rect(
-                    x + self.LASER_OFFSET,
-                    y,
-                    self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
-                    self.SPRITE_SIZE
-                )
+    def _draw_laser(self, laser: LaserRec):
+        if laser.Firing:
+            colour = self.LASER_COLOURS[laser.LaserColor]
+            x = self.GAMEBOARD_OFFSET_X_PX + (laser.X * self.SPRITE_SIZE)
+            y = self.GAMEBOARD_OFFSET_Y_PX + (laser.Y * self.SPRITE_SIZE)
+            h = self.SPRITE_SIZE / 2
+            if laser.Dir == laser.oDir:
+                # Not deflecting
+                if laser.Dir == id.D_UP or laser.Dir == id.D_DOWN:
+                    # Vertical
+                    beam = pygame.Rect(
+                        x + self.LASER_OFFSET,
+                        y,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
+                        self.SPRITE_SIZE
+                    )
+                else:
+                    # Horizontal
+                    beam = pygame.Rect(
+                        x,
+                        y + self.LASER_OFFSET,
+                        self.SPRITE_SIZE,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET
+                    )
+                pygame.draw.rect(self.screen, self.BLACK, beam, 3)
+                pygame.draw.rect(self.screen, colour, beam)
             else:
-                # Horizontal
-                beam = pygame.Rect(
-                    x,
-                    y + self.LASER_OFFSET,
-                    self.SPRITE_SIZE,
-                    self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET
-                )
-            pygame.draw.rect(self.screen, self.BLACK, beam, 3)
-            pygame.draw.rect(self.screen, colour, beam)
-        else:
-            # Deflecting off mirror
-            # Draw two parts of the reflecting laser
-            if direction_a == id.D_UP:
-                beam_a = pygame.Rect(
-                    x + self.LASER_OFFSET,
-                    y + h,
-                    x + self.SPRITE_SIZE - self.LASER_OFFSET,
-                    y + self.SPRITE_SIZE,
-                )
-            elif direction_a == id.D_RIGHT:
-                beam_a = pygame.Rect(
-                    x,
-                    y + self.LASER_OFFSET,
-                    x + h,
-                    y + self.SPRITE_SIZE - self.LASER_OFFSET
-                )
-            elif direction_a == id.D_DOWN:
-                beam_a = pygame.Rect(
-                    x + self.LASER_OFFSET,
-                    y,
-                    x + self.SPRITE_SIZE - self.LASER_OFFSET,
-                    y + h
-                )
-            elif direction_a == id.D_LEFT:
-                beam_a = pygame.Rect(
-                    x + h,
-                    y + self.LASER_OFFSET,
-                    x + self.SPRITE_SIZE,
-                    y + self.SPRITE_SIZE - self.LASER_OFFSET,
-                )
-            else:
-                return
+                # Deflecting off mirror
+                # Draw two parts of the reflecting laser
+                if laser.Dir == id.D_UP:
+                    beam_a = pygame.Rect(
+                        x + self.LASER_OFFSET,
+                        y + h,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
+                        self.SPRITE_SIZE - h,
+                    )
+                elif laser.Dir == id.D_RIGHT:
+                    beam_a = pygame.Rect(
+                        x,
+                        y + self.LASER_OFFSET,
+                        h,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET
+                    )
+                elif laser.Dir == id.D_DOWN:
+                    beam_a = pygame.Rect(
+                        x + self.LASER_OFFSET,
+                        y,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
+                        h
+                    )
+                elif laser.Dir == id.D_LEFT:
+                    beam_a = pygame.Rect(
+                        x + h,
+                        y + self.LASER_OFFSET,
+                        self.SPRITE_SIZE - h,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
+                    )
+                else:
+                    return
+                pygame.draw.rect(self.screen, colour, beam_a, width=0, border_radius=2)
+                pygame.draw.rect(self.screen, self.BLACK, beam_a, width=1, border_radius=2)
 
-            if direction_b == id.D_UP:
-                beam_b = pygame.Rect(
-                    x + self.LASER_OFFSET,
-                    y,
-                    x + self.SPRITE_SIZE - self.LASER_OFFSET,
-                    y + h
-                )
-            elif direction_b == id.D_RIGHT:
-                beam_b = pygame.Rect(
-                    x + h,
-                    y + self.LASER_OFFSET,
-                    x + self.SPRITE_SIZE,
-                    y + self.SPRITE_SIZE - self.LASER_OFFSET,
-                )
-            elif direction_b == id.D_DOWN:
-                beam_b = pygame.Rect(
-                    x + self.LASER_OFFSET,
-                    y + h,
-                    x + self.SPRITE_SIZE - self.LASER_OFFSET,
-                    y + self.SPRITE_SIZE,
-                )
-            elif direction_b == id.D_LEFT:
-                beam_b = pygame.Rect(
-                    x,
-                    y + self.LASER_OFFSET,
-                    x + h,
-                    y + self.SPRITE_SIZE - self.LASER_OFFSET
-                )
-            else:
-                return
-
-            pygame.draw.rect(self.screen, self.BLACK, beam_a, 3)
-            pygame.draw.rect(self.screen, self.BLACK, beam_b, 3)
-            pygame.draw.rect(self.screen, colour, beam_a)
-            pygame.draw.rect(self.screen, colour, beam_b)
+                if laser.oDir == id.D_UP:
+                    beam_b = pygame.Rect(
+                        x + self.LASER_OFFSET,
+                        y,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
+                        h
+                    )
+                elif laser.oDir == id.D_RIGHT:
+                    beam_b = pygame.Rect(
+                        x + h,
+                        y + self.LASER_OFFSET,
+                        self.SPRITE_SIZE - h,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
+                    )
+                elif laser.oDir == id.D_DOWN:
+                    beam_b = pygame.Rect(
+                        x + self.LASER_OFFSET,
+                        y + h,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
+                        self.SPRITE_SIZE - h,
+                    )
+                elif laser.oDir == id.D_LEFT:
+                    beam_b = pygame.Rect(
+                        x,
+                        y + self.LASER_OFFSET,
+                        h,
+                        self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET
+                    )
+                else:
+                    return
+                pygame.draw.rect(self.screen, colour, beam_b, width=0, border_radius=2)
+                pygame.draw.rect(self.screen, self.BLACK, beam_b, width=1, border_radius=2)
 
 
 def colour_helper(c_format_str = '0x00bbggrr'):

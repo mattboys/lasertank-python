@@ -4848,9 +4848,21 @@ void UpDateLaser()
 	x = XOffset + (laser.X * SpBm_Width);
 	y = YOffset + (laser.Y * SpBm_Height);
 	if ((laser.Dir & 1) == 1)
-		Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + SpBm_Height);
+		Rectangle(
+			gDC,
+			x + LaserOffset,
+			y,
+			x + SpBm_Width - LaserOffset,
+			y + SpBm_Height
+		);
 	else
-		Rectangle(gDC, x, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
+		Rectangle(
+			gDC,
+			x,
+			y + LaserOffset,
+			x + SpBm_Width,
+			y + SpBm_Height - LaserOffset
+		);
 	SelectObject(gDC, ob);
 }
 
@@ -4880,29 +4892,77 @@ void UpDateLaserBounce(int a, int b)
 	// Draw two parts of the reflecting laser
 	switch (a) {
 		case 1:
-			Rectangle(gDC, x + LaserOffset, y + h, x + SpBm_Width - LaserOffset, y + SpBm_Height);
+			Rectangle(
+				gDC,
+				x + LaserOffset,
+				y + h,
+				x + SpBm_Width - LaserOffset,
+				y + SpBm_Height
+			);
 			break;
 		case 2:
-			Rectangle(gDC, x, y + LaserOffset, x + h, y + SpBm_Height - LaserOffset);
+			Rectangle(
+				gDC,
+				x,
+				y + LaserOffset,
+				x + h,
+				y + SpBm_Height - LaserOffset
+			);
 			break;
 		case 3:
-			Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + h);
+			Rectangle(
+				gDC,
+				x + LaserOffset,
+				y,
+				x + SpBm_Width - LaserOffset,
+				y + h
+			);
 			break;
 		case 4:
-			Rectangle(gDC, x + h, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
+			Rectangle(
+				gDC,
+				x + h,
+				y + LaserOffset,
+				x + SpBm_Width,
+				y + SpBm_Height - LaserOffset
+			);
 	}
 	switch (b) {
 		case 1:
-			Rectangle(gDC, x + LaserOffset, y, x + SpBm_Width - LaserOffset, y + h);
+			Rectangle(
+				gDC,
+				x + LaserOffset,
+				y,
+				x + SpBm_Width - LaserOffset,
+				y + h
+			);
 			break;
 		case 2:
-			Rectangle(gDC, x + h, y + LaserOffset, x + SpBm_Width, y + SpBm_Height - LaserOffset);
+			Rectangle(
+				gDC,
+				x + h,
+				y + LaserOffset,
+				x + SpBm_Width,
+				y + SpBm_Height - LaserOffset
+			);
 			break;
 		case 3:
-			Rectangle(gDC, x + LaserOffset, y + h, x + SpBm_Width - LaserOffset, y + SpBm_Height);
+			Rectangle(
+				gDC,
+				x + LaserOffset,
+				y + h,
+				x + SpBm_Width - LaserOffset,
+				y + SpBm_Height
+			);
 			break;
 		case 4:
-			Rectangle(gDC, x, y + LaserOffset, x + h, y + SpBm_Height - LaserOffset);
+			Rectangle(
+				gDC,
+				x,
+				y + LaserOffset,
+				x + h,
+				y + SpBm_Height - LaserOffset
+			);
 	}
 	SelectObject(gDC, ob);
 }
