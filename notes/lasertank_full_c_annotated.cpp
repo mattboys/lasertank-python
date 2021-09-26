@@ -433,7 +433,7 @@ void SFxInit(void);
 
 #include <mmsystem.h>
 
-#include "lt_sfx.h"            // prototypes specific to this application
+// #include "lt_sfx.h"            // prototypes specific to this application
 
 // SFx[] 0:BRICKS, 1:FIRE, 2:MOVE, 3:HEAD, 4:TURN, 5:ENDLEV, 6:DIE, 7:ANTI1, 8:ANTI2, 9:DEFLB, 10:LASER2, 11:PUSH2, 12:PUSH1, 13:ROTATE, 14:PUSH3, 15:SINK
 HGLOBAL SFx[MaxSounds]; // Array of handles to sound resources. Set by SFxInit()->SoundLoad('resource_name')
@@ -513,7 +513,7 @@ void SFxInit(void) {
 
 #include <stdio.h>
 
-#include "ltank.h"
+// #include "ltank.h"
 
 char LANGText[SIZE_ALL][MAX_LANG_SIZE]; // All lines of Language.dat
 char LANGFile[MAX_PATH]; // the dynamic file name for Language.dat
@@ -808,9 +808,9 @@ extern HWND PlayH, PBCountH;
 
 #include <shlobj.h>
 
-#include "ltank.h"
+// #include "ltank.h"
 
-#include "ltank_d.h"
+// #include "ltank_d.h"
 
 #define PHDC(pDIS -> hDC)
 #define PRC(pDIS -> rcItem)
@@ -2153,7 +2153,7 @@ Obj			BitM	Description
 // Language Section for Lasertank
 // Import this from its own file
 
-#include "lt32l_us.h"
+// #include "lt32l_us.h"
 
 // Game Defaults
 #define LevelData "LaserTank.lvl" // Default Level Data File
@@ -2414,11 +2414,11 @@ void LoadWindowCaption(HWND, int);
 
 #include <mmsystem.h>
 
-#include "ltank.h"
+// #include "ltank.h"
 
-#include "ltank_d.h"
+// #include "ltank_d.h"
 
-#include "lt_sfx.h"
+// #include "lt_sfx.h"
 
 const int GetNextBMArray[MaxObjects + 1] = {
 	0,
@@ -3079,8 +3079,10 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 		// PROCESS KEYBOARD INPUT FROM USER
 		// python: # if ((Game.RecP < RB_TOS) && (!(Game.Tank.Firing || ConvMoving || SlideO.s || SlideT.s || PBHold)))
 		// if (inputs on stack) && (tank not firing) && (conveyors not moving) && (nothing sliding) && (playback not paused)
-		if ((Game.RecP < RB_TOS) && // (speedBug) &&
-			(!(Game.Tank.Firing || ConvMoving || SlideO.s || SlideT.s || PBHold))) {
+		if (
+			(Game.RecP < RB_TOS) && // (speedBug) &&
+			(!(Game.Tank.Firing || ConvMoving || SlideO.s || SlideT.s || PBHold))
+		){
 			switch (RecBuffer[Game.RecP]) {
 				case VK_UP:
 					MoveTank(1); // Move tank Up one
@@ -4199,11 +4201,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 #include <stdio.h>
 
-#include "ltank.h"
+// #include "ltank.h"
 
-#include "ltank_d.h"
+// #include "ltank_d.h"
 
-#include "lt_sfx.h"
+// #include "lt_sfx.h"
 
 // Declare the Global Varables
 
@@ -4885,8 +4887,9 @@ void UpDateLaserBounce(int a, int b)
 	for (iSlideObj = 1; iSlideObj <= SlideMem.count; iSlideObj++) // MGY
 		// MGY
 		if (SlideMem.Objects[iSlideObj].s &&
-			(SlideMem.Objects[iSlideObj].x == laser.X) &&
-			(SlideMem.Objects[iSlideObj].y == laser.Y)) LaserBounceOnIce = TRUE;
+				(SlideMem.Objects[iSlideObj].x == laser.X) &&
+				(SlideMem.Objects[iSlideObj].y == laser.Y))
+			LaserBounceOnIce = TRUE;
 	//if (SlideO.s && (SlideO.x == laser.X) && (SlideO.y == laser.Y)) LaserBounceOnIce = TRUE;
 
 	// Draw two parts of the reflecting laser
@@ -5735,9 +5738,9 @@ void MoveObj(int x, int y, int dx, int dy, int sf)
 	// If destination is a tunnel then set x,y to tunnel's exit
 	if (ISTunnel(x, y)) {
 		// TranslateTunnel:
-		//Find the exit to a tunnel with matching ID (scans y:0-15, x:0-15) and set *x, *y to the destination
-		//sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
-		//sets BlackHole TRUE if no exit found
+		// Find the exit to a tunnel with matching ID (scans y:0-15, x:0-15) and set *x, *y to the destination
+		// sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
+		// sets BlackHole TRUE if no exit found
 
 		TranslateTunnel( & x, & y); // We moved into a tunnel
 		if (BlackHole)
