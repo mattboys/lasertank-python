@@ -1,17 +1,16 @@
-from pygame.image import save
+import struct
+
+import pygame
 import pygame.locals
 
 import constants as c
 
-import struct
-
-import pygame
 
 BOARDSIZE = 16  # Playfield is 16x16 grid
 
 DEFAULT_LEVEL_LOC = "./resources/LaserTank.lvl"
 DEFAULT_SPRITESHEET_LOC = "./resources/spritesheet.png"
-
+DEFAULT_LPB_LOC = "./resources/LaserTank_0001.lpb"
 
 class TankRec:
     def __init__(self, x, y, direction):
@@ -76,7 +75,12 @@ class GameState:
             "author": "",
             "difficulty": "",
         }
+        
+        # Control flags
         self.running = True
+        self.reached_flag = False
+        self.player_dead = False
+
         # Flags
         self.ConvMoving = False
         self.SlideT = TIceRec(0, 0, 0, 0, False)  # Momentum of tank where SlideT.s = is tank sliding?
@@ -88,6 +92,10 @@ class GameState:
     def SlideO_s(self):
         # Is anything sliding?
         return len(self.SlideMem) > 0
+
+    def is_inputs_queued(self):
+        """ Are there player moves waiting in the buffer to be played? """
+        return len(self.moves_buffer) > 0
 
     def load_level(self, level_number, filename=DEFAULT_LEVEL_LOC):
         self.board = Board()
@@ -111,12 +119,9 @@ class GameState:
                 return None
         playfield_ints, title, hint, author, difficulty_int = struct.unpack(struct_format, chunk)
 
-        def convert_str(in_bytes):
-            return in_bytes.rstrip(b"\x00").decode("mbcs")
-
-        title = convert_str(title)
-        hint = convert_str(hint)
-        author = convert_str(author)
+        title = convert_null_terminated_bytes_to_str_helper(title)
+        hint = convert_null_terminated_bytes_to_str_helper(hint)
+        author = convert_null_terminated_bytes_to_str_helper(author)
         difficulty = c.DIFFICULTY_TEXTS.get(difficulty_int, c.DIFFICULTY_TEXTS[1])
         self.info = {
             "number": level_number,
@@ -142,13 +147,15 @@ class GameState:
         self.moves_buffer.extend(new_inputs)
 
     def tick(self):
+        # TODO: handle an undo to avoid inf loop
+
         # Main game loop (see C-3039)
         if self.board.tank.Firing:
             self.MoveLaser()
 
         # Process keyboard buffer
         if self.moves_buffer and not (self.board.tank.Firing or self.SlideO_s() or self.SlideT.s or self.PBHold):
-            move = self.moves_buffer.pop()
+            move = self.moves_buffer.pop(0)
             if move == c.K_UP:
                 self.MoveTank(c.D_UP)
             elif move == c.K_RIGHT:
@@ -174,14 +181,10 @@ class GameState:
         tank_terrain = self.board.terrain[self.board.tank.X][self.board.tank.Y]
         if tank_terrain == c.FLAG:
             if self.running:
-                self.running = False
-                # Skipping sound, playback, save recording
-                # self.CheckHighScore()
-                print("Victory!")
+                self.game_over(victorious=True)
         elif tank_terrain == c.WATER:
             self.running = False
-            print("Dead!")
-            exit()
+            self.game_over(victorious=False)
         elif tank_terrain == c.CONVEYOR_UP:
             if self.CheckLoc(self.board.tank.X, self.board.tank.Y - 1):
                 self.ConvMoveTank(0, -1, True)
@@ -195,6 +198,22 @@ class GameState:
             if self.CheckLoc(self.board.tank.X - 1, self.board.tank.Y):
                 self.ConvMoveTank(-1, 0, True)
 
+    def game_over(self, victorious):
+        self.running = False
+        # Skipping sound, playback, save recording
+        if victorious:
+                # self.CheckHighScore()
+                self.reached_flag = True
+        else:
+            self.player_dead = True
+        print("Game over")
+
+    def LoadPlayback(self, filename=DEFAULT_LPB_LOC):
+        #C-2574
+        # Read off PBRec and Pec
+        #TODO
+        pass
+
     def ConvMoveTank(self, x, y, check_ice):
         self.board.tank.Y += y
         self.board.tank.X += x
@@ -202,8 +221,8 @@ class GameState:
         if self.ISTunnel(self.board.tank.X, self.board.tank.Y):
             self.TranslateTunnelTank()
             if self.BlackHole:
-                self.running = False
-                print("Dead!")
+                self.game_over(victorious=False)
+                return
         if self.WaitToTrans:
             self.board.tank.Good = True
         self.ConvMoving = True
@@ -440,8 +459,8 @@ class GameState:
         if self.ISTunnel(self.board.tank.X, self.board.tank.Y):
             self.TranslateTunnelTank()
             if self.BlackHole:
-                self.running = False
-                print("Dead!")
+                self.game_over(victorious=False)
+                return
         if self.WaitToTrans:
             self.board.tank.Good = True
 
@@ -594,7 +613,7 @@ class GameState:
 
         if x == self.board.tank.X and y == self.board.tank.Y:
             # Hit tank
-            print("Dead! Hit with laser.")
+            self.game_over(victorious=False)
             return False
 
         self.wasIce = False
@@ -988,7 +1007,76 @@ class InputEngine:
         return translated_events
 
 
+def load_level(filename, level_number):
+    game = GameState()
+    game.load_level(level_number=level_number, filename=filename)
+    return game
+
+def convert_null_terminated_bytes_to_str_helper(in_bytes):
+    """ Convert null terminated string from bytes to python string """
+    return in_bytes.split(b"\x00")[0].decode("mbcs")
+
+def load_playback(filename):
+    struct_format = "<31s31sHH"  # PBSRec (tRecordRec) C structure
+    chunk_size = struct.calcsize(struct_format)  # 66
+    with open(filename, "rb") as f:
+        info_chunk = f.read(chunk_size)
+        if not info_chunk:
+            return None
+        level_name, player_name, level_number, buffer_size = struct.unpack(struct_format, info_chunk)
+        moves_chunk = f.read(buffer_size)
+    
+    # Clean up byte data
+    level_name = convert_null_terminated_bytes_to_str_helper(level_name)
+    player_name = convert_null_terminated_bytes_to_str_helper(player_name)
+    playback = []
+    for move_byte in moves_chunk:
+        if move_byte == 0x20:
+            playback.append(c.K_SHOOT)
+        elif move_byte == 0x25:
+            playback.append(c.K_LEFT)
+        elif move_byte == 0x26:
+            playback.append(c.K_UP)
+        elif move_byte == 0x27:
+            playback.append(c.K_RIGHT)
+        elif move_byte == 0x28:
+            playback.append(c.K_DOWN)
+        else:
+            break
+    return {
+            "number": level_number,
+            "title": level_name,
+            "player_name": player_name,
+            "playback": playback,
+        }
+
+
+def execute_playback(inputs: list, game: GameState):
+    game.queue_new_inputs(inputs)
+    while game.running and not game.is_inputs_queued():
+        game.tick()
+    if game.reached_flag:
+        return "WIN"
+    elif game.player_dead:
+        return "DEAD"
+    else:
+        return "UNFINISHED"
+
+
 if __name__ == '__main__':
+
+    # pb = load_playback('resources/LaserTank_0001.lpb')
+    # game = load_level('resources/LaserTank.lvl', pb['number'])
+    # game.queue_new_inputs(pb["playback"])
+    #
+    # graphics = Graphics()
+    # clock = pygame.time.Clock()
+    #
+    # while game.running:
+    #     game.tick()
+    #     graphics.draw_board(game.board)
+    #     clock.tick(1)
+    #     print(game.moves_buffer)
 
     game = GameState()
     graphics = Graphics()
@@ -1001,6 +1089,6 @@ if __name__ == '__main__':
         game.queue_new_inputs(inputs.get_inputs())
         game.tick()
         graphics.draw_board(game.board)
-        clock.tick(10)
+        clock.tick(1)
 
     pass

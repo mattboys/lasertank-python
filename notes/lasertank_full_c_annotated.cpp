@@ -2600,6 +2600,7 @@ BOOL LoadPlayback() {
 		F1 = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 			FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 		CurLevel = 0;
+		// MB: Bug identified: F1 handle should be used here to search for level name
 		ReadFile(F, & CurRecData, sizeof(CurRecData), & BytesMoved, NULL);
 		while ((BytesMoved == sizeof(CurRecData)) && (strcmp(CurRecData.LName, PBRec.LName) != 0)) {
 			CurLevel++;
