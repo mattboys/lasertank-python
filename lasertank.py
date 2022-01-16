@@ -154,7 +154,7 @@ class GameState:
             self.MoveLaser()
 
         # Process keyboard buffer
-        if self.moves_buffer and not (self.board.tank.Firing or self.SlideO_s() or self.SlideT.s or self.PBHold):
+        if self.moves_buffer and not (self.board.tank.Firing or self.SlideO_s() or self.SlideT.s or self.PBHold or self.ConvMoving):
             move = self.moves_buffer.pop(0)
             if move == c.K_UP:
                 self.MoveTank(c.D_UP)
@@ -528,10 +528,12 @@ class GameState:
                 # Other end of blocked tunnel had an object so move it through now
                 # Move object through a tunnel (from xy to cx, cy)
                 self.board.items[x][y] = self.board.items[cx][cy]  # Transfer blocked object
+                self.board.items[cx][cy] = c.EMPTY
                 self.board.terrain[cx][cy] = c.Tunnel_Set_Not_Waiting[self.board.terrain[cx][cy]]
             else:
                 # Did not find another end of this tunnel with an object on
                 # Not Blocked Anymore
+                self.board.items[x][y] = c.EMPTY
                 self.board.terrain[x][y] = c.Tunnel_Set_Not_Waiting[self.board.terrain[x][y]]
 
                 # We didn't find a match so maybe the tank is it
@@ -1006,6 +1008,15 @@ class InputEngine:
                 translated_events.append(c.K_UNDO)
         return translated_events
 
+    def wait_for_anykey(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (
+                        event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_ESCAPE):
+                    return [c.K_QUIT]
+                elif event.type == pygame.locals.KEYDOWN:
+                    return []
+
 
 def load_level(filename, level_number):
     game = GameState()
@@ -1065,30 +1076,31 @@ def execute_playback(inputs: list, game: GameState):
 
 if __name__ == '__main__':
 
-    # pb = load_playback('resources/LaserTank_0001.lpb')
-    # game = load_level('resources/LaserTank.lvl', pb['number'])
-    # game.queue_new_inputs(pb["playback"])
-    #
+    pb = load_playback('resources/TunnelTest_0001.lpb')
+    game = load_level('resources/TunnelTest.lvl', pb['number'])
+    game.queue_new_inputs(pb["playback"])
+
+    graphics = Graphics()
+    clock = pygame.time.Clock()
+    inputs = InputEngine()
+
+    while game.running:
+        game.tick()
+        graphics.draw_board(game.board)
+        game.queue_new_inputs(inputs.wait_for_anykey())
+        print(game.moves_buffer)
+
+    # game = GameState()
     # graphics = Graphics()
+    # inputs = InputEngine()
+    #
     # clock = pygame.time.Clock()
     #
+    # game.load_level(1)
     # while game.running:
+    #     game.queue_new_inputs(inputs.get_inputs())
     #     game.tick()
     #     graphics.draw_board(game.board)
     #     clock.tick(1)
-    #     print(game.moves_buffer)
-
-    game = GameState()
-    graphics = Graphics()
-    inputs = InputEngine()
-
-    clock = pygame.time.Clock()
-
-    game.load_level(1)
-    while game.running:
-        game.queue_new_inputs(inputs.get_inputs())
-        game.tick()
-        graphics.draw_board(game.board)
-        clock.tick(1)
 
     pass

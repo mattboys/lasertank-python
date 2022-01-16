@@ -2639,63 +2639,66 @@ void VHSPlayback() {
 	}
 	VHSOn = TRUE;
 	while (Game.RecP < RB_TOS) {
-		if (Game.Tank.Firing) MoveLaser(); // Move laser if one was fired
+		if (Game.Tank.Firing)
+		    MoveLaser(); // Move laser if one was fired
 		// Check Key Press }
 		if (!(Game.Tank.Firing || ConvMoving || SlideO.s || SlideT.s)) {
 			switch (RecBuffer[Game.RecP]) {
-			case VK_UP:
-				MoveTank(1); // Move tank Up one
-				break;
-			case VK_RIGHT:
-				MoveTank(2);
-				break;
-			case VK_DOWN:
-				MoveTank(3);
-				break;
-			case VK_LEFT:
-				MoveTank(4);
-				break;
-			case VK_SPACE: {
-				UpdateUndo();
-				Game.ScoreShot++; // do here Not in FireLaser (as FireLaser is also used for antitanks)
-				FireLaser(Game.Tank.X, Game.Tank.Y, Game.Tank.Dir, S_Fire); // Bang
-			}
+                case VK_UP:
+                    MoveTank(1); // Move tank Up one
+                    break;
+                case VK_RIGHT:
+                    MoveTank(2);
+                    break;
+                case VK_DOWN:
+                    MoveTank(3);
+                    break;
+                case VK_LEFT:
+                    MoveTank(4);
+                    break;
+                case VK_SPACE: {
+                    UpdateUndo();
+                    Game.ScoreShot++; // do here Not in FireLaser (as FireLaser is also used for antitanks)
+                    FireLaser(Game.Tank.X, Game.Tank.Y, Game.Tank.Dir, S_Fire); // Bang
+			    }
 			}
 			Game.RecP++; // Point to next charecter
 			AntiTank(); // give the Anti-Tanks a turn to play
 		}
-		if (SlideO.s) IceMoveO();
-		if (SlideT.s) IceMoveT();
+		if (SlideO.s)
+		    IceMoveO();
+		if (SlideT.s)
+		    IceMoveT();
 		ConvMoving = FALSE; // used to disable Laser on the conveyor
 		switch (Game.PF[Game.Tank.X][Game.Tank.Y]) {
-		case 2:
-			if (Game_On) // Reached the Flag
-			{
-				GameOn(FALSE);
-				ReleaseDC(gDC, MainH);
-				VHSOn = FALSE;
-				return; // We shouldn't be here
+            case 2:
+                if (Game_On) // Reached the Flag
+                {
+                    GameOn(FALSE);
+                    ReleaseDC(gDC, MainH);
+                    VHSOn = FALSE;
+                    return; // We shouldn't be here
 
-			}
-			break;
-		case 3:
-			PostMessage(MainH, WM_Dead, 0, 0); // Water
-			break;
-		case 15:
-			if (CheckLoc(Game.Tank.X, Game.Tank.Y - 1)) // Conveyor Up
-				ConvMoveTank(0, -1, TRUE);
-			break;
-		case 16:
-			if (CheckLoc(Game.Tank.X + 1, Game.Tank.Y))
-				ConvMoveTank(1, 0, TRUE);
-			break;
-		case 17:
-			if (CheckLoc(Game.Tank.X, Game.Tank.Y + 1))
-				ConvMoveTank(0, 1, TRUE);
-			break;
-		case 18:
-			if (CheckLoc(Game.Tank.X - 1, Game.Tank.Y))
-				ConvMoveTank(-1, 0, TRUE);
+                }
+                break;
+            case 3:
+                PostMessage(MainH, WM_Dead, 0, 0); // Water
+                break;
+            case 15:
+                if (CheckLoc(Game.Tank.X, Game.Tank.Y - 1)) // Conveyor Up
+                    ConvMoveTank(0, -1, TRUE);
+                break;
+            case 16:
+                if (CheckLoc(Game.Tank.X + 1, Game.Tank.Y))
+                    ConvMoveTank(1, 0, TRUE);
+                break;
+            case 17:
+                if (CheckLoc(Game.Tank.X, Game.Tank.Y + 1))
+                    ConvMoveTank(0, 1, TRUE);
+                break;
+            case 18:
+                if (CheckLoc(Game.Tank.X - 1, Game.Tank.Y))
+                    ConvMoveTank(-1, 0, TRUE);
 		}
 	}
 	ReleaseDC(gDC, MainH);
