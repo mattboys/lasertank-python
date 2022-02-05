@@ -202,8 +202,8 @@ class GameState:
         self.running = False
         # Skipping sound, playback, save recording
         if victorious:
-                # self.CheckHighScore()
-                self.reached_flag = True
+            # self.CheckHighScore()
+            self.reached_flag = True
         else:
             self.player_dead = True
         print("Game over")
@@ -982,7 +982,6 @@ class Graphics:
         b = c_format_str[4:6]
         return f'0x{r}{g}{b}{a}'
 
-
 class InputEngine:
     def __init__(self):
         pygame.init()
@@ -1076,8 +1075,8 @@ def execute_playback(inputs: list, game: GameState):
 
 if __name__ == '__main__':
 
-    pb = load_playback('resources/TunnelTest_0001.lpb')
-    game = load_level('resources/TunnelTest.lvl', pb['number'])
+    pb = load_playback('resources/levels/dodge_conveyor/Tutor6Extract_0001.lpb')
+    game = load_level('resources/levels/dodge_conveyor/Tutor6Extract.LVL', pb['number'])
     game.queue_new_inputs(pb["playback"])
 
     graphics = Graphics()
@@ -1089,18 +1088,5 @@ if __name__ == '__main__':
         graphics.draw_board(game.board)
         game.queue_new_inputs(inputs.wait_for_anykey())
         print(game.moves_buffer)
-
-    # game = GameState()
-    # graphics = Graphics()
-    # inputs = InputEngine()
-    #
-    # clock = pygame.time.Clock()
-    #
-    # game.load_level(1)
-    # while game.running:
-    #     game.queue_new_inputs(inputs.get_inputs())
-    #     game.tick()
-    #     graphics.draw_board(game.board)
-    #     clock.tick(1)
 
     pass
