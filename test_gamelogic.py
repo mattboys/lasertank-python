@@ -1,9 +1,9 @@
 from lasertank import *
 
 
-def run_lvl_playback(level_name, level_number, show=True):
-    pb = load_playback(f'resources/levels/{level_name}_{level_number:04}.lpb')
-    game = load_level(f'resources/levels/{level_name}.lvl', pb['number'])
+def run_lvl_playback(level_name, level_number, show=False):
+    pb = load_playback(f"resources/levels/{level_name}_{level_number:04}.lpb")
+    game = load_level(f"resources/levels/{level_name}.lvl", pb["number"])
     game.queue_new_inputs(pb["playback"])
     if show:
         graphics = Graphics()
@@ -12,17 +12,17 @@ def run_lvl_playback(level_name, level_number, show=True):
         graphics = None
         clock = None
 
-    tick_counter = 0
+    timeout_counter = 0
     moves_left_prev = 0
-    while game.running and tick_counter < 500:
+    while game.running and timeout_counter < 500:
         game.tick()
 
         # End early if stuck on no moves or inf loop
         moves_left = len(game.moves_buffer)
         if moves_left == 0 or moves_left == moves_left_prev:
-            tick_counter += 1
+            timeout_counter += 1
         else:
-            tick_counter = 0
+            timeout_counter = 0
         moves_left_prev = moves_left
 
         if show:
@@ -32,8 +32,8 @@ def run_lvl_playback(level_name, level_number, show=True):
 
 
 def test_box_through_tunnel():
-    pb = load_playback('resources/levels/tunnel_test/TunnelTest_0001.lpb')
-    game = load_level('resources/levels/tunnel_test/TunnelTest.lvl', pb['number'])
+    pb = load_playback("resources/levels/tunnel_test/TunnelTest_0001.lpb")
+    game = load_level("resources/levels/tunnel_test/TunnelTest.lvl", pb["number"])
     game.queue_new_inputs(pb["playback"])
     while game.running:
         game.tick()

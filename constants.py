@@ -1,5 +1,3 @@
-from pygame.constants import K_ESCAPE
-
 PLAYFIELD_SIZE = 16
 MAX_TICEMEM = 16
 
@@ -57,7 +55,7 @@ TUNNEL_5_PINK_WAITING = 75
 TUNNEL_6_WHITE_WAITING = 77
 TUNNEL_7_GREY_WAITING = 79
 
-TUNNEL_ALL = [ 
+TUNNEL_ALL = [
     TUNNEL_0_RED,
     TUNNEL_1_GREEN,
     TUNNEL_2_BLUE,
@@ -74,7 +72,7 @@ TUNNEL_ALL = [
     TUNNEL_5_PINK_WAITING,
     TUNNEL_6_WHITE_WAITING,
     TUNNEL_7_GREY_WAITING,
-    ]
+]
 
 # Items
 TANK = TANK_UP = 1
@@ -116,9 +114,9 @@ SOLID_ITEMS = [
     DEADANTITANK_RIGHT,
     DEADANTITANK_DOWN,
     DEADANTITANK_LEFT,
-    ]
+]
 
-MIRROR_ALL = [ 
+MIRROR_ALL = [
     MIRROR_LEFT_UP,
     MIRROR_UP_RIGHT,
     MIRROR_RIGHT_DOWN,
@@ -127,7 +125,7 @@ MIRROR_ALL = [
     ROTMIRROR_UP_RIGHT,
     ROTMIRROR_RIGHT_DOWN,
     ROTMIRROR_DOWN_LEFT,
-    ]
+]
 
 # LT_Sound_Types
 S_Bricks = 1
@@ -139,7 +137,7 @@ S_EndLev = 6
 S_Die = 7
 S_Anti1 = 8
 S_Anti2 = 9
-S_Deflb  = 10
+S_Deflb = 10
 S_LaserHit = 11
 S_Push2 = 12
 S_Push1 = 13
@@ -223,9 +221,9 @@ DECODE_TABLE = {
     4: (GRASS, SOLID),
     5: (GRASS, BLOCK),
     6: (GRASS, WALL),
-    7: (GRASS,  ANTITANK_UP),
-    8: (GRASS,  ANTITANK_RIGHT),
-    9: (GRASS,  ANTITANK_DOWN),
+    7: (GRASS, ANTITANK_UP),
+    8: (GRASS, ANTITANK_RIGHT),
+    9: (GRASS, ANTITANK_DOWN),
     10: (GRASS, ANTITANK_LEFT),
     11: (GRASS, MIRROR_LEFT_UP),
     12: (GRASS, MIRROR_UP_RIGHT),
@@ -278,16 +276,16 @@ SPRITE_MAPPING = {
     ANTITANK_DOWN: (39, 40, 41),
     ANTITANK_LEFT: (42, 43, 44),
     GLASS: 45,
-    #GLASS_GREEN: 46,
+    # GLASS_GREEN: 46,
     ROTMIRROR_LEFT_UP: 47,
     ROTMIRROR_UP_RIGHT: 48,
     ROTMIRROR_RIGHT_DOWN: 49,
     ROTMIRROR_DOWN_LEFT: 50,
-    #GLASS_RED: 51,
+    # GLASS_RED: 51,
     DEADANTITANK_RIGHT: 52,
     DEADANTITANK_LEFT: 53,
     DEADANTITANK_UP: 54,
-    #TUNNEL: 55
+    # TUNNEL: 55
     ICE: 56,
     THINICE: 57,
 }
@@ -304,12 +302,12 @@ BMP_GLASS_RED = 51
 BMP_GLASS_GREEN = 46
 
 DIFFICULTY_TEXTS = {
-            1: "Kids",
-            2: "Easy",
-            4: "Medium",
-            8: "Hard",
-            16: "Deadly",
-        }
+    1: "Kids",
+    2: "Easy",
+    4: "Medium",
+    8: "Hard",
+    16: "Deadly",
+}
 
 LaserColorR = "RED"
 LaserColorG = "GREEN"

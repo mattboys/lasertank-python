@@ -3039,7 +3039,7 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 			return (0);
 		}
 		break;
-
+// ************************************************************************************* //
 	// main game logic processing *****************************************
 	case WM_TIMER:
 
@@ -3064,19 +3064,29 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 		if (Game.Tank.Firing)
 			MoveLaser(); // Move laser if one was fired
 
-		if (PBOpen) //?If playback is on
+		// If playback is on
+		// then set the correct button text
+		// and pause (PBHold=True) if in step mode and all momentum is resolved
+		if (PBOpen)
 		{
 			if (Speed == 2) {
 				SlowPB++;
 				if (SlowPB == SlowPBSet) SlowPB = 1;
 			}
-			if (PlayBack && (!(ConvMoving || SlideO.s || SlideT.s)) &&
-				((Speed != 2) || ((Speed == 2) && (SlowPB == 1)))) {
+			if (
+				PlayBack &&
+				( !(ConvMoving || SlideO.s || SlideT.s)) &&
+				( (Speed != 2) || ((Speed == 2) && (SlowPB == 1)))
+			){
 				PBHold = FALSE;
 				itoa(Game.RecP, temps, 10);
 				SendMessage(PBCountH, WM_SETTEXT, 0, (long)(temps));
-				if (Speed == 3) SendMessage(PlayH, WM_COMMAND, ID_PLAYBOX_02, 0);
-			} else PBHold = TRUE;
+
+				if (Speed == 3)
+					SendMessage(PlayH, WM_COMMAND, ID_PLAYBOX_02, 0);
+
+			} else
+				PBHold = TRUE;
 		}
 
 		// Check Key Press }
@@ -6094,7 +6104,7 @@ LaserMoveJump:
 
 		if (laser.Firing)
 			UpDateSprite(laser.X, laser.Y);
-		
+
 		laser.Y += y;
 		laser.X += x;
 		if (
