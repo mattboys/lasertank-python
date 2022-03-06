@@ -411,34 +411,21 @@ class GameState:
 
                     # Update laser direction if hitting a mirror
                     if reflecting_item == c.MIRROR_LEFT_UP or reflecting_item == c.ROTMIRROR_LEFT_UP:
-                    if (
-                        reflecting_item == c.MIRROR_LEFT_UP
-                        or reflecting_item == c.ROTMIRROR_LEFT_UP
-                    ):
                         if self.board.laser.Dir == c.D_RIGHT:
                             self.board.laser.Dir = c.D_UP
                         else:
                             self.board.laser.Dir = c.D_LEFT
-                    elif (
-                        reflecting_item == c.MIRROR_UP_RIGHT
-                        or reflecting_item == c.ROTMIRROR_UP_RIGHT
-                    ):
+                    elif reflecting_item == c.MIRROR_UP_RIGHT or reflecting_item == c.ROTMIRROR_UP_RIGHT:
                         if self.board.laser.Dir == c.D_DOWN:
                             self.board.laser.Dir = c.D_RIGHT
                         else:
                             self.board.laser.Dir = c.D_UP
-                    elif (
-                        reflecting_item == c.MIRROR_RIGHT_DOWN
-                        or reflecting_item == c.ROTMIRROR_RIGHT_DOWN
-                    ):
+                    elif reflecting_item == c.MIRROR_RIGHT_DOWN or reflecting_item == c.ROTMIRROR_RIGHT_DOWN:
                         if self.board.laser.Dir == c.D_UP:
                             self.board.laser.Dir = c.D_RIGHT
                         else:
                             self.board.laser.Dir = c.D_DOWN
-                    elif (
-                        reflecting_item == c.MIRROR_DOWN_LEFT
-                        or reflecting_item == c.ROTMIRROR_DOWN_LEFT
-                    ):
+                    elif reflecting_item == c.MIRROR_DOWN_LEFT or reflecting_item == c.ROTMIRROR_DOWN_LEFT:
                         if self.board.laser.Dir == c.D_UP:
                             self.board.laser.Dir = c.D_LEFT
                         else:
@@ -1065,33 +1052,17 @@ class InputEngine:
         translated_events = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_ESCAPE
-            ):
+                    event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_ESCAPE):
                 return [c.K_QUIT]
-            elif (
-                event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_UP
-            ):
+            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_UP:
                 translated_events.append(c.K_UP)
-            elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_DOWN
-            ):
+            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_DOWN:
                 translated_events.append(c.K_DOWN)
-            elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_LEFT
-            ):
+            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_LEFT:
                 translated_events.append(c.K_LEFT)
-            elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_RIGHT
-            ):
+            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_RIGHT:
                 translated_events.append(c.K_RIGHT)
-            elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_SPACE
-            ):
+            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_SPACE:
                 translated_events.append(c.K_SHOOT)
             elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_u:
                 translated_events.append(c.K_UNDO)
