@@ -251,8 +251,8 @@ class GameState:
 
         # Set the wasIce flag if tested square is ice or thin ice
         self.wasIce = (self.board.terrain[x][y] == c.ICE or self.board.terrain[x][y] == c.THINICE)
-        if self.board.terrain[x][y] in c.TUNNEL_ALL:
-            return True
+        # if self.board.terrain[x][y] in c.TUNNEL_ALL:
+        #     return True
 
         return self.board.items[x][y] == c.EMPTY
 
@@ -671,7 +671,7 @@ class GameState:
         item_loc = self.board.items[x][y]
         if item_loc == c.EMPTY:
             return True
-        elif item_loc in c.SOLID_ITEMS:
+        elif item_loc in c.SOLID_ITEMS:  # Include dead tanks as solid items
             self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.BLOCK:
             if self.CheckLoc(x + dx, y + dy):  # Can block be moved in direction of laser? Is square free
@@ -811,7 +811,7 @@ class GameState:
                     SlideO.s = False  # Mark for deletion
             else:
                 if self.board.terrain[SlideO.x][SlideO.y] == c.WATER:
-                    # Drop into water if ice melted and item couln't move
+                    # Drop into water if ice melted and item couldn't move
                     self.MoveObj(SlideO.x, SlideO.y, 0, 0, c.S_Sink)
                 SlideO.s = False
                 self.AntiTank()
@@ -821,23 +821,21 @@ class GameState:
     def IceMoveT(self):
         self.change_log.append("Slid tank on ice")
         #  Move the tank on the Ice
-        savei = False
         if self.board.terrain[self.SlideT.x][self.SlideT.y] == c.THINICE:
             self.board.terrain[self.SlideT.x][self.SlideT.y] = c.WATER
 
-        if self.CheckLoc(
-            self.SlideT.x + self.SlideT.dx, self.SlideT.y + self.SlideT.dy
-        ):
+        if self.CheckLoc(self.SlideT.x + self.SlideT.dx, self.SlideT.y + self.SlideT.dy):
             savei = self.wasIce
             self.ConvMoveTank(self.SlideT.dx, self.SlideT.dy, False)
+
+            self.SlideT.x += self.SlideT.dx
+            self.SlideT.y += self.SlideT.dy
+            if not savei:
+                self.SlideT.s = False
+
         else:
             self.SlideT.s = False
-            return
 
-        self.SlideT.x += self.SlideT.dx
-        self.SlideT.y += self.SlideT.dy
-        if not savei:
-            self.SlideT.s = False
 
     def del_SlideO_from_Mem(self, x, y):
         self.change_log.append("Object stopped sliding")
