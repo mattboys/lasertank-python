@@ -671,18 +671,18 @@ class GameState:
         item_loc = self.board.items[x][y]
         if item_loc == c.EMPTY:
             return True
-        if item_loc in c.SOLID_ITEMS:
+        elif item_loc in c.SOLID_ITEMS:
             self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.BLOCK:
+        elif item_loc == c.BLOCK:
             if self.CheckLoc(x + dx, y + dy):  # Can block be moved in direction of laser? Is square free
                 self.MoveObj(x, y, dx, dy, c.S_Push1)  # Push block
             else:
                 self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.WALL:
+        elif item_loc == c.WALL:
             self.board.items[x][y] = c.EMPTY  # Destroy wall with laser
             self.SoundPlay(c.S_Bricks)
 
-        if item_loc == c.ANTITANK_UP:
+        elif item_loc == c.ANTITANK_UP:
             if dy == 1:  # Laser hit front of antitank
                 # KillAtank()
                 self.board.items[x][y] = c.DEADANTITANK_UP
@@ -692,7 +692,7 @@ class GameState:
                 self.MoveObj(x, y, dx, dy, c.S_Push3)
             else:
                 self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.ANTITANK_RIGHT:
+        elif item_loc == c.ANTITANK_RIGHT:
             if dx == -1:
                 self.board.items[x][y] = c.DEADANTITANK_RIGHT
                 self.SoundPlay(c.S_Anti1)
@@ -701,7 +701,7 @@ class GameState:
                 self.MoveObj(x, y, dx, dy, c.S_Push3)
             else:
                 self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.ANTITANK_DOWN:
+        elif item_loc == c.ANTITANK_DOWN:
             if dy == -1:
                 self.board.items[x][y] = c.DEADANTITANK_DOWN
                 self.SoundPlay(c.S_Anti1)
@@ -710,7 +710,7 @@ class GameState:
                 self.MoveObj(x, y, dx, dy, c.S_Push3)
             else:
                 self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.ANTITANK_LEFT:
+        elif item_loc == c.ANTITANK_LEFT:
             if dx == 1:
                 self.board.items[x][y] = c.DEADANTITANK_LEFT
                 self.SoundPlay(c.S_Anti1)
@@ -720,28 +720,28 @@ class GameState:
             else:
                 self.SoundPlay(c.S_LaserHit)
 
-        if item_loc == c.MIRROR_LEFT_UP:
+        elif item_loc == c.MIRROR_LEFT_UP:
             if self.board.laser.Dir == c.D_RIGHT or self.board.laser.Dir == c.D_DOWN:
                 return True
             if self.CheckLoc(x + dx, y + dy):
                 self.MoveObj(x, y, dx, dy, c.S_Push2)
             else:
                 self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.MIRROR_UP_RIGHT:
+        elif item_loc == c.MIRROR_UP_RIGHT:
             if self.board.laser.Dir == c.D_DOWN or self.board.laser.Dir == c.D_LEFT:
                 return True
             if self.CheckLoc(x + dx, y + dy):
                 self.MoveObj(x, y, dx, dy, c.S_Push2)
             else:
                 self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.MIRROR_RIGHT_DOWN:
+        elif item_loc == c.MIRROR_RIGHT_DOWN:
             if self.board.laser.Dir == c.D_UP or self.board.laser.Dir == c.D_LEFT:
                 return True
             if self.CheckLoc(x + dx, y + dy):
                 self.MoveObj(x, y, dx, dy, c.S_Push2)
             else:
                 self.SoundPlay(c.S_LaserHit)
-        if item_loc == c.MIRROR_DOWN_LEFT:
+        elif item_loc == c.MIRROR_DOWN_LEFT:
             if self.board.laser.Dir == c.D_UP or self.board.laser.Dir == c.D_RIGHT:
                 return True
             if self.CheckLoc(x + dx, y + dy):
@@ -749,25 +749,26 @@ class GameState:
             else:
                 self.SoundPlay(c.S_LaserHit)
 
-        if item_loc == c.GLASS:
+        elif item_loc == c.GLASS:
+            # In original, this is where glass is set to a glowing sprite
             return True
 
-        if item_loc == c.ROTMIRROR_LEFT_UP:
+        elif item_loc == c.ROTMIRROR_LEFT_UP:
             if self.board.laser.Dir == 2 or self.board.laser.Dir == 3:
                 return True
             self.board.items[x][y] = c.ROTMIRROR_UP_RIGHT
             self.SoundPlay(c.S_Rotate)
-        if item_loc == c.ROTMIRROR_UP_RIGHT:
+        elif item_loc == c.ROTMIRROR_UP_RIGHT:
             if self.board.laser.Dir == 3 or self.board.laser.Dir == 4:
                 return True
             self.board.items[x][y] = c.ROTMIRROR_RIGHT_DOWN
             self.SoundPlay(c.S_Rotate)
-        if item_loc == c.ROTMIRROR_RIGHT_DOWN:
+        elif item_loc == c.ROTMIRROR_RIGHT_DOWN:
             if self.board.laser.Dir == 1 or self.board.laser.Dir == 4:
                 return True
             self.board.items[x][y] = c.ROTMIRROR_DOWN_LEFT
             self.SoundPlay(c.S_Rotate)
-        if item_loc == c.ROTMIRROR_DOWN_LEFT:
+        elif item_loc == c.ROTMIRROR_DOWN_LEFT:
             if self.board.laser.Dir == 1 or self.board.laser.Dir == 2:
                 return True
             self.board.items[x][y] = c.ROTMIRROR_LEFT_UP
@@ -1088,7 +1089,7 @@ class TextGraphics:
         for y in range(c.PLAYFIELD_SIZE):
             for x in range(c.PLAYFIELD_SIZE):
                 if (
-                    board.terrain[x][y] != c.GRASS
+                    board.terrain[x][y] not in (c.GRASS, c.WATER)
                     or board.items[x][y] != c.EMPTY
                     or (board.tank.X == x and board.tank.Y == y)
                 ):
@@ -1234,7 +1235,7 @@ def debug_level(level_name, level_number):
 
     # Initial State
     display()
-    game.queue_new_inputs(inputs.wait_for_anykey())
+    # game.queue_new_inputs(inputs.wait_for_anykey())
 
     while game.running and timeout_counter < 500:
 
@@ -1250,13 +1251,11 @@ def debug_level(level_name, level_number):
         tick_counter += 1
 
         display()
-        game.queue_new_inputs(inputs.wait_for_anykey())
+        # game.queue_new_inputs(inputs.wait_for_anykey())
 
     print(f"End State: {game.reached_flag}")
-    print(f"Tick: {tick_counter},\tMoves:{game.moves_buffer},\tBoard")
-    graphics.draw_board(game.board)
-    game.queue_new_inputs(inputs.wait_for_anykey())
+    # game.queue_new_inputs(inputs.wait_for_anykey())
 
 
 if __name__ == "__main__":
-    debug_level("tutor/Tutor", 13)
+    debug_level("tricks/Tricks", 5)
