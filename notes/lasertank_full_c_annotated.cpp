@@ -3040,7 +3040,7 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 		}
 		break;
 // ************************************************************************************* //
-	// main game logic processing *****************************************
+	// main game logic processing tick() *****************************************
 	case WM_TIMER:
 
 		if (QHELP) return (0);

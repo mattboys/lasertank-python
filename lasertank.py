@@ -532,7 +532,8 @@ class GameState:
         return
 
     def MoveObj(self, x, y, dx, dy, sf):
-        self.change_log.append("Object moved")
+        self.change_log.append(f"MoveObj: Object ({self.board.items[x][y]}) on {x},{y} requesting to move to {x+dx}"
+                               f",{y+dy}")
         # Try to move object on square x,y that was pushed in dir dx,dy then play sound sf
         # Update terrain under object's initial position (x,y)
         # Also unblock tunnel if Obj blocking tunnel and let other end activate (cx,cy)
@@ -540,8 +541,8 @@ class GameState:
         obt = self.board.items[x][y]  # Get object type
         terrain_loc = self.board.terrain[x][y]
 
-        # Empty the vacating sqaure
-
+        # Empty the vacating square
+        self.change_log.append(f"MoveObj: Item is {obt} and vacating terrain is {terrain_loc}")
         # Trigger waiting tunnel if vacating a tunnel
         if terrain_loc in c.TUNNEL_ALL:  # Check if Tunnel
             # Unblock tunnel
@@ -567,17 +568,18 @@ class GameState:
                     break
             # MoveObj1 goto
             if ok:
+                self.change_log.append(f"MoveObj: Found an exit on {cx},{cy}")
                 # We are moving an object through a tunnel
                 # Other end of blocked tunnel had an object so move it through now
                 # Move object through a tunnel (from xy to cx, cy)
-                self.board.items[x][y] = self.board.items[cx][
-                    cy
-                ]  # Transfer blocked object
+                # Transfer blocked object
+                self.board.items[x][y] = self.board.items[cx][cy]
                 self.board.items[cx][cy] = c.EMPTY
                 self.board.terrain[cx][cy] = c.Tunnel_Set_Not_Waiting[
                     self.board.terrain[cx][cy]
                 ]
             else:
+                self.change_log.append(f"MoveObj: Found no exit")
                 # Did not find another end of this tunnel with an object on
                 # Not Blocked Anymore
                 self.board.items[x][y] = c.EMPTY
@@ -600,47 +602,54 @@ class GameState:
         x += dx
         y += dy
 
+        obt_dest = self.board.items[x][y]
+        terrain_dest = self.board.terrain[x][y]
+        self.change_log.append(f"MoveObj: Destination terrain is {terrain_dest} which has object {obt_dest}")
+
         # If destination is a tunnel then set x,y to tunnel's exit
         if self.ISTunnel(x, y):
-            # TranslateTunnel:
-            # Find the exit to a tunnel with matching ID (scans y:0-15, x:0-15) and set *x, *y to the destination
-            # sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
-            # sets BlackHole TRUE if no exit found
-            # --------
-
+            self.change_log.append(f"MoveObj: Destination is tunnel")
+            # -------
             # def TranslateTunnelItem(x, y):
             # Find the exit to a tunnel with matching ID (scans y:0-15, x:0-15) and set *x, *y to the destination
             # sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
             # sets BlackHole TRUE if no exit found
-            tunnel_id = self.board.terrain[x][y]
+            tunnel_id = self.board.terrain[x][y]  # Tunnel must be empty from previous
             self.WaitToTrans = False
             self.BlackHole = False
-            found_exit = False
+            found_empty_exit = False
+            found_blocked_exit = False
             for cy in range(c.PLAYFIELD_SIZE):
                 for cx in range(c.PLAYFIELD_SIZE):
+                    # Find an empty destination tunnel
                     if self.board.terrain[cx][cy] == tunnel_id and not (x == cx and y == cy):
                         # Found an exit tunnel (and not the same as entry)
                         if self.board.items[cx][cy] != c.EMPTY:
                             # Exit is blocked
-                            self.WaitToTrans = True
-                            found_exit = True
+
+                            found_blocked_exit = True
                         else:
                             # Teleport item
                             x = cx
                             y = cy
-                            found_exit = True
-                    if found_exit:
+                            found_empty_exit = True
+                    if found_empty_exit:
                         break
-                if found_exit:
+                if found_empty_exit:
                     break
-            # No exit found, so Tunnel is a Black Hole
-            if not found_exit:
-                self.BlackHole = True
+            if not found_empty_exit:
+                if found_blocked_exit:
+                    self.WaitToTrans = True
+                else:
+                    # No exit found, so Tunnel is a Black Hole
+                    self.BlackHole = True
+
             # -------
             if self.BlackHole:
                 return  # The tunnel was a black hole
         else:
             self.WaitToTrans = False
+
         if self.WaitToTrans:
             self.board.terrain[x][y] = c.Tunnel_Set_Waiting[self.board.terrain[x][y]]
 
@@ -1232,10 +1241,10 @@ def debug_level(level_name, level_number):
         print(f"Actions: {game.change_log}")
         print("Board:")
         txtgrphcs.draw_interesting_crop(game.board)
+        game.queue_new_inputs(inputs.wait_for_anykey())
 
     # Initial State
     display()
-    # game.queue_new_inputs(inputs.wait_for_anykey())
 
     while game.running and timeout_counter < 500:
 
@@ -1251,11 +1260,10 @@ def debug_level(level_name, level_number):
         tick_counter += 1
 
         display()
-        # game.queue_new_inputs(inputs.wait_for_anykey())
 
     print(f"End State: {game.reached_flag}")
     # game.queue_new_inputs(inputs.wait_for_anykey())
 
 
 if __name__ == "__main__":
-    debug_level("tricks/Tricks", 5)
+    debug_level("tricks/Tunnel_test", 1)

@@ -257,3 +257,6 @@ def test_standard_level_0011():
 
 def test_standard_level_0012():
     assert run_lvl_playback("standard_levels/LaserTank", 12)
+
+def test_tunnel_test_level_0001():
+    assert run_lvl_playback("tricks/Tunnel_test", 1)
