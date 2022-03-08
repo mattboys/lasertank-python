@@ -157,11 +157,11 @@ class GameState:
 
         # Process keyboard buffer
         if self.moves_buffer and not (
-            self.board.tank.Firing
-            or self.ConvMoving
-            or self.SlideO_s()
-            or self.SlideT.s
-            or self.PBHold
+                self.board.tank.Firing
+                or self.ConvMoving
+                or self.SlideO_s()
+                or self.SlideT.s
+                or self.PBHold
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
@@ -245,12 +245,15 @@ class GameState:
         # Sets wasIce to True if the square is ice or thin ice
         # then checks if space can be moved into by tank
 
-        # Check if Tank can move
+        # Check if destination is on the board
         if x < 0 or x > 15 or y < 0 or y > 15:
             return False
 
-        # Set the wasIce flag if tested square is ice or thin ice
-        self.wasIce = (self.board.terrain[x][y] == c.ICE or self.board.terrain[x][y] == c.THINICE)
+        # Set the wasIce flag if tested square is an empty ice or thin ice
+        self.wasIce = (
+                (self.board.terrain[x][y] == c.ICE or self.board.terrain[x][y] == c.THINICE)
+                and self.board.items[x][y] == c.EMPTY
+        )
         # if self.board.terrain[x][y] in c.TUNNEL_ALL:
         #     return True
 
@@ -269,9 +272,9 @@ class GameState:
         while self.CheckLoc(x, self.board.tank.Y):
             x += 1
         if (
-            (x < c.PLAYFIELD_SIZE)
-            and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_LEFT)
-            and (self.board.tank.X != x)
+                (x < c.PLAYFIELD_SIZE)
+                and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_LEFT)
+                and (self.board.tank.X != x)
         ):
             self.FireLaser(x, self.board.tank.Y, c.D_LEFT, False)
             return
@@ -280,9 +283,9 @@ class GameState:
         while self.CheckLoc(x, self.board.tank.Y):
             x -= 1
         if (
-            (x >= 0)
-            and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_RIGHT)
-            and (self.board.tank.X != x)
+                (x >= 0)
+                and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_RIGHT)
+                and (self.board.tank.X != x)
         ):
             self.FireLaser(x, self.board.tank.Y, c.D_RIGHT, False)
             return
@@ -291,9 +294,9 @@ class GameState:
         while self.CheckLoc(self.board.tank.X, y):
             y += 1
         if (
-            (y < c.PLAYFIELD_SIZE)
-            and (self.board.items[self.board.tank.X][y] == c.ANTITANK_UP)
-            and (self.board.tank.Y != y)
+                (y < c.PLAYFIELD_SIZE)
+                and (self.board.items[self.board.tank.X][y] == c.ANTITANK_UP)
+                and (self.board.tank.Y != y)
         ):
             self.FireLaser(self.board.tank.X, y, c.D_UP, False)
             return
@@ -302,9 +305,9 @@ class GameState:
         while self.CheckLoc(self.board.tank.X, y):
             y -= 1
         if (
-            (y >= 0)
-            and (self.board.items[self.board.tank.X][y] == c.ANTITANK_DOWN)
-            and (self.board.tank.Y != y)
+                (y >= 0)
+                and (self.board.items[self.board.tank.X][y] == c.ANTITANK_DOWN)
+                and (self.board.tank.Y != y)
         ):
             self.FireLaser(self.board.tank.X, y, c.D_DOWN, False)
             return
@@ -435,9 +438,9 @@ class GameState:
                     # Allows a second laser movement if laser is contacting a sliding mirror
                     for sliding_item in self.SlideMem:
                         if (
-                            sliding_item.s
-                            and sliding_item.x == self.board.laser.X
-                            and sliding_item.y == self.board.laser.Y
+                                sliding_item.s
+                                and sliding_item.x == self.board.laser.X
+                                and sliding_item.y == self.board.laser.Y
                         ):
                             LaserBounceOnIce = True
 
@@ -512,7 +515,7 @@ class GameState:
         for cy in range(c.PLAYFIELD_SIZE):
             for cx in range(c.PLAYFIELD_SIZE):
                 if self.board.terrain[cx][cy] == tunnel_id and not (
-                    self.board.tank.X == cx and self.board.tank.Y == cy
+                        self.board.tank.X == cx and self.board.tank.Y == cy
                 ):
                     # Found an exit tunnel (and not the same as entry)
                     if self.board.items[cx][cy] != c.EMPTY:
@@ -553,9 +556,9 @@ class GameState:
             for cy in range(c.PLAYFIELD_SIZE):
                 for cx in range(c.PLAYFIELD_SIZE):
                     if (
-                        self.board.terrain[cx][cy] == bb
-                        and self.board.items[cx][cy] != c.EMPTY
-                        and not (x == cx and y == cy)
+                            self.board.terrain[cx][cy] == bb
+                            and self.board.items[cx][cy] != c.EMPTY
+                            and not (x == cx and y == cy)
                     ):
                         # Search for another covered tunnel with the same ID (and not the same square)
                         ok = True
@@ -584,8 +587,8 @@ class GameState:
 
                 # We didn't find a match so maybe the tank is it
                 if (
-                    self.board.terrain[self.board.tank.X][self.board.tank.Y]
-                    == c.Tunnel_Set_Not_Waiting[bb]
+                        self.board.terrain[self.board.tank.X][self.board.tank.Y]
+                        == c.Tunnel_Set_Not_Waiting[bb]
                 ) and self.board.tank.Good:
                     self.score_moves -= 1
                     self.UpDateTankPos(0, 0)
@@ -797,8 +800,8 @@ class GameState:
             # if destination is empty (not item and not tank)
             # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
             if self.CheckLoc(SlideO.x + SlideO.dx, SlideO.y + SlideO.dy) and not (
-                SlideO.x + SlideO.dx == self.board.tank.X
-                and SlideO.y + SlideO.dy == self.board.tank.Y
+                    SlideO.x + SlideO.dx == self.board.tank.X
+                    and SlideO.y + SlideO.dy == self.board.tank.Y
             ):
                 savei = self.wasIce
                 self.MoveObj(SlideO.x, SlideO.y, SlideO.dx, SlideO.dy, c.S_Push2)
@@ -835,7 +838,6 @@ class GameState:
 
         else:
             self.SlideT.s = False
-
 
     def del_SlideO_from_Mem(self, x, y):
         self.change_log.append("Object stopped sliding")
@@ -1071,8 +1073,8 @@ class InputEngine:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (
-                    event.type == pygame.locals.KEYDOWN
-                    and event.key == pygame.locals.K_ESCAPE
+                        event.type == pygame.locals.KEYDOWN
+                        and event.key == pygame.locals.K_ESCAPE
                 ):
                     return [c.K_QUIT]
                 elif event.type == pygame.locals.KEYDOWN:
@@ -1087,9 +1089,9 @@ class TextGraphics:
         for y in range(c.PLAYFIELD_SIZE):
             for x in range(c.PLAYFIELD_SIZE):
                 if (
-                    board.terrain[x][y] not in (c.GRASS, c.WATER)
-                    or board.items[x][y] != c.EMPTY
-                    or (board.tank.X == x and board.tank.Y == y)
+                        board.terrain[x][y] not in (c.GRASS, c.WATER)
+                        or board.items[x][y] != c.EMPTY
+                        or (board.tank.X == x and board.tank.Y == y)
                 ):
                     # Square of interest
                     x_min = min(x_min, x)
@@ -1130,7 +1132,7 @@ class TextGraphics:
     def coordinate(x=None, y=None):
         """Translate coordinate to algebraic notation. i.e. (1,2) = 'B03'"""
         x_val = chr(ord("A") + x) if x is not None else ""
-        y_val = f"{y+1:02}" if y is not None else ""
+        y_val = f"{y + 1:02}" if y is not None else ""
         return f"{x_val}{y_val}"
 
     @staticmethod
