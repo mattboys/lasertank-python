@@ -4,6 +4,7 @@ Please choose different names.
 
              Name                 Collection    Num.
 ------------------------------  --------------  ----
+-            CC            -    Sokoban-II      1667
 - + ÷ ×                         Sokoban-II      1294
 !!!                             Beginner-II     0718
 !!!!Don't worry, be happy!!!!   Sokoban-II      0918
@@ -168,6 +169,7 @@ $2 = Bloc ; $3 = Eau            Beginner-II     0811
 © by Fox McCloud                Sokoban-I       1954
 © Razorflame                    Sokoban-II      1596
 © Sven Egevad 680 Soko-I        Sokoban-I       0707
+© Sven Egevad Soko-I_680        Sokoban-II      1611
 0...!                           Beginner-II     1204
 0.1 easy as pie                 Beginner-I      1543
 007 Em Ação !!!                 Beginner-I      1049
@@ -282,6 +284,7 @@ $2 = Bloc ; $3 = Eau            Beginner-II     0811
 2006_001                        Beginner-II     0867
 2006_002                        Beginner-II     0868
 2006_003                        Beginner-II     0869
+2022 year_ok                    Challenge-V     0744
 20th                            Sokoban-II      0100
 21st                            Sokoban-II      0101
 22                              Beginner-I      1101
@@ -498,6 +501,9 @@ A Busy Thoroughfare             Sokoban-II      1377
 A cadet in training             Challenge-III   0327
 à cheval                        LaserTank       1569
 A Chilly Amble                  Challenge-III   1638
+A Chinese character             Sokoban-II      1651
+A Chinese character 2           Sokoban-II      1652
+A Chinese character 3           Sokoban-II      1666
 A Classic One                   Challenge-I     0216
 a Coiffeur                      Challenge-III   0017
 A cold day                      LaserTank       0947
@@ -600,6 +606,7 @@ A Real Maze                     Beginner-I      1125
 A Revolta dos que Foram         Beginner-I      0602
 A Revolta dos que Foram II      Challenge-II    0600
 A River Runs Thru It            LaserTank       0071
+A rook and two bishops          Challenge-V     0685
 A sad guy! ©                    LaserTank       1827
 A Scenic Tour                   Sokoban-II      0621
 A semi-perfect timed level.     Beginner-I      0644
@@ -855,6 +862,7 @@ All the way around...           Beginner-I      0072
 All This for one shot?          LaserTank       1178
 All Together Now                Challenge-V     0263
 All Tunnels Lead to Rome        Challenge-IV    1357
+All you need is a bridge        Challenge-V     0653
 All you need is five            Sokoban-I       0326
 All you need is ground          Sokoban-I       1927
 Aller et retour                 Challenge-II    0747
@@ -866,6 +874,7 @@ Allied Forces 2                 Challenge-V     0188
 Allier.                         Challenge-III   1532
 Allumerions.                    Challenge-IV    1381
 Allumez les feux                Challenge-II    0070
+All'Unicef non feci nulla       Sokoban-II      1617
 Almost A Maze                   Challenge-II    1378
 Almost Dead 13                  Beginner-I      1636
 Almost Died                     Beginner-I      1144
@@ -910,6 +919,7 @@ Amazing Maze                    Beginner-I      0538
 Amazing Maze 2122               Challenge-III   0928
 Amazing maze II                 Challenge-III   0508
 Amazing Moves                   Sokoban-II      1594
+Amazing Moves v2                Sokoban-II      1613
 ambidextrously                  Challenge-V     0298
 Ambidextrously 2                Challenge-V     0302
 Ambivalence                     Challenge-IV    0239
@@ -985,9 +995,11 @@ Ankh                            Challenge-IV    0063
 Annie Get Your Gun              Sokoban-I       1491
 Annoyance                       Challenge-I     0516
 Annoying AnitTank               Challenge-I     1250
+Annoying tanks 2021             Challenge-V     0690
 Annoying??????                  Special-I       0249
 Annoying?????? II               Special-I       0250
 Anokha                          Beginner-II     1074
+Anomala corpulenta              Challenge-V     0671
 Anomalocaris                    Challenge-IV    0145
 Anonymous 1                     LaserTank       1139
 Anonymous 2                     LaserTank       1140
@@ -1038,6 +1050,7 @@ Anti Tank Land 5                Beginner-I      1252
 anti tank level                 Beginner-II     0045
 Anti tank school.               Challenge-I     1699
 anticipated actions             Challenge-II    0173
+ANTICOVID-TANK                  Challenge-V     0741
 Antidote                        Challenge-IV    0714
 Anti-Down To Kill               Beginner-I      1121
 Anti-Gravity Chamber            Beginner-II     1015
@@ -1064,6 +1077,7 @@ Anti-tank lineS                 Challenge-II    0570
 ANTI-TANK maze                  Beginner-I      0573
 Anti-Tank Mountain              Challenge-II    1859
 anti-tank mover                 Challenge-II    1737
+Antitank on ice 2021            Challenge-V     0715
 Anti-tank on the ice            Challenge-I     0190
 Anti-tank parking space         Challenge-II    0058
 Anti-Tank Practice              Beginner-II     0143
@@ -1105,6 +1119,7 @@ Apartment Blocks II             Sokoban-II      0811
 Apilado                         Challenge-IV    0482
 Apocalypse.                     Challenge-IV    1456
 apocalypse-2012                 Challenge-IV    1863
+Apparent Symmetry               Challenge-V     0731
 Apres Ski                       Beginner-II     0428
 April fool                      Challenge-II    0213
 April Fool (see hint)           Challenge-IV    0723
@@ -1146,6 +1161,7 @@ Ariège.                         Challenge-III   1536
 Armagedon's route               Challenge-II    0740
 arm-bender                      LaserTank       0902
 Armed Forces                    LaserTank       1179
+armed forces 2                  Beginner-II     1371
 Armies of guns                  Challenge-II    0218
 Armored Fortress                Beginner-I      0279
 Army of anti-tanks              Challenge-III   1688
@@ -1417,6 +1433,7 @@ Backstage maneuvers             Challenge-III   0070
 Back-to-back formation          Challenge-III   0589
 Back-to-easy-level              Challenge-V     0461
 BackTrack                       LaserTank       1386
+Backtrack 2                     Beginner-II     1370
 Backtrack II                    Challenge-II    0178
 Backwards                       Challenge-III   1260
 backwards dizzines              Beginner-I      0437
@@ -1438,8 +1455,8 @@ Bad Hair Day                    Sokoban-I       1847
 Bad love                        Beginner-I      0975
 Bad Luck                        Challenge-I     1052
 Bad Luck 2                      Sokoban-I       0650
-bad müze izgood                 Beginner-II     0838
 Bad music is painful            Challenge-III   0893
+bad müze izgood                 Beginner-II     0838
 Bad telephone                   Challenge-I     1975
 Bad water.                      Challenge-III   0806
 Badaboom!                       Beginner-II     0456
@@ -1557,6 +1574,7 @@ Baumann Eduard Premier          Sokoban-II      1115
 Baumann Eduard Tribute          Challenge-III   1164
 Baumann II Le Séducteur         Sokoban-II      1116
 Baumwollkleid                   Sokoban-II      1599
+BaumwollLenin                   Sokoban-II      1606
 Bay Bridge after earthquake     Sokoban-I       1519
 Bayleaf-Poke Tour               Beginner-I      0481
 Bay-Moored Chess-Board          Sokoban-I       1403
@@ -1716,6 +1734,7 @@ Bermuda Slowing 2               Challenge-IV    1310
 Bermuda Slowing 3               Challenge-IV    1336
 Bermuda Smoking                 Sokoban-II      1301
 Bermuda Softy                   Sokoban-II      0926
+Bermuda Spoil                   Challenge-V     0636
 Bermuda Stopping                Sokoban-II      0416
 Bermuda Story                   Challenge-IV    0776
 Bermuda Stowing                 Challenge-V     0467
@@ -1837,6 +1856,7 @@ Biseautons                      Challenge-III   1128
 Bishop's Opening                Challenge-III   0390
 Bizarre defense                 Challenge-II    0301
 Bizarre Guitar                  Challenge-III   1437
+Black Box                       Challenge-V     0734
 Black feet dance                Sokoban-I       0546
 Black Hawk Down                 Challenge-II    0927
 Black Hole                      Challenge-I     0548
@@ -1939,6 +1959,7 @@ Block Productions               Sokoban-I       0673
 Block Shot                      Beginner-II     1313
 Block smash.                    Sokoban-I       1786
 BlocK TanK                      Beginner-I      0762
+Block tank 2                    Challenge-V     0679
 Block test 1                    Beginner-II     0432
 Block test 2                    Beginner-II     0433
 Block test 3                    Beginner-II     0434
@@ -2135,6 +2156,7 @@ bosniaque                       Sokoban-I       1602
 Boss  2                         Beginner-II     0329
 Boss  3                         Beginner-II     0335
 Boss 1                          Beginner-II     0321
+Boss flags                      Challenge-V     0641
 Boss Masterpiece                LaserTank       0655
 botaniques                      Challenge-III   1697
 Bottle Trick                    Challenge-I     0956
@@ -3335,6 +3357,7 @@ bucolic ache                    Sokoban-II      1314
 Bucolic Ache 2                  Sokoban-II      1327
 bucolic acme                    Sokoban-II      1068
 bucolic adverb                  Challenge-IV    1507
+bucolic affect                  Sokoban-II      1621
 bucolic age                     Beginner-II     1049
 bucolic agent                   Sokoban-II      0422
 bucolic alder                   Sokoban-II      0261
@@ -3395,6 +3418,8 @@ bucolic cage                    Challenge-IV    1729
 bucolic cake                    Challenge-IV    1423
 Bucolic Cake 2                  Challenge-IV    1438
 bucolic calends                 Sokoban-II      0513
+bucolic camber                  Beginner-II     1358
+bucolic camel                   Sokoban-II      1608
 bucolic cancer                  Sokoban-II      0728
 bucolic candle                  Challenge-IV    1772
 Bucolic Candle 2                Challenge-IV    1823
@@ -3441,6 +3466,8 @@ bucolic date                    Beginner-II     1080
 bucolic deal                    Challenge-IV    1674
 bucolic dean                    Sokoban-II      0922
 bucolic dearth                  Challenge-V     0242
+bucolic death                   Sokoban-II      1628
+bucolic death 2                 Sokoban-II      1645
 bucolic demand                  Challenge-IV    1648
 Bucolic Demand 2                Challenge-IV    1665
 bucolic depart                  Beginner-II     1325
@@ -3456,6 +3483,9 @@ bucolic extra                   Beginner-II     1320
 bucolic extract                 Challenge-V     0360
 bucolic fable                   Challenge-IV    1762
 bucolic face                    Challenge-IV    0875
+bucolic facet                   Sokoban-II      1605
+bucolic facet 2                 Sokoban-II      1609
+bucolic facet 3                 Sokoban-II      1610
 bucolic fame                    Challenge-IV    1965
 Bucolic Fame 2                  Challenge-IV    1976
 bucolic farce                   Sokoban-II      1534
@@ -3491,6 +3521,7 @@ bucolic garnet                  Challenge-V     0477
 bucolic garnet 2                Challenge-V     0540
 bucolic garret                  Challenge-IV    0873
 bucolic gasket                  Sokoban-II      0272
+bucolic gate                    Sokoban-II      1629
 bucolic gear                    Challenge-IV    1644
 Bucolic Gear 2                  Challenge-IV    1662
 bucolic glade                   Challenge-V     0217
@@ -3565,11 +3596,15 @@ bucolic leak                    Beginner-II     1334
 bucolic lean                    Challenge-IV    1204
 bucolic leap                    Challenge-IV    1819
 Bucolic Leap 2                  Challenge-IV    1824
+bucolic leash                   Sokoban-II      1631
 bucolic mace                    Beginner-II     1246
 bucolic male                    Sokoban-II      1128
 bucolic mallet                  Challenge-IV    1107
 bucolic manes                   Sokoban-II      0322
 bucolic mangle                  Challenge-IV    0926
+bucolic manner                  Sokoban-II      1620
+bucolic manner 2                Sokoban-II      1627
+bucolic manner 3                Sokoban-II      1632
 bucolic mantle                  Sokoban-II      0813
 bucolic maple                   Challenge-V     0538
 Bucolic Maple 2                 Challenge-V     0544
@@ -3691,7 +3726,11 @@ Bucolic Scamper 2               Sokoban-II      0607
 bucolic scarlet                 Challenge-IV    1675
 bucolic scramble                Challenge-IV    1951
 Bucolic Scramble 2              Challenge-IV    1977
+bucolic scream                  Challenge-V     0633
+bucolic scream 2                Challenge-V     0647
 bucolic seam                    Sokoban-II      0593
+bucolic sear                    Challenge-V     0738
+bucolic sear 2                  Challenge-V     0739
 bucolic search                  Sokoban-II      1257
 bucolic seat                    Sokoban-II      0561
 Bucolic Seat 2                  Sokoban-II      0598
@@ -3719,6 +3758,8 @@ bucolic slave 2                 Sokoban-II      0773
 Bucolic Slave 3                 Sokoban-II      0788
 bucolic slaver                  Challenge-IV    1478
 bucolic slaver 2                Challenge-IV    1483
+bucolic smartness               Challenge-V     0642
+Bucolic Smartness 2             Challenge-V     0645
 bucolic snake                   Challenge-IV    1211
 Bucolic Snake 2                 Challenge-IV    1259
 bucolic snare                   Challenge-IV    1821
@@ -3735,6 +3776,7 @@ Bucolic Spear 2                 Challenge-IV    1437
 bucolic spread                  Challenge-IV    0762
 bucolic stage                   Challenge-IV    1281
 Bucolic Stage 2                 Challenge-IV    1333
+bucolic stagger                 Sokoban-II      1604
 bucolic stake                   Challenge-IV    0709
 bucolic stamen                  Challenge-IV    1752
 bucolic stare                   Challenge-IV    1307
@@ -3749,19 +3791,23 @@ bucolic streak                  Beginner-II     1283
 bucolic stream                  Sokoban-II      1466
 bucolic swage                   Challenge-IV    1875
 bucolic sweat                   Challenge-V     0282
+bucolic table                   Challenge-V     0654
 bucolic tablet                  Sokoban-II      0296
 bucolic tackle                  Sokoban-II      0708
 bucolic take                    Sokoban-II      0558
 bucolic take 2                  Sokoban-II      0559
 bucolic tale                    Challenge-V     0408
+bucolic talent                  Challenge-V     0651
 bucolic tandem                  Sokoban-II      1403
 bucolic tangent                 Challenge-IV    1338
 bucolic tangent 2               Challenge-IV    1340
 Bucolic Tangent x 2             Challenge-IV    1342
 bucolic tangle                  Sokoban-II      1448
 Bucolic Tangle 2                Sokoban-II      1566
+bucolic tanner                  Sokoban-II      1614
 bucolic tape                    Challenge-V     0522
 bucolic taper                   Challenge-V     0553
+bucolic tassel                  Sokoban-II      1607
 bucolic taste                   Challenge-V     0293
 Bucolic Taste 2                 Challenge-V     0323
 bucolic tattle                  Challenge-IV    1308
@@ -3860,6 +3906,7 @@ Bulbasaur-Poke Tour             Beginner-I      0469
 Bull Reaction                   Challenge-III   1080
 Bull.                           Beginner-II     1226
 bullet chase                    Beginner-I      0405
+Bullfrog                        Challenge-V     0669
 Bull's Eye                      LaserTank       1294
 Bull's-eye                      Challenge-III   1949
 Bump and Run                    Challenge-IV    1758
@@ -4255,6 +4302,7 @@ Checker Mayhem!                 Challenge-I     1574
 checkered                       LaserTank       0218
 checkers                        LaserTank       0058
 Checkers 2                      Beginner-I      1474
+checkers 3                      Beginner-II     1359
 Checkmate Advance 2             Beginner-I      1617
 Checkmate!                      Beginner-I      1029
 Cheese                          Challenge-II    0384
@@ -4297,6 +4345,7 @@ China Desert                    Beginner-I      1700
 China-The chinesik wall         Challenge-II    1588
 Chinese Arithmetic              Challenge-III   1110
 Chinese H2O Torture             Sokoban-I       1878
+Chinese knot                    Sokoban-II      1643
 Chinese Trick                   Beginner-II     0458
 Chinese Water Torture           Challenge-II    0035
 Chips Castle                    Beginner-II     0974
@@ -4370,6 +4419,7 @@ Circles                         Beginner-II     0770
 Circo Espacial!!!               Beginner-I      1064
 Circo Espacial!!! II            Beginner-I      0749
 Circular Cascade                Sokoban-II      0577
+Circular Hokey Pokey            Challenge-V     0656
 Circular Mystery                Challenge-II    1855
 Circular Reasoning              Sokoban-II      0641
 Circumspection                  Challenge-IV    0245
@@ -4490,6 +4540,8 @@ Code Reader and Copier          Challenge-IV    0295
 Coexist                         LaserTank       0357
 Coffee Break!                   Challenge-I     0688
 Cognitive Dissonance            Sokoban-I       0348
+Coin problem                    Challenge-V     0673
+Coin problem(new)               Challenge-V     0694
 Cola Bitumen                    Challenge-III   0145
 Cold Castle                     Beginner-I      1910
 Cold delivery                   Sokoban-I       0752
@@ -4522,6 +4574,7 @@ Colley.                         Challenge-IV    1029
 Collide-o-scope                 Sokoban-II      0141
 Collide-o-scope Mk 2            Challenge-IV    0934
 collimateur                     Challenge-III   1347
+Collisions                      Challenge-V     0716
 Colony Neoice                   Sokoban-I       1689
 Colorado's state maze           Challenge-II    1679
 Columns                         Challenge-I     0614
@@ -4621,6 +4674,7 @@ consultative                    Sokoban-I       1627
 Contact time                    Challenge-II    1881
 contagieux                      Challenge-III   1775
 Contemplative Cognac            Special-I       0365
+Continue the voyage             Challenge-V     0686
 Continuous Research             Sokoban-I       0122
 Contradance Trance              Challenge-III   1738
 Contradicteur                   Challenge-III   1134
@@ -4663,6 +4717,8 @@ Coppermounds                    Beginner-II     1139
 Copy Cats                       Challenge-IV    0247
 Coq                             Challenge-II    1200
 coquillage                      Challenge-III   1349
+Coral fish                      Challenge-V     0698
+Coral fish(Rotate 90 degrees)   Challenge-V     0699
 coranique                       Challenge-III   1350
 coraniques                      Beginner-II     0621
 Corbeau                         Sokoban-I       1594
@@ -4725,10 +4781,12 @@ Couverais.                      Sokoban-II      0713
 Cover Me                        Challenge-II    1406
 Cover me!                       Challenge-II    1606
 Cover Me!!                      LaserTank       1873
+Cover the flags                 Challenge-V     0634
 Covered Flag                    Challenge-IV    1113
 Covering Every Angle            Sokoban-II      0050
 Covering Every Angle 2          Sokoban-II      0051
 Covering Fire                   Challenge-IV    0442
+covert operation                Beginner-II     1367
 Covoiturage.                    Challenge-IV    0617
 Cow Attack                      Special-I       0112
 Cow Attack II                   Beginner-I      0991
@@ -4836,6 +4894,7 @@ Crocodile keeper 2              Challenge-III   0869
 Crocodilesque.                  Challenge-IV    0616
 Croconaw                        Beginner-I      1691
 CROCUS                          Challenge-II    1129
+crooked pathways                Beginner-II     1368
 Cropping Bermuda                Challenge-IV    1972
 Cross                           Challenge-I     1444
 cross danger                    Beginner-I      0509
@@ -4895,6 +4954,8 @@ Crossroad                       Challenge-II    1634
 Crossroad 2                     Challenge-IV    1698
 Crossroads                      Beginner-II     0203
 Cross-Roads!                    Challenge-I     1840
+Cross-Tank Guards               Beginner-II     1364
+Cross-Tank Guards 2             Beginner-II     1365
 croustillante                   Challenge-III   1351
 Crowded                         Challenge-III   1442
 Crown Prince                    LaserTank       1306
@@ -4956,6 +5017,7 @@ Crystal Stuff                   Challenge-I     0809
 Crystal Treasure Island         Beginner-II     0575
 Crystal World                   Beginner-II     0285
 Crystalline                     Challenge-II    0192
+Crystalline delight             Challenge-V     0722
 Crystalline Passage             Challenge-IV    0736
 Crystallis                      Sokoban-I       1740
 Crystallomaze                   Challenge-II    1118
@@ -4965,6 +5027,7 @@ C-Side                          Sokoban-I       1762
 CTPAX BO MHE                    Challenge-III   0338
 Ctrl + Alt + Del                Challenge-II    1047
 Cuadrante prohibido             Challenge-III   1798
+cuarentena 2020                 Challenge-V     0630
 Cuba: Islands                   Beginner-I      1887
 cube box with arms              Challenge-IV    0567
 Cube Field                      Challenge-IV    0128
@@ -5054,6 +5117,7 @@ Dangerfield                     LaserTank       1361
 Dangerous Cell Fellow           Challenge-III   1561
 Dangerous passage               Challenge-I     1273
 dangerous path                  Challenge-I     1895
+Dangerous Railway =_=           Challenge-V     0663
 Dangerous ride for fun          Challenge-II    1988
 Dangerous skating-7             Challenge-V     0047
 Dangerous Sokoban               Sokoban-I       1436
@@ -5159,7 +5223,8 @@ Decepticon                      Challenge-IV    1883
 Deception                       Beginner-I      1364
 Deception Of The Year           Challenge-I     0631
 Decision                        Beginner-I      0928
-Decisions                       Beginner-I      0219
+Decisions                       Challenge-V     0723
+Decisions 1                     Beginner-I      0219
 Decisions 2                     Beginner-I      0221
 Decisions,choices,answers       Beginner-I      1635
 Deconstruction 1                Sokoban-I       1485
@@ -5240,6 +5305,7 @@ Dépiautons                      Challenge-III   1137
 dépouillant                     Challenge-III   1356
 dépuration                      Challenge-III   1776
 députation                      Sokoban-II      0154
+derailed!                       Beginner-II     1362
 Derailment                      LaserTank       0275
 dérouillant                     Beginner-II     0930
 Déroutant                       Sokoban-I       0847
@@ -5279,6 +5345,7 @@ Devil In The Deep Blue C 2      Sokoban-II      1515
 Devil in the Deep Blue Sea      Sokoban-II      1529
 Devil`s Brain                   LaserTank       1396
 Devil's Dozen                   Sokoban-I       0525
+Devil's Dozen 2                 Sokoban-II      1624
 Devil's Snare                   Beginner-I      1705
 devilsquare4                    Challenge-IV    1936
 Devour the dragon               Challenge-II    1175
@@ -5360,6 +5427,7 @@ Dinosaure                       Challenge-III   1138
 Diopside                        Sokoban-II      0592
 Dipstick                        LaserTank       1091
 Diptera                         LaserTank       0178
+Directional lock                Challenge-V     0666
 DirectX MMX OpenGL              Challenge-I     0321
 Dirt  Devel!                    Beginner-I      1153
 Dirty Dozen                     Challenge-III   1782
@@ -5562,7 +5630,9 @@ Down the Creek                  Sokoban-II      1392
 Down the Drain                  LaserTank       0040
 Down the hole                   Challenge-II    0604
 Down The River                  Challenge-II    0946
+down the toilet!                Beginner-II     1374
 Down The Tube                   Sokoban-I       0528
+Down The Tube 2                 Sokoban-II      1625
 Down to the well ( Pixies )     Sokoban-I       1951
 Down Under                      Challenge-II    0460
 Downhill                        Beginner-I      0136
@@ -5665,6 +5735,7 @@ E                               Challenge-II    1195
 é PoSsÍvEl?                     Beginner-I      1037
 é PoSsÍvEl? II                  Challenge-II    0703
 é PoSsÍvEl? III                 Beginner-I      1038
+E pur si muove! (tutti)         Challenge-V     0639
 E=MC Squared                    Challenge-II    1717
 E=MC Squared Squared            Challenge-III   0458
 Eagle Nest                      Challenge-II    1779
@@ -5735,6 +5806,7 @@ Easy One                        Challenge-II    0652
 Easy or not easy?               Beginner-II     0814
 easy peasy                      Beginner-I      1295
 Easy Peasy!                     Beginner-I      1437
+Easy Permutation Lock           Challenge-V     0732
 Easy Pesy                       Challenge-III   1267
 Easy Pioneer                    Challenge-I     0734
 easy place                      Challenge-II    1905
@@ -5823,6 +5895,7 @@ Eight is Enough                 LaserTank       0370
 Eight Little Sokos I            Sokoban-I       1066
 Eight movable blocks            Challenge-III   0593
 Eight Pine Scrolls              Challenge-IV    1020
+Eight Queens Puzzle             Challenge-V     0708
 Eight sharpshooters             Sokoban-I       0710
 Eights                          Beginner-I      1135
 Eight's Enough                  Challenge-I     1288
@@ -5860,6 +5933,7 @@ Elementary 2                    Challenge-IV    1852
 Elementary 20                   Challenge-V     0267
 Elementary 2017                 Challenge-V     0441
 Elementary 2018                 Challenge-V     0456
+Elementary 2020                 Challenge-V     0631
 Elementary 3                    Challenge-IV    1853
 Elementary 4                    Challenge-IV    1854
 Elementary 5                    Challenge-IV    1855
@@ -5891,6 +5965,7 @@ Emeraldella                     Beginner-II     0856
 Emergency Exit I                Challenge-I     1111
 Emergency Exit II               Challenge-I     1112
 Emergency Exit III              Challenge-I     1113
+Emergency Lock                  Challenge-V     0713
 Emergency Provisions            Sokoban-I       1691
 Emergency. Escape!              Sokoban-I       0659
 émoustillant                    Challenge-III   1976
@@ -5933,6 +6008,7 @@ Energie électrique              Beginner-II     1231
 Enfeebled By Knowledge          Sokoban-II      0610
 Enfermé dans le cristal         Beginner-II     0805
 Enfuego                         LaserTank       0499
+engage le jeu que je le gagne   Sokoban-II      1616
 Engine                          Beginner-II     0311
 England - Special level         LaserTank       1156
 Enhanced Traffic Light          Challenge-IV    1222
@@ -6065,6 +6141,7 @@ Et alors ?                      Challenge-III   1149
 Et au milieu coule un rivière   Challenge-IV    1403
 Et Hop !!!                      Sokoban-II      0690
 Et s'il n'en reste qu'un...     Challenge-I     0113
+ÉTAPE 17                        Challenge-V     0640
 Eternal                         Challenge-I     0313
 Eternal Squared circle          Challenge-III   0819
 Eternal Sunshine                Challenge-IV    0334
@@ -6294,6 +6371,8 @@ FBI Base 733                    LaserTank       0640
 FB's LaserTank #1679            Challenge-IV    0885
 Fear No Evil                    LaserTank       0712
 Fear No Evil 2                  Sokoban-II      1424
+Fear No Evil 3                  Sokoban-II      1660
+Fear No Evil 4                  Sokoban-II      1663
 Fearow-Poke Tour                Beginner-I      0479
 Feculent Importunity            Sokoban-I       0450
 Feeding the Fish                Sokoban-II      1117
@@ -6329,6 +6408,8 @@ Figus Poltera                   Challenge-III   0018
 Filbert's Beginner-I #1694      Challenge-III   0963
 FILE CORRUPTED                  Beginner-II     1180
 Fill in the hole                Challenge-II    0210
+Fill the gap please             Sokoban-II      1641
+Fill the gap please 2           Sokoban-II      1644
 Fill The Hole                   Sokoban-I       0535
 Fill the pond                   Challenge-II    1205
 Fill The Tunnels                Challenge-I     1620
@@ -6417,6 +6498,7 @@ Fjord.                          Sokoban-II      0696
 f--------l--------a------g      Challenge-II    0011
 Flag                            Beginner-II     0442
 FLAG  DAY !!!!!                 Challenge-I     0077
+flag afar                       Beginner-II     1360
 Flag as the bait                Challenge-II    1821
 Flag behind the wall            Challenge-III   0696
 Flag day # 2                    LaserTank       0284
@@ -6688,6 +6770,8 @@ Fortified                       Challenge-II    1485
 Fortified Castle.               Beginner-II     1252
 Fortified Plains                Beginner-I      0932
 Fortified River                 Challenge-III   1926
+fortified trap                  Beginner-II     1372
+fortified trap 2                Beginner-II     1373
 Fortres of Power                Challenge-III   1020
 fortress                        LaserTank       0086
 Fortress II                     LaserTank       1058
@@ -6800,6 +6884,7 @@ Free Them Blocks 3              Challenge-I     0519
 Free Them Blocks 4              Challenge-I     0520
 Free Them Blocks 5              Challenge-I     0521
 Freedom .                       Challenge-III   1232
+Freedom Eagle                   Challenge-V     0672
 Freedom from Choice             Challenge-IV    1909
 Freedom is far away....         Sokoban-I       0109
 Freeform                        Challenge-III   0277
@@ -6812,7 +6897,9 @@ French Flag.                    Beginner-II     1249
 French Garden                   Sokoban-I       0229
 Frequency Divider               Special-I       0421
 Friday man, friday              Challenge-I     1589
+friend in need                  Challenge-V     0678
 Friend of Magnum                Challenge-III   0303
+Friendly Antitank :-D           Challenge-V     0659
 Friendly Anti-Tanks             LaserTank       1967
 Friendly A-Ts (Tunnels)         LaserTank       1968
 Friendly Fire                   LaserTank       0452
@@ -6908,9 +6995,8 @@ Frustration 2                   Beginner-I      1351
 Frustration down under          LaserTank       0824
 Frustration Island              LaserTank       0103
 FUCHSIA                         Challenge-II    1132
-Führerbeglückwünschung          Sokoban-II      0189
-fünfter Versuch                 Challenge-II    0938
 Fugitive's hideout              Challenge-IV    0814
+Führerbeglückwünschung          Sokoban-II      0189
 Full Bridge                     LaserTank       1105
 Full Control!                   Challenge-I     1380
 Full Hand                       Sokoban-I       1088
@@ -6949,6 +7035,7 @@ Fun?                            Beginner-I      0273
 Funbox                          Sokoban-I       1743
 Functional Leg                  Challenge-III   0007
 Fund Reaction                   Challenge-IV    0136
+fünfter Versuch                 Challenge-II    0938
 Funhouse                        LaserTank       1961
 Funnel                          Beginner-II     0685
 Funnel of Love                  Challenge-II    1439
@@ -7283,6 +7370,7 @@ Go into!                        LaserTank       1638
 go out                          Challenge-I     1884
 Go Round and Round              Beginner-I      1127
 go straight home                Beginner-II     0303
+Go through the walls 2021       Challenge-V     0665
 Go to flag                      Beginner-I      1403
 Go to hell 1                    LaserTank       1822
 go to HQ                        Beginner-I      1669
@@ -7448,6 +7536,8 @@ Guarded                         LaserTank       0051
 Guarded 2                       Challenge-I     1650
 Guarded blocks                  Challenge-II    1675
 Guarded Entrances               Challenge-V     0154
+guarded path                    Challenge-V     0681
+Guarded Path 2                  Challenge-V     0703
 Guarded Realm                   Challenge-II    0884
 Guardian Cat                    Challenge-II    0987
 Guardroom                       Challenge-III   1934
@@ -7545,6 +7635,7 @@ Ham Reduction                   Sokoban-I       1284
 Ham Seduction                   Challenge-IV    0099
 HamBurgtheater                  Sokoban-I       0674
 Hammer Into Anvil               Beginner-II     1102
+Han Xin Dian Bing               Challenge-V     0668
 Handicap Soko Ban               Sokoban-I       1196
 Handle The Goods                Challenge-II    0899
 Handle with care!               LaserTank       1182
@@ -7822,6 +7913,7 @@ Hodradric Cube                  Beginner-I      1924
 Hoebahop                        Beginner-II     0599
 Hog Boy                         Challenge-I     1668
 Ho-Hum                          Sokoban-I       1759
+Hokey Pokey                     Challenge-V     0635
 Hold-up.                        Challenge-III   0926
 Hole in Armour!                 Challenge-I     1603
 Hole(y)Mole                     Sokoban-I       1009
@@ -7912,6 +8004,8 @@ How many puddles?               Challenge-IV    1470
 How many shots ?                Beginner-II     1244
 How many shots?!?               Beginner-I      1010
 How to get of here?             Beginner-I      0781
+How to get the flag?            Challenge-V     0700
+How to get the flag?(Rotate)    Challenge-V     0701
 How to move ?                   LaserTank       0326
 How to move 2 ?                 Beginner-II     0600
 How to reach the middle ?       Challenge-II    1889
@@ -7951,6 +8045,8 @@ Hyper-bridge construction       Special-I       0321
 Hypiereon's Gambit              Challenge-I     0148
 Hypnautical Moats               LaserTank       0652
 Hypnos                          LaserTank       0816
+Hypnos Mod                      Sokoban-II      1603
+Hypnos Mod Mod                  Sokoban-II      1661
 Hypnoson                        Special-I       0470
 Hypobaric System                Challenge-IV    0857
 Hypothetical Graviton           Sokoban-II      0226
@@ -8044,6 +8140,9 @@ Ice Block I                     Sokoban-II      0836
 Ice Block II                    Sokoban-II      0837
 Ice Block III                   Sokoban-II      0838
 Ice Block IV                    Sokoban-II      1584
+Ice Block V                     Sokoban-II      1654
+Ice Block VI                    Sokoban-II      1655
+Ice Block VII                   Sokoban-II      1658
 Ice Blocks                      Beginner-II     0746
 Ice Box                         LaserTank       1741
 Ice Box 2                       Beginner-I      0565
@@ -8460,6 +8559,8 @@ In the middle of Lake           LaserTank       0185
 In the middle of nowhere        LaserTank       1443
 In the mirrors                  Challenge-II    0206
 In The Navy                     Beginner-II     0153
+In the opposite direction       Challenge-V     0675
+In the opposite direction2      Challenge-V     0676
 In the Second castle            Beginner-I      0857
 In the tunnel                   Challenge-II    0201
 In the......                    Beginner-I      0055
@@ -8469,6 +8570,7 @@ Increasing Reverse Mobility     Challenge-IV    1759
 Incredible Machine 3            Challenge-IV    1840
 Incredible machine 4            Challenge-V     0266
 Incredible.                     Challenge-III   1150
+InDecisions                     Challenge-V     0726
 Independence day                Challenge-II    0576
 In-Depth Prototype              Sokoban-I       1155
 India - At the airport          LaserTank       1088
@@ -8944,6 +9046,7 @@ Just a Name                     LaserTank       1869
 Just A Puzzle                   Challenge-II    0905
 Just Another Level              LaserTank       0014
 Just Another level 2            Beginner-II     1338
+Just avoid dying                Challenge-V     0632
 JuST ChoOsE MirRors             LaserTank       1220
 Just Do It                      Challenge-IV    0172
 just doing  time.               LaserTank       0264
@@ -9085,6 +9188,7 @@ Killing Me Softly W H S         Challenge-IV    0191
 KiloLagune                      Beginner-I      1745
 Kimberella                      Beginner-II     0929
 King Arthur's Sword             Sokoban-I       0048
+King crab                       Challenge-V     0696
 King Hurminac´s Crossroad       Sokoban-I       0544
 King Hurminac´s Crossroad II    Sokoban-I       0347
 King Hurminac´s Knights         Challenge-II    0526
@@ -9289,6 +9393,8 @@ Las Habitaciones                Challenge-II    1030
 Las Habitaciones II             Challenge-II    1033
 Las Habitaciones III            Challenge-II    1189
 Laser anti-tank                 Challenge-IV    1610
+Laser Antitank  2020            Challenge-V     0648
+Laser Antitank  2021            Challenge-V     0649
 Laser Antitank 10               Challenge-V     0170
 Laser Antitank 11               Challenge-V     0193
 Laser anti-tank 2               Challenge-IV    1613
@@ -9355,6 +9461,7 @@ LaserTank 4                     Challenge-II    1315
 LaserTank 4.0 Challenge         Challenge-I     1109
 lasertank flag in the middle    Challenge-III   1332
 LaserTank Island                Challenge-II    1990
+Lasertank on  ice 2021          Challenge-V     0714
 LaserTank On Ice                Challenge-II    0306
 Lasertank on ice 2004           Challenge-III   0677
 Lasertank on ice 2006           Challenge-III   1797
@@ -9664,6 +9771,7 @@ Light Ice Beam                  Challenge-II    0897
 Light level!!                   Beginner-I      0269
 Light Sokoban                   Sokoban-I       0522
 Lightbulb                       Beginner-I      0802
+Lightning graffiti              Challenge-V     0697
 Likable Long                    Special-I       0046
 Like A Kid!                     Challenge-I     1597
 Like a Rabbit 1                 Sokoban-II      0342
@@ -9924,6 +10032,7 @@ Loopy                           LaserTank       0842
 Loopy Looping                   Challenge-III   1566
 Loose Cannon                    Sokoban-I       1172
 Loose Canon                     Challenge-II    0863
+Lopsided                        Challenge-V     0733
 loquacités                      Sokoban-I       1838
 Lord of the Rings               Challenge-III   1923
 Loreglade                       Beginner-II     1138
@@ -10157,6 +10266,7 @@ Make the mind to think 9        Challenge-II    0830
 Make Way !                      LaserTank       0828
 make wize choises               Challenge-I     0397
 Make your choice                Challenge-III   0721
+Make Your Own Path              Sokoban-II      1657
 Make Your Own Sokoban I         Sokoban-II      0841
 Make Your Own Sokoban II        Sokoban-II      0842
 Make Your Way                   LaserTank       1515
@@ -10441,6 +10551,7 @@ millenium                       Beginner-I      0790
 MIMOSA                          Challenge-II    1139
 Mimosa tree                     Sokoban-II      1114
 Mimosensau                      Sokoban-II      0056
+Mince !                         Sokoban-II      1634
 Mind Bender                     Challenge-I     1730
 Mind Block                      Challenge-II    1501
 Mind Block 2                    Challenge-II    1502
@@ -10459,6 +10570,7 @@ minefield                       Challenge-II    1966
 Minesota Curl                   Challenge-III   0480
 Mingle with anti-tanks          Challenge-II    0237
 MingS' LaserTank #0968          Challenge-IV    0879
+Mini Hokey Pokey                Challenge-V     0657
 Mini maze....?                  Beginner-II     0934
 Mini Shuffle Snake              Sokoban-II      1356
 Miniature Hell No!!!!!          Challenge-III   0507
@@ -10467,6 +10579,7 @@ minimalcannon01                 Beginner-II     0883
 minimalcannon03                 Beginner-II     0884
 MiniMap.                        Beginner-II     0942
 Minimum resources               Challenge-V     0350
+Minimum Resources 2021          Challenge-V     0730
 Mini-Robot                      Challenge-I     0727
 Mini-Thin                       Challenge-II    0276
 Mini-Thing                      Challenge-II    0268
@@ -10914,6 +11027,8 @@ Moonless Forest                 Beginner-II     1130
 Moonlight Experience            Challenge-I     0506
 Moonwalk to glory               Challenge-II    1612
 Moraine Mud                     Challenge-III   0408
+Morbid Bermuda                  Challenge-V     0702
+Morbid Bermuda 2                Challenge-V     0721
 Morbihan                        Beginner-II     0676
 More Ants                       Challenge-III   1791
 More Blocked!                   LaserTank       0483
@@ -10973,6 +11088,7 @@ Mount Zion                      LaserTank       0961
 Mountain                        Challenge-I     0456
 Mountain Climber                LaserTank       1663
 Mountain hollyday               Challenge-I     0316
+mountain of hate                Challenge-V     0682
 Mountainous ExtremE             Challenge-II    1715
 Mountainous ExtremE_2           Challenge-II    1789
 Mountainous ExtremE_3           Challenge-II    1882
@@ -11034,6 +11150,7 @@ Mr. Ping-Pong XII               Challenge-I     1107
 Mr. Sandman                     Sokoban-I       1590
 Mr. Todo Azar                   Challenge-III   0493
 Mr.Dorian Gray                  Challenge-III   0001
+Mr.Pumpkin                      Sokoban-II      1649
 Ms.Cream and Ms.Book            Beginner-I      0799
 Mt Everest 1/3 way up           Challenge-I     0606
 Mt Everest 2/3 way up           Challenge-I     0607
@@ -11044,7 +11161,6 @@ Much to give                    Sokoban-I       0237
 Muchas Gracias                  Sokoban-II      1524
 Muchas Gracias, Amigo!          Sokoban-II      1577
 muchos ruidos y pocas nueces    LaserTank       1935
-Müllrückführung                 Sokoban-II      0230
 Muggers in the traffic          Sokoban-I       1204
 Mukimono                        Beginner-II     1173
 Mukozuke                        Beginner-II     1353
@@ -11055,6 +11171,7 @@ Mukozuke 5                      Challenge-V     0591
 Mukozuke 6                      Challenge-V     0603
 Mukta                           Challenge-I     1510
 Mule's Cow                      Challenge-II    0375
+Müllrückführung                 Sokoban-II      0230
 Multi Opera                     Sokoban-I       0891
 Multicolor Pyramid              Challenge-I     0877
 Multi-functional 1              LaserTank       0261
@@ -11068,6 +11185,7 @@ Multi-Pulsing                   Special-I       0422
 Multitalented                   LaserTank       0801
 Multivac                        LaserTank       1998
 Mundy                           Challenge-I     1593
+Municipal Bureaucracy           Challenge-V     0707
 Municipality                    Challenge-I     0805
 Munztrozadee                    Beginner-I      0380
 mur de brique                   Beginner-I      0231
@@ -11110,6 +11228,7 @@ My Level #500                   Sokoban-I       1520
 My Level #600                   Sokoban-I       1912
 My Level #700                   Sokoban-II      0222
 My Level 100 Moves              Challenge-IV    1101
+My level 190                    Sokoban-II      1612
 My Life                         Challenge-III   0101
 my little camp                  Challenge-II    1732
 My longest lvl                  Challenge-III   0360
@@ -11309,6 +11428,7 @@ no comment                      Sokoban-I       1315
 No danger                       Challenge-II    0242
 No doubt double work            Challenge-II    0837
 No Enemy Following              Beginner-I      0054
+no entry                        Challenge-V     0724
 No escape 2! HA!HA!HA!          Beginner-I      1307
 No escape! HA!HA!HA!            Beginner-I      1306
 NO GOING BACK                   Challenge-II    0813
@@ -11596,12 +11716,14 @@ Odontogriphus                   Beginner-II     0824
 Odoraia                         Challenge-IV    0223
 Odyssey                         LaserTank       0676
 Odyssey 2                       Sokoban-II      1419
+Odyssey 3                       Sokoban-II      1659
 oeil de lynx                    Beginner-I      1715
 OEILLET                         Challenge-II    1141
 Oelförderöfen                   Challenge-IV    0601
 Oempa Loempa                    Beginner-II     0398
 Oeuvrai                         Challenge-III   1421
 Off Limits                      Challenge-II    0908
+Off The Wall                    Challenge-V     0658
 Off to a bad start              Challenge-V     0162
 Offering Resistance             Challenge-II    0949
 Offsetdruck Firma               Beginner-I      1830
@@ -11624,6 +11746,7 @@ Oh Tannenbaum                   Challenge-III   0883
 Oh! Tsunami!                    Sokoban-I       0446
 Oh, God of Mirrors              Challenge-III   1021
 Oh, its a trap...               Challenge-III   0597
+oh,my heart!                    Sokoban-II      1646
 Oh......Help me !               LaserTank       1609
 oh...no...                      Sokoban-I       0461
 ohbugger                        Challenge-II    1049
@@ -11902,6 +12025,7 @@ P.O.W camp                      Challenge-I     1566
 pacheco                         Challenge-I     1985
 pacheco 2                       Sokoban-I       0597
 Pacific Island                  LaserTank       1542
+Pack and Unpack                 Challenge-V     0729
 Pack Reduction                  Challenge-III   0875
 Pack Seduction                  Sokoban-II      0137
 Package delivery service        Challenge-IV    0821
@@ -11965,6 +12089,7 @@ ParfumeMedia                    Challenge-III   0045
 Paris Wheel                     Challenge-IV    0270
 Parking bewilderment            Challenge-II    0084
 Parking jam                     Challenge-II    1845
+Parking Lot in Winter =_=       Challenge-V     0742
 Parking Mirrors                 Challenge-IV    1351
 Parking Place                   LaserTank       0711
 Parking Place II                LaserTank       0713
@@ -12098,6 +12223,7 @@ Perplexity Complex              Challenge-V     0185
 Perplextion                     Sokoban-I       1165
 Persephone                      Challenge-V     0566
 Persephone 2                    Challenge-V     0589
+Perspective on the cube         Sokoban-II      1648
 perturbation                    Challenge-III   1889
 Peru Litoral                    Beginner-I      1746
 Pesadilla                       LaserTank       1095
@@ -12131,6 +12257,7 @@ Picardie                        Beginner-II     0538
 Picasso                         LaserTank       0859
 Picasso II                      Beginner-I      0965
 Picasso III                     Beginner-II     0195
+Picasso's Painting?! =_=        Challenge-V     0689
 Pick A Flag                     Beginner-I      0353
 Pick a flag... any flag!        Beginner-I      0012
 Pick 'Em                        Beginner-I      1116
@@ -12260,7 +12387,9 @@ Play Ball                       Challenge-II    0012
 Play with 'S'                   Challenge-I     1494
 Play-back.                      Challenge-IV    0593
 Playground (Hell 10th Level)    Challenge-III   1790
+Playground of the Damned        Sokoban-II      1633
 Playing Arround                 Challenge-I     1471
+Playing Chess on Red Carpet     Challenge-V     0626
 Playing Chicken                 Challenge-IV    0405
 Playing hard to get             Challenge-II    1011
 Playing Your Games              Sokoban-II      0471
@@ -12320,6 +12449,7 @@ Polux Minaret                   Beginner-I      1815
 Polyester Landscape             Sokoban-II      0002
 Pomperipossa                    Challenge-II    0299
 ponctualité                     Challenge-I     1248
+pond skating is fun             Beginner-II     1369
 Pond Skipping                   Beginner-I      1481
 Pond skipping!                  LaserTank       0293
 Pont-levis                      Sokoban-I       0841
@@ -13006,6 +13136,7 @@ Red cross on water              Sokoban-I       1133
 Red Cross Return                Beginner-II     1198
 Red Cross Ride                  Challenge-I     1651
 Red Cynognathus                 Challenge-IV    0385
+Red Dragon                      Challenge-V     0687
 Red Green Blue                  Challenge-I     1551
 Red Herring                     Challenge-II    0947
 Red Jeep                        LaserTank       0186
@@ -13095,6 +13226,7 @@ Resource Grid                   Sokoban-II      1118
 Respiration.                    Challenge-IV    1152
 Rest In Peace                   Special-I       0239
 Restless Leg Syndrome           Challenge-IV    0276
+Restricted access 2021          Challenge-V     0691
 Restricted Area                 Challenge-I     0141
 Restricted but controllable     Challenge-II    1475
 Restricted Entry                Challenge-IV    1691
@@ -13111,6 +13243,7 @@ Retrouvai                       Challenge-III   1505
 Reture                          Beginner-I      1861
 Return of Eternity              Special-I       0117
 Return of Eternity II           Special-I       0121
+Return of Space Invaders        Sokoban-II      1626
 Return of The 4 Horsemen        Challenge-IV    1117
 Return to Crystal Fortress      Challenge-III   0640
 Return to Hatheg-Kla            Sokoban-II      1009
@@ -13256,6 +13389,7 @@ Robit 2                         Beginner-II     0754
 Robit 3                         Beginner-II     0758
 robot                           Beginner-I      0237
 robot 2                         Sokoban-I       0011
+Robot Robot go go go            Challenge-V     0664
 Robotronical                    Beginner-I      0561
 Rocinha Wars: Episode I         Challenge-III   0398
 Rock aroud the clock.           Challenge-III   0811
@@ -13264,6 +13398,7 @@ Rock hill                       Challenge-III   0333
 Rock pool                       Challenge-II    0381
 Rocket Ship                     Challenge-IV    0503
 Rocketship Is In Layers.        Beginner-I      1158
+Rocking Bermuda                 Challenge-V     0628
 Rock-in-Rio: A Cera             LaserTank       0811
 Rocks + Water                   Sokoban-I       1497
 Roco                            Beginner-I      1862
@@ -13280,6 +13415,7 @@ Roll the pair of dice           Challenge-III   0515
 Roller Blade                    Beginner-I      0076
 roller coaster                  Challenge-II    1897
 Roller cost                     Beginner-II     0322
+Rollin'                         Challenge-V     0688
 Rollin On The River 10          Sokoban-I       0107
 Rolling Bermuda                 Challenge-IV    1954
 Rolling On the River 1          Sokoban-I       0102
@@ -13317,6 +13453,7 @@ Rooftop Encounter               Challenge-IV    1591
 Rook Rider                      LaserTank       1022
 Room for a corridor             Challenge-III   0533
 Room times four                 Challenge-II    0238
+Room???                         Challenge-V     0670
 Rooms #01                       Challenge-IV    0427
 Rooms #02                       Challenge-V     0144
 Rooms Of Victory                Sokoban-I       0035
@@ -13354,6 +13491,7 @@ Rotary-mirror Soko              Sokoban-I       0280
 Rotate Irregularly              LaserTank       0732
 Rotating A-Ts on blue eyes      Challenge-IV    0352
 Rotating A-Ts on white eyes     Challenge-IV    0353
+Rotating Speculis - CCI         Challenge-V     0745
 Rotunda Limes                   Sokoban-II      0060
 roublardise                     Sokoban-I       1882
 Rough Passage                   Challenge-II    0904
@@ -13399,14 +13537,14 @@ Rubicon                         Sokoban-II      0986
 Rubies collecting               Sokoban-I       0459
 Rubies collecting 2             Sokoban-I       1278
 Ruby                            Beginner-II     1056
+Rückführflüge                   Challenge-IV    0675
 Rude Parloir                    Challenge-III   0466
 Rude Reductionism               Sokoban-I       1417
 Rude Reductionism 2             Sokoban-I       1418
 Rudolf Rampage                  Challenge-III   1037
 Rudolph the Red Nose            Beginner-II     0365
-Rückführflüge                   Challenge-IV    0675
-Rührstückskür                   Challenge-IV    0685
 RUF & TUF                       Challenge-I     1301
+Rührstückskür                   Challenge-IV    0685
 Ruin Rampage                    Sokoban-I       1299
 Ruins of the Fortress           Sokoban-I       0148
 Ruisselet                       Challenge-II    0073
@@ -13420,6 +13558,7 @@ RUN AWAY!!                      LaserTank       1927
 Run baby run                    Beginner-II     0606
 Run on the ice                  Beginner-I      0817
 run run run                     Challenge-III   0860
+Run safe                        Challenge-V     0725
 Run the Gauntlet                LaserTank       1508
 Runaround                       LaserTank       0077
 Runaway                         Challenge-I     1716
@@ -13665,6 +13804,7 @@ sei-sei                         Challenge-IV    1585
 sei-sette                       Challenge-IV    1586
 sei-tre                         Challenge-IV    1582
 sei-uno                         Challenge-IV    1580
+Seize boat in Meteor Shower     Challenge-V     0624
 Seize the Bridge                Challenge-V     0184
 Selections                      LaserTank       0790
 Self Destruction                Challenge-IV    0302
@@ -14119,6 +14259,7 @@ sliding around                  Challenge-II    1731
 Sliding Blocks                  Challenge-IV    0092
 Sliding doors                   Challenge-II    1609
 Sliding Is Fun                  Beginner-I      0222
+Sliding Tile Puzzle             Challenge-V     0709
 sliding to crystal cave         Sokoban-II      1309
 Slight Problem                  Challenge-II    1486
 Slip & Slide                    Beginner-I      0354
@@ -15322,6 +15463,7 @@ So close yet so Far             Beginner-I      0343
 So Close Yet So Far Away        Challenge-I     2000
 So Close Yet so Far X           LaserTank       0944
 So Close Yet So Near :-)        Beginner-I      0673
+So close, so far                Challenge-V     0740
 So close, yet so far            Challenge-II    1375
 So close...                     LaserTank       1131
 So Close... 2                   Challenge-I     0579
@@ -15418,10 +15560,14 @@ Soko Tunnel                     LaserTank       1812
 Soko WaterBan                   LaserTank       0769
 Soko1: Blocks on Ground         Sokoban-I       0912
 Soko2: Blocks on Water          Sokoban-I       0913
+Soko2: Blocks on Water 2        Sokoban-II      1665
 Soko3: Blocks on Thin ice       Sokoban-I       0914
 Soko4: Blocks on Ice            Sokoban-I       0915
 Sokoarena                       Sokoban-I       0356
+Sokoba-Mania                    Sokoban-II      1642
 Sokobamania                     LaserTank       0188
+Sokoba-Mania 2                  Sokoban-II      1653
+Sokoba-Mania 3                  Sokoban-II      1656
 Sokoban                         Sokoban-I       0274
 Sokoban - nabokoS               Sokoban-I       1929
 Sokoban 1                       Beginner-I      0460
@@ -15544,6 +15690,7 @@ sokosera                        Sokoban-I       0209
 sokosera 12                     Sokoban-I       0211
 SoKosity                        Sokoban-II      0574
 SokoTank                        Sokoban-I       0453
+Sokotank 2021                   Challenge-V     0692
 Soko-Theme                      Sokoban-I       0363
 SokoTime!                       Sokoban-I       0145
 Sokotop1                        Sokoban-I       0299
@@ -15654,6 +15801,7 @@ Spaceport Alpha                 Challenge-I     0254
 Spaceship                       LaserTank       1759
 Spaceship Challenge!            Beginner-I      1177
 Space-time Contraction          Challenge-III   1846
+Spade K                         Challenge-V     0684
 S-pairal                        Beginner-I      1983
 Spam Reduction                  Challenge-III   0952
 Spam Seduction                  Challenge-IV    0562
@@ -15677,6 +15825,7 @@ Speed II                        LaserTank       0199
 Speed III                       LaserTank       0236
 Speed IV                        Beginner-I      1655
 Speed Record                    Sokoban-I       0698
+Speed Record 2                  Sokoban-II      1662
 Speed tank                      Beginner-I      0048
 Speed Trap                      Beginner-I      1507
 Speed up                        Beginner-I      1975
@@ -15697,6 +15846,7 @@ Spidertank                      Beginner-I      1946
 Spiegelwald am Teich            LaserTank       0363
 Spies!                          Sokoban-I       1035
 Spiky sawtooth wave             Sokoban-I       1801
+Spilled paint                   Sokoban-II      1650
 spin around                     Challenge-II    1734
 Spin Centers                    Challenge-I     0895
 Spin Cycle                      Challenge-I     1216
@@ -15801,6 +15951,7 @@ Square Dance!                   Challenge-I     1823
 Square Dizzines                 Challenge-II    0617
 Square happyness                Special-I       0334
 Square Knots.                   Beginner-I      0003
+Square Manipulation :-(         Challenge-V     0662
 Square of Death                 Challenge-II    1405
 Square Of Thin Nothing          Challenge-III   0389
 Square Puzzle                   Challenge-III   0482
@@ -15967,6 +16118,7 @@ Star Fox Battle Game            Beginner-I      1702
 Star Fox Game                   Beginner-I      1701
 Star in the throes of death     Challenge-IV    0064
 Star Lake                       Beginner-I      0225
+Star of david                   Challenge-V     0674
 Star the war                    Sokoban-I       0660
 star the War II a fuga          Beginner-I      1045
 Star the war: Enemy lines       Challenge-II    0720
@@ -16129,9 +16281,10 @@ Subway stuff II                 Challenge-I     1817
 Subway stuff III                Sokoban-I       0723
 Sub-Zero                        Challenge-III   1707
 Suck Reaction                   Challenge-III   0708
+sudden death                    Challenge-V     0683
+Südgrönländer                   Challenge-IV    0687
 Sudoku-ban                      Sokoban-II      0122
 Sudoripare                      Sokoban-I       1720
-Südgrönländer                   Challenge-IV    0687
 Suggestion n°1                  Challenge-II    0794
 Suicidal Tendencies             Challenge-III   1491
 Suicide center                  Beginner-II     0714
@@ -16275,6 +16428,7 @@ Swirley                         Beginner-I      0907
 Switch                          Challenge-III   0104
 Switch Boxes                    Challenge-V     0027
 Sword of Damocles               Challenge-II    1432
+Sword of Justice                Challenge-V     0695
 Sydney 2000: Athletics 2        Challenge-V     0326
 Syklonban                       Sokoban-II      1110
 Symetrie 001                    Challenge-II    1191
@@ -16325,6 +16479,7 @@ Tah-Dah                         Challenge-I     1647
 Taiwan - professors hut         LaserTank       1154
 Taj Mahal                       Challenge-III   0249
 Tajine pour micro-onde          Challenge-I     0236
+Take a Gift to 2021 :-)         Challenge-V     0660
 Take a pacience!                Sokoban-I       0199
 TAKE A RIDE                     Challenge-I     0467
 Take a walk                     Challenge-I     1819
@@ -16774,6 +16929,7 @@ The Bringer of War              Challenge-II    1772
 The Broken Conveyor             Challenge-I     1228
 The Broken Star                 LaserTank       1313
 The Building                    Challenge-I     0445
+The Busy Captain                Challenge-V     0625
 The Butterfly Effect            Challenge-IV    0438
 the calamity island             Beginner-I      1105
 The Camerun Project             Special-I       0390
@@ -17060,6 +17216,7 @@ The Hydra                       Challenge-IV    0061
 The Ice                         Beginner-I      1220
 The Ice And The Bricks          Beginner-I      1226
 The Ice-Man                     Challenge-II    0859
+the ignition                    Challenge-V     0677
 The Iliad                       Challenge-III   1645
 The Illusionary Shooting        Challenge-IV    0281
 The Important Block             Challenge-I     0369
@@ -17067,6 +17224,7 @@ The Important Block II          Beginner-I      0616
 The Inchworm special            LaserTank       0368
 The incredible machine          Challenge-IV    1275
 The incredible machine 2        Challenge-IV    1611
+The incredible machine 2021     Challenge-V     0693
 The Inevitable Box              Challenge-III   0784
 The Invisible Grid              Challenge-I     1557
 The Iron Age                    Challenge-II    0898
@@ -17133,6 +17291,7 @@ The little fire-brigade car o   Beginner-I      0827
 The Little One's Mess           Challenge-I     1077
 The Little One's Mess II        Challenge-I     1078
 The Little One's Mess III       Challenge-I     0023
+The little rabbit               Sokoban-II      1638
 The Little Smiling Man          Challenge-I     0921
 The Lone Tank.                  Challenge-I     0085
 The Long & Winding Road II      Challenge-IV    1109
@@ -17141,6 +17300,7 @@ The Long and Winding Road       Beginner-II     0612
 The long hard road              Challenge-I     1563
 The Long Ice Ride I             Beginner-I      0257
 The Long Ride                   Beginner-I      0059
+The long river                  Beginner-II     1361
 The Long Road to the Top        Challenge-II    1533
 The Long Route                  Challenge-IV    0772
 The Long Way                    LaserTank       0779
@@ -17234,6 +17394,7 @@ The Mission for the King        Challenge-II    0130
 The mixt                        Beginner-I      0506
 the mixt II                     Challenge-II    0128
 The Moat                        Sokoban-I       0566
+the Moat 2                      Beginner-II     1375
 The Moat II                     Challenge-II    0611
 The Moat in One's Eye           Challenge-IV    0837
 The Most Valuable Object        Challenge-III   0773
@@ -17362,6 +17523,7 @@ The Return of Sherlock Holmes   Challenge-IV    0945
 The Return To Area 51           Challenge-I     1151
 The revenge                     Special-I       0333
 The riddle of all               Challenge-III   1861
+The Right Room =_=              Challenge-V     0661
 The right slot.                 Challenge-I     0081
 The Ring                        Sokoban-I       0980
 The Rings                       Sokoban-I       0431
@@ -17445,6 +17607,7 @@ The Spider                      Challenge-III   1764
 The spirit of YAC               Special-I       0330
 The Spoil                       LaserTank       1519
 The Spy                         LaserTank       1976
+the spy 2                       Challenge-V     0680
 The square                      LaserTank       0956
 The square (Soto)               Beginner-I      0212
 The Square Mile                 Challenge-II    0495
@@ -17606,6 +17769,7 @@ The Web aka Spiral of Death     Challenge-III   1788
 The Well                        LaserTank       0035
 The Wetlands                    Challenge-II    0116
 The Wheel Of Time               Sokoban-I       0652
+The Wheel Of Time 2             Sokoban-II      1664
 The whirling of the spiral      Beginner-I      1250
 The whirling's team             Challenge-IV    0346
 The Winged Messenger            Challenge-II    1773
@@ -17848,6 +18012,7 @@ through clambering              Challenge-IV    0826
 through clattering              Challenge-IV    1811
 through cleaning                Challenge-V     0049
 through clearing                Challenge-IV    1287
+through cleavong                Challenge-V     0643
 through creaming                Challenge-V     0275
 Through Creaming 2              Challenge-V     0291
 through creating                Sokoban-II      1382
@@ -17862,7 +18027,11 @@ Through Defaming 2              Challenge-IV    1441
 through deflating               Challenge-IV    1137
 through delating                Challenge-IV    0742
 through demanding               Sokoban-II      0488
+through departing               Challenge-V     0718
+through departing 2             Challenge-V     0719
+Through Departing 3             Challenge-V     0736
 through deranging               Challenge-IV    0824
+through descanting              Challenge-V     0652
 through despatching             Sokoban-II      0844
 through detaching               Sokoban-II      0277
 through detracting              Challenge-IV    0807
@@ -17991,6 +18160,7 @@ through remarking               Sokoban-II      1253
 through replacing               Challenge-V     0280
 through retaking                Challenge-V     0430
 through retarding               Sokoban-II      1470
+through retarding 2             Sokoban-II      1639
 through retracting              Sokoban-II      1331
 through scampering              Sokoban-II      0329
 through scattering              Sokoban-II      1305
@@ -18506,6 +18676,7 @@ Trouble In Paradice II          Challenge-III   0983
 Trouble pushing                 Sokoban-I       0571
 Trouble Tank 1                  Challenge-V     0307
 Trouble Tank 2                  Challenge-V     0308
+Trouble Tank 2020               Challenge-V     0629
 Trouble Tunnel                  Sokoban-I       1296
 Trouble viper                   Sokoban-I       0993
 Trouble, trouble !              Challenge-III   1053
@@ -18549,6 +18720,9 @@ True Soko - Duthen 12           Sokoban-II      1173
 True Soko - Duthen 13           Sokoban-II      1174
 True Soko - Duthen 14           Sokoban-II      1175
 True Soko - Duthen 15           Sokoban-II      1176
+True Soko - Mix 1               Sokoban-II      1635
+True Soko - Mix 2               Sokoban-II      1636
+True Soko - Mix 3               Sokoban-II      1637
 True Soko - Rabbit 01           Sokoban-II      1200
 True Soko - Rabbit 02           Sokoban-II      1201
 True Soko - Rabbit 03           Sokoban-II      1202
@@ -18674,6 +18848,7 @@ Tunnel Physics 101              Challenge-II    1541
 Tunnel Ring                     Challenge-IV    0210
 Tunnel Ring II                  Challenge-IV    0212
 Tunnel road                     Sokoban-I       1290
+tunnel skating                  Beginner-II     1363
 Tunnel Stack                    Challenge-V     0261
 Tunnel Tester                   LaserTank       1661
 Tunnel Timing                   Challenge-I     0735
@@ -18808,6 +18983,8 @@ Two ways part 2                 Challenge-I     0655
 two ways to skin a cat          Beginner-I      0815
 Two ways, two flags             LaserTank       1096
 Two Worlds                      Beginner-II     0910
+Twofer                          Challenge-V     0638
+Twofer Two                      Challenge-V     0646
 twofolder                       Challenge-II    0020
 Two-ply defense                 Challenge-II    1771
 Two-Step                        Challenge-II    0841
@@ -19281,6 +19458,7 @@ Watch the Water World           Beginner-I      1381
 Watch what ya doin...           Challenge-I     1698
 Watch What Your Doing           Challenge-III   0685
 Watch where it's going          Challenge-III   0684
+watch your back                 Beginner-II     1366
 Watch Your Back 2               Beginner-I      1564
 Watch your back part.           LaserTank       1823
 Watch Your Back!                LaserTank       0440
@@ -19484,6 +19662,7 @@ WELLINGTONIA                    Challenge-II    1214
 Were is Your Mind               Beginner-I      1337
 Werkplatz                       Challenge-IV    1131
 West meets East                 Challenge-III   1388
+Western Cowboy                  Sokoban-II      1647
 Wet Check                       Sokoban-I       1748
 Wet Checks                      Sokoban-II      0971
 wet chess                       Beginner-II     0847
@@ -19627,6 +19806,10 @@ Winding Roads                   Challenge-IV    0735
 windmill                        Challenge-I     1607
 Windmill 2                      Challenge-V     0447
 Windmill Fight                  LaserTank       0384
+Windmill3                       Challenge-V     0667
+Windmill4                       Challenge-V     0704
+Windmill5                       Challenge-V     0705
+Windmill6                       Challenge-V     0706
 Windmills Of The Gods           Challenge-I     0211
 windmilly                       Challenge-I     1681
 Window                          LaserTank       1489
@@ -19684,6 +19867,7 @@ Without Apse 2                  Challenge-V     0247
 without archer                  Challenge-IV    1556
 without armlet                  Sokoban-II      1538
 Without Armlet 2                Sokoban-II      1545
+without arrest                  Sokoban-II      1623
 without ascent                  Sokoban-II      0672
 without ascent 2                Sokoban-II      0673
 Without Ascent 3                Sokoban-II      0681
@@ -19726,12 +19910,14 @@ without calends                 Sokoban-II      0240
 without camber                  Challenge-IV    1771
 without camel                   Sokoban-II      1254
 without candle                  Challenge-IV    0802
+without cape                    Sokoban-II      1622
 without casket                  Challenge-IV    1326
 without cattle                  Sokoban-II      0260
 without cave                    Sokoban-II      0257
 without cavern                  Challenge-IV    0744
 without cedar                   Sokoban-II      1453
 without cellar                  Challenge-IV    1006
+without chamber                 Sokoban-II      1619
 without chamfer                 Challenge-V     0294
 Without Chamfer 2               Challenge-V     0320
 Without Chamfer 3               Challenge-V     0321
@@ -19777,6 +19963,7 @@ without deal                    Sokoban-II      0667
 without dearth                  Challenge-V     0010
 Without Dearth 2                Challenge-V     0015
 Without Dearth 3                Challenge-V     0016
+without death                   Challenge-V     0637
 without demand                  Challenge-IV    1278
 without drake                   Challenge-V     0063
 without drawer                  Challenge-IV    1750
@@ -19806,6 +19993,7 @@ without flange                  Challenge-IV    1347
 Without Flange 2                Challenge-IV    1444
 without flare                   Challenge-IV    1551
 without frame                   Challenge-V     0373
+without gabble                  Challenge-V     0650
 without gable                   Challenge-IV    1971
 Without Gable 2                 Challenge-V     0019
 without gadget                  Challenge-IV    1894
@@ -19885,6 +20073,7 @@ without lacker                  Sokoban-II      0709
 without ladder                  Sokoban-II      0509
 without lake                    Sokoban-II      0234
 without lance                   Challenge-V     0537
+without lane                    Challenge-V     0743
 without lantern                 Beginner-II     0992
 Without Lantern 2               Challenge-IV    0755
 without lapse                   Sokoban-II      0324
@@ -19949,7 +20138,10 @@ without peach 4                 Sokoban-II      0273
 without peak                    Sokoban-II      1479
 without pear                    Challenge-V     0330
 without pearl                   Challenge-IV    1766
+without peat                    Challenge-V     0627
 without pedant                  Challenge-IV    1605
+without pedlar                  Sokoban-II      1630
+without pedlar 2                Sokoban-II      1640
 without pendant                 Challenge-IV    1266
 without petal                   Sokoban-II      0553
 without petard                  Sokoban-II      1269
@@ -20002,6 +20194,10 @@ without seam                    Sokoban-II      0492
 without sear                    Sokoban-II      0845
 without search                  Challenge-IV    1926
 without seat                    Sokoban-II      0412
+without secant                  Challenge-V     0711
+without secant 2                Challenge-V     0712
+without secant 3                Challenge-V     0717
+Without Secant 4                Challenge-V     0720
 without sedan                   Challenge-V     0529
 without senna                   Challenge-V     0272
 without seraph                  Sokoban-II      0328
@@ -20072,6 +20268,10 @@ without tanner                  Beginner-II     1304
 without taper                   Sokoban-II      0263
 Without Taper 2                 Sokoban-II      0361
 without target                  Beginner-II     1174
+without tassel                  Challenge-V     0727
+without tassel 2                Challenge-V     0728
+Without Tassel 3                Challenge-V     0735
+without tassel 4                Challenge-V     0737
 without tattle                  Challenge-IV    1176
 without tea                     Challenge-IV    1416
 without teak                    Challenge-IV    1876
@@ -20086,8 +20286,11 @@ without trade                   Sokoban-II      0259
 without trammel                 Challenge-IV    1431
 without trample                 Challenge-IV    1284
 without trance                  Challenge-V     0219
+without transgress              Challenge-V     0644
+Without Transgress 2            Challenge-V     0655
 without traper                  Sokoban-II      0770
 Without Traper 2                Sokoban-II      0785
+without travel                  Sokoban-II      1615
 without tread                   Challenge-V     0407
 without treadle                 Challenge-IV    0967
 without treat                   Challenge-V     0251
@@ -20117,6 +20320,7 @@ Without Warren 2                Challenge-V     0071
 without washer                  Sokoban-II      1307
 without waste                   Challenge-V     0573
 without watcher                 Challenge-IV    1451
+without water                   Sokoban-II      1618
 without wattle                  Challenge-V     0281
 without waver                   Beginner-II     1330
 without wealth                  Challenge-IV    1415
@@ -20358,6 +20562,7 @@ You Can't Catch Me              Beginner-I      1392
 You Gotta Work It Out           Beginner-I      1328
 You have some blocks.           Challenge-IV    0588
 You know this...                Challenge-II    0613
+You Need 3 Blocks               Challenge-V     0710
 You never know                  Challenge-I     1119
 You only live twice             Challenge-IV    0119
 you sleep                       Challenge-III   1866

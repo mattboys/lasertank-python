@@ -179,6 +179,7 @@ class GameState:
                 self.FireLaser(self.board.tank.X, self.board.tank.Y, self.board.tank.Dir, True)
             self.AntiTank()
 
+        self.change_log.append("Resolving momenta")
         # Resolve Momenta
         if self.SlideO_s():
             self.IceMoveO()  # NOTE: IceMoveO includes additional AntiTank() moves
@@ -186,24 +187,30 @@ class GameState:
             self.IceMoveT()
         self.ConvMoving = False  # used to disable Laser on the conveyor
 
-        # Check where the tank ended up
-        tank_terrain = self.board.terrain[self.board.tank.X][self.board.tank.Y]
-        if tank_terrain == c.FLAG:
-            self.game_over(victorious=True)
-        elif tank_terrain == c.WATER:
-            self.game_over(victorious=False)
-        elif tank_terrain == c.CONVEYOR_UP:
-            if self.CheckLoc(self.board.tank.X, self.board.tank.Y - 1):
-                self.ConvMoveTank(0, -1, True)
-        elif tank_terrain == c.CONVEYOR_RIGHT:
-            if self.CheckLoc(self.board.tank.X + 1, self.board.tank.Y):
-                self.ConvMoveTank(1, 0, True)
-        elif tank_terrain == c.CONVEYOR_DOWN:
-            if self.CheckLoc(self.board.tank.X, self.board.tank.Y + 1):
-                self.ConvMoveTank(0, 1, True)
-        elif tank_terrain == c.CONVEYOR_LEFT:
-            if self.CheckLoc(self.board.tank.X - 1, self.board.tank.Y):
-                self.ConvMoveTank(-1, 0, True)
+        self.change_log.append("Checking tank square")
+        if self.is_tank_on_terrain():
+            # Check where the tank ended up
+            tank_terrain = self.board.terrain[self.board.tank.X][self.board.tank.Y]
+            if tank_terrain == c.FLAG:
+                self.game_over(victorious=True)
+            elif tank_terrain == c.WATER:
+                self.game_over(victorious=False)
+            elif tank_terrain == c.CONVEYOR_UP:
+                if self.CheckLoc(self.board.tank.X, self.board.tank.Y - 1):
+                    self.ConvMoveTank(0, -1, True)
+            elif tank_terrain == c.CONVEYOR_RIGHT:
+                if self.CheckLoc(self.board.tank.X + 1, self.board.tank.Y):
+                    self.ConvMoveTank(1, 0, True)
+            elif tank_terrain == c.CONVEYOR_DOWN:
+                if self.CheckLoc(self.board.tank.X, self.board.tank.Y + 1):
+                    self.ConvMoveTank(0, 1, True)
+            elif tank_terrain == c.CONVEYOR_LEFT:
+                if self.CheckLoc(self.board.tank.X - 1, self.board.tank.Y):
+                    self.ConvMoveTank(-1, 0, True)
+
+    def is_tank_on_terrain(self):
+        """ If the tank up on an object from a trick-shot then the tank is not on the terrain """
+        return self.board.items[self.board.tank.X][self.board.tank.Y] == c.EMPTY
 
     def game_over(self, victorious):
         self.running = False
@@ -456,13 +463,8 @@ class GameState:
                 def TestIfConvCanMoveTank():
                     # Used to handle a bug :  the speed bug
                     # Return True if the tank is on Conveyor and can move.
-                    terrain_tank_on = self.board.terrain[self.board.tank.X][
-                        self.board.tank.Y
-                    ]
-                    item_tank_on = self.board.items[self.board.tank.X][
-                        self.board.tank.Y
-                    ]
-                    if item_tank_on == c.EMPTY:
+                    terrain_tank_on = self.board.terrain[self.board.tank.X][self.board.tank.Y]
+                    if self.is_tank_on_terrain():
                         if terrain_tank_on == c.CONVEYOR_UP:
                             if self.CheckLoc(self.board.tank.X, self.board.tank.Y - 1):
                                 return True
@@ -512,6 +514,7 @@ class GameState:
         tunnel_id = self.board.terrain[self.board.tank.X][self.board.tank.Y]
         self.WaitToTrans = False
         self.BlackHole = False
+        found_blocked_exit = False
         for cy in range(c.PLAYFIELD_SIZE):
             for cx in range(c.PLAYFIELD_SIZE):
                 if self.board.terrain[cx][cy] == tunnel_id and not (
@@ -519,17 +522,18 @@ class GameState:
                 ):
                     # Found an exit tunnel (and not the same as entry)
                     if self.board.items[cx][cy] != c.EMPTY:
-                        # Exit is blocked
-                        self.WaitToTrans = True
-                        return
+                        found_blocked_exit = True
                     else:
                         # Teleport tank
                         self.board.tank.X = cx
                         self.board.tank.Y = cy
                         return
-        # No exit found, so Tunnel is a Black Hole
-        self.BlackHole = True
-        return
+
+        if found_blocked_exit:
+            self.WaitToTrans = True
+        else:
+            # No exit found, so Tunnel is a Black Hole
+            self.BlackHole = True
 
     def MoveObj(self, x, y, dx, dy, sf):
         self.change_log.append(f"MoveObj: Object ({self.board.items[x][y]}) on {x},{y} requesting to move to {x+dx}"
@@ -626,15 +630,13 @@ class GameState:
                         # Found an exit tunnel (and not the same as entry)
                         if self.board.items[cx][cy] != c.EMPTY:
                             # Exit is blocked
-
                             found_blocked_exit = True
                         else:
                             # Teleport item
                             x = cx
                             y = cy
                             found_empty_exit = True
-                    if found_empty_exit:
-                        break
+                            break
                 if found_empty_exit:
                     break
             if not found_empty_exit:
@@ -1266,4 +1268,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("tricks/Tunnel_test", 1)
+    debug_level("custom_tests/CustomTests", 7)

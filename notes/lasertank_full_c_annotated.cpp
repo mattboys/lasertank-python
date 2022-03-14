@@ -2474,7 +2474,7 @@ HBITMAP OpenScreen; // Instruction Bitmap loaded from "control.bmp"
 HFONT MyFont;
 int FileHand;
 int RB_TOS; // Rec/Game Buffer pointer to TOP OF STACK
-int PBHold;
+int PBHold; // Step mode in playback mode
 int VHSOn;
 HWND MainH, Ed1, Ed2, BT1, BT2, BT3, BT4, BT5, BT6, BT7, BT8, BT9;
 TPLAYFIELD ShiftPF, ShiftBMF;
@@ -2577,23 +2577,30 @@ BOOL LoadPlayback() {
 
 	if (Recording)
 		SendMessage(MainH, WM_COMMAND, 123, 0); // Turn Off Recording
+
+	// Open playback file from PBFileName
 	if ((F = CreateFile(PBFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 			FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
 		return (FALSE);
 
 	PBOpen = TRUE; // this will also tell autorecord not to turn on
+
+	// Load playback info from file handle into memory ( char[] PBFileName -> HANDLE F -> TRECORDREC PBRec)
 	ReadFile(F, & PBRec, sizeof(PBRec), & BytesMoved, NULL);
 
+	// Increase buffer size if data does not fit in RecBuffer
 	if (RecBufSize <= PBRec.Size) { // RecBuffer needs to be bigger
 		RecBufSize = PBRec.Size + 1;
 		RecBuffer = GlobalReAlloc(RecBuffer, RecBufSize, GMEM_MOVEABLE);
 	}
 
+	// Load playback moves from file handle into memory
 	ReadFile(F, RecBuffer, PBRec.Size, & BytesMoved, NULL); // Load RecBuffer W data
 	CloseHandle(F);
-	CurLevel = PBRec.Level - 1;
 
 	// Set the current level to match the level in the playback
+	CurLevel = PBRec.Level - 1;
+
 	// this will error if the levels have moved
 	if ((!LoadNextLevel(TRUE, TRUE)) || (strcmp(CurRecData.LName, PBRec.LName) != 0)) {
 		// Do a hard file search for the level name
@@ -2611,8 +2618,10 @@ BOOL LoadPlayback() {
 			LoadNextLevel(TRUE, TRUE);
 		}
 	}
+
 	Game.RecP = 0;
 	RB_TOS = PBRec.Size;
+
 	if (strcmp(CurRecData.LName, PBRec.LName) != 0) {
 		// Could not find level from playback in current lvl file
 		strcpy(temps, txt013); // "Playback Level:"
@@ -2620,16 +2629,24 @@ BOOL LoadPlayback() {
 		strcat(temps, txt015); // "\nCan Not be found in the current level file\n<"
 		strcat(temps, FileName);
 		strcat(temps, " >");
-		MessageBox(MainH, temps, txt007, MB_OK | MB_ICONERROR);
+		// "LaserTank Error"
+		// (!) "Playback Level:"
+		// PBRec.LName
+		// "Can Not be found in the current level file"
+		// "<" FileName ">"
+		// [OK]
+		MessageBox(MainH, temps, txt007, MB_OK | MB_ICONERROR); // txt007="LaserTank Error"
 		PlayBack = FALSE;
 		PBOpen = FALSE;
 		PBHold = FALSE;
-		SendMessage(MainH, WM_COMMAND, 101, 0);
+		SendMessage(MainH, WM_COMMAND, 101, 0); // New Game
 		return (FALSE);
 	}
+
 	return (TRUE);
 }
 
+// Invoked when "Resume Recording" is selected from the menu
 void VHSPlayback() {
 	gDC = GetDC(MainH);
 	GameOn(FALSE);
@@ -3040,7 +3057,7 @@ LRESULT CALLBACK WndProc(HWND Window, UINT Message, WPARAM wparam, LPARAM lparam
 		}
 		break;
 // ************************************************************************************* //
-	// main game logic processing tick() *****************************************
+	// main game logic game loop processing tick() *****************************************
 	case WM_TIMER:
 
 		if (QHELP) return (0);
