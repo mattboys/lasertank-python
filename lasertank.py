@@ -85,7 +85,6 @@ class GameState:
         # Flags
         self.ConvMoving = False
         self.SlideT = TIceRec(0, 0, 0, 0, False)  # Momentum of tank where SlideT.s = is tank sliding?
-        self.PBHold = False
         self.WaitToTrans = False  # Found tunnel output on PF2 (under something)
         self.BlackHole = False  # True if we TunnleTranslae to a Black Hole (no exit found)
         self.wasIce = False
@@ -161,7 +160,6 @@ class GameState:
                 or self.ConvMoving
                 or self.SlideO_s()
                 or self.SlideT.s
-                or self.PBHold
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
