@@ -100,7 +100,8 @@ class GameState:
         )
         self.wasIce = False
 
-    def SlideO_s(self):
+    def is_objects_sliding(self):
+        # Was named SlideO_s
         # Is anything sliding?
         return len(self.SlideMem) > 0
 
@@ -171,7 +172,7 @@ class GameState:
         if self.moves_buffer and not (
             self.board.tank.Firing
             or self.ConvMoving
-            or self.SlideO_s()
+            or self.is_objects_sliding()
             or self.SlideT.s
         ):
             move = self.moves_buffer.pop(0)
@@ -194,7 +195,7 @@ class GameState:
 
         self.change_log.append("Resolving momenta")
         # Resolve Momenta
-        if self.SlideO_s():
+        if self.is_objects_sliding():
             self.IceMoveO()  # NOTE: IceMoveO includes additional AntiTank() moves
         if self.SlideT.s:
             self.IceMoveT()
@@ -702,6 +703,32 @@ class GameState:
         self.SoundPlay(sf)
 
     def CheckLLoc(self, x, y, dx, dy):
+        def del_SlideO_from_Mem(x, y):
+            self.change_log.append("Object stopped sliding")
+            # If an object is sliding and is hit by a laser,
+            # delete it from stack. (Done before adding new slide direction to stack.)
+            for iSlideObj in reversed(self.SlideMem):
+                if iSlideObj.x == x and iSlideObj.y == y:
+                    iSlideObj.s = False
+                    break
+            self.SlideMem = [slide for slide in self.SlideMem if slide.s]
+
+        def add_SlideO_to_Mem(sliding_obj):
+            self.change_log.append("Object started sliding")
+            # Add an object in the stack for slidings objects
+            # But, if this object is already in this stack,
+            # just change dir and don't increase the counter.
+            if len(self.SlideMem) < c.MAX_TICEMEM:
+                # Search for square in SlideMem and update if already there
+                for count, iSlideObj in enumerate(self.SlideMem):
+                    if iSlideObj.x == sliding_obj.x and iSlideObj.y == sliding_obj.y:
+                        self.SlideMem[count] = sliding_obj  # TODO: check
+                        return
+                # Not found so add to SlideMem
+                self.SlideMem.append(sliding_obj)
+            else:
+                print("Debug: Sliding stack full.")
+
         # Check destination square of laser, and start objects there moving if needed
         #  this is were the laser does its damage
         # returns true if laser didn't hit anything and still in board
@@ -827,12 +854,12 @@ class GameState:
         # If object is moving into an ice square then add it to the Sliding stack
         if self.wasIce:
             # If is already sliding, del it !
-            self.del_SlideO_from_Mem(x, y)
+            del_SlideO_from_Mem(x, y)
             # and add a new slide in a new direction
             SlideO = TIceRec(x + dx, y + dy, dx, dy, True)
-            self.add_SlideO_to_Mem(SlideO)
+            add_SlideO_to_Mem(SlideO)
         else:
-            self.del_SlideO_from_Mem(x, y)
+            del_SlideO_from_Mem(x, y)
 
         return False
 
@@ -888,31 +915,7 @@ class GameState:
         else:
             self.SlideT.s = False
 
-    def del_SlideO_from_Mem(self, x, y):
-        self.change_log.append("Object stopped sliding")
-        # If an object is sliding and is hit by a laser,
-        # delete it from stack. (Done before adding new slide direction to stack.)
-        for iSlideObj in reversed(self.SlideMem):
-            if iSlideObj.x == x and iSlideObj.y == y:
-                iSlideObj.s = False
-                break
-        self.SlideMem = [slide for slide in self.SlideMem if slide.s]
 
-    def add_SlideO_to_Mem(self, sliding_obj):
-        self.change_log.append("Object started sliding")
-        # Add an object in the stack for slidings objects
-        # But, if this object is already in this stack,
-        # just change dir and don't increase the counter.
-        if len(self.SlideMem) < c.MAX_TICEMEM:
-            # Search for square in SlideMem and update if already there
-            for count, iSlideObj in enumerate(self.SlideMem):
-                if iSlideObj.x == sliding_obj.x and iSlideObj.y == sliding_obj.y:
-                    self.SlideMem[count] = sliding_obj  # TODO: check
-                    return
-            # Not found so add to SlideMem
-            self.SlideMem.append(sliding_obj)
-        else:
-            print("Debug: Sliding stack full.")
 
 
 class Graphics:
