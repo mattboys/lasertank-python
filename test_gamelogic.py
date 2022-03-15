@@ -5,7 +5,7 @@ def helper_print_test_functions(folder, filename, numbers):
     if isinstance(numbers, int):
         numbers = [numbers]
     print(f"# {filename}")
-    filename_clean = filename.replace('-', '_').replace("'", '')
+    filename_clean = filename.replace("-", "_").replace("'", "")
     for number in numbers:
         print(f"def test_{filename_clean}_level_{number:04}():")
         print(f'    assert run_lvl_playback("{folder}/{filename}", {number})')

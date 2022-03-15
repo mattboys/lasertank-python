@@ -50,7 +50,14 @@ class LevelInfo:
 
 
 class TIceRec:  # Sliding Struct
-    def __init__(self, x, y, dx, dy, s=True, ):
+    def __init__(
+        self,
+        x,
+        y,
+        dx,
+        dy,
+        s=True,
+    ):
         self.x = x  # Last XY position of object to move
         self.y = y
         self.dx = dx  # Direction to move in Delta Cords
@@ -84,9 +91,13 @@ class GameState:
 
         # Flags
         self.ConvMoving = False
-        self.SlideT = TIceRec(0, 0, 0, 0, False)  # Momentum of tank where SlideT.s = is tank sliding?
+        self.SlideT = TIceRec(
+            0, 0, 0, 0, False
+        )  # Momentum of tank where SlideT.s = is tank sliding?
         self.WaitToTrans = False  # Found tunnel output on PF2 (under something)
-        self.BlackHole = False  # True if we TunnleTranslae to a Black Hole (no exit found)
+        self.BlackHole = (
+            False  # True if we TunnleTranslae to a Black Hole (no exit found)
+        )
         self.wasIce = False
 
     def SlideO_s(self):
@@ -117,7 +128,9 @@ class GameState:
             chunk = f.read(chunk_size)
             if not chunk:
                 return None
-        playfield_ints, title, hint, author, difficulty_int = struct.unpack(struct_format, chunk)
+        playfield_ints, title, hint, author, difficulty_int = struct.unpack(
+            struct_format, chunk
+        )
 
         title = convert_null_terminated_bytes_to_str_helper(title)
         hint = convert_null_terminated_bytes_to_str_helper(hint)
@@ -156,10 +169,10 @@ class GameState:
 
         # Process keyboard buffer
         if self.moves_buffer and not (
-                self.board.tank.Firing
-                or self.ConvMoving
-                or self.SlideO_s()
-                or self.SlideT.s
+            self.board.tank.Firing
+            or self.ConvMoving
+            or self.SlideO_s()
+            or self.SlideT.s
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
@@ -174,7 +187,9 @@ class GameState:
             elif move == c.K_SHOOT:
                 self.UpdateUndo()
                 self.score_shots += 1
-                self.FireLaser(self.board.tank.X, self.board.tank.Y, self.board.tank.Dir, True)
+                self.FireLaser(
+                    self.board.tank.X, self.board.tank.Y, self.board.tank.Dir, True
+                )
             self.AntiTank()
 
         self.change_log.append("Resolving momenta")
@@ -207,7 +222,7 @@ class GameState:
                     self.ConvMoveTank(-1, 0, True)
 
     def is_tank_on_terrain(self):
-        """ If the tank up on an object from a trick-shot then the tank is not on the terrain """
+        """If the tank up on an object from a trick-shot then the tank is not on the terrain"""
         return self.board.items[self.board.tank.X][self.board.tank.Y] == c.EMPTY
 
     def game_over(self, victorious):
@@ -256,9 +271,8 @@ class GameState:
 
         # Set the wasIce flag if tested square is an empty ice or thin ice
         self.wasIce = (
-                (self.board.terrain[x][y] == c.ICE or self.board.terrain[x][y] == c.THINICE)
-                and self.board.items[x][y] == c.EMPTY
-        )
+            self.board.terrain[x][y] == c.ICE or self.board.terrain[x][y] == c.THINICE
+        ) and self.board.items[x][y] == c.EMPTY
         # if self.board.terrain[x][y] in c.TUNNEL_ALL:
         #     return True
 
@@ -277,9 +291,9 @@ class GameState:
         while self.CheckLoc(x, self.board.tank.Y):
             x += 1
         if (
-                (x < c.PLAYFIELD_SIZE)
-                and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_LEFT)
-                and (self.board.tank.X != x)
+            (x < c.PLAYFIELD_SIZE)
+            and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_LEFT)
+            and (self.board.tank.X != x)
         ):
             self.FireLaser(x, self.board.tank.Y, c.D_LEFT, False)
             return
@@ -288,9 +302,9 @@ class GameState:
         while self.CheckLoc(x, self.board.tank.Y):
             x -= 1
         if (
-                (x >= 0)
-                and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_RIGHT)
-                and (self.board.tank.X != x)
+            (x >= 0)
+            and (self.board.items[x][self.board.tank.Y] == c.ANTITANK_RIGHT)
+            and (self.board.tank.X != x)
         ):
             self.FireLaser(x, self.board.tank.Y, c.D_RIGHT, False)
             return
@@ -299,9 +313,9 @@ class GameState:
         while self.CheckLoc(self.board.tank.X, y):
             y += 1
         if (
-                (y < c.PLAYFIELD_SIZE)
-                and (self.board.items[self.board.tank.X][y] == c.ANTITANK_UP)
-                and (self.board.tank.Y != y)
+            (y < c.PLAYFIELD_SIZE)
+            and (self.board.items[self.board.tank.X][y] == c.ANTITANK_UP)
+            and (self.board.tank.Y != y)
         ):
             self.FireLaser(self.board.tank.X, y, c.D_UP, False)
             return
@@ -310,9 +324,9 @@ class GameState:
         while self.CheckLoc(self.board.tank.X, y):
             y -= 1
         if (
-                (y >= 0)
-                and (self.board.items[self.board.tank.X][y] == c.ANTITANK_DOWN)
-                and (self.board.tank.Y != y)
+            (y >= 0)
+            and (self.board.items[self.board.tank.X][y] == c.ANTITANK_DOWN)
+            and (self.board.tank.Y != y)
         ):
             self.FireLaser(self.board.tank.X, y, c.D_DOWN, False)
             return
@@ -418,22 +432,34 @@ class GameState:
                     # Reflect off mirror
 
                     # Update laser direction if hitting a mirror
-                    if reflecting_item == c.MIRROR_LEFT_UP or reflecting_item == c.ROTMIRROR_LEFT_UP:
+                    if (
+                        reflecting_item == c.MIRROR_LEFT_UP
+                        or reflecting_item == c.ROTMIRROR_LEFT_UP
+                    ):
                         if self.board.laser.Dir == c.D_RIGHT:
                             self.board.laser.Dir = c.D_UP
                         else:
                             self.board.laser.Dir = c.D_LEFT
-                    elif reflecting_item == c.MIRROR_UP_RIGHT or reflecting_item == c.ROTMIRROR_UP_RIGHT:
+                    elif (
+                        reflecting_item == c.MIRROR_UP_RIGHT
+                        or reflecting_item == c.ROTMIRROR_UP_RIGHT
+                    ):
                         if self.board.laser.Dir == c.D_DOWN:
                             self.board.laser.Dir = c.D_RIGHT
                         else:
                             self.board.laser.Dir = c.D_UP
-                    elif reflecting_item == c.MIRROR_RIGHT_DOWN or reflecting_item == c.ROTMIRROR_RIGHT_DOWN:
+                    elif (
+                        reflecting_item == c.MIRROR_RIGHT_DOWN
+                        or reflecting_item == c.ROTMIRROR_RIGHT_DOWN
+                    ):
                         if self.board.laser.Dir == c.D_UP:
                             self.board.laser.Dir = c.D_RIGHT
                         else:
                             self.board.laser.Dir = c.D_DOWN
-                    elif reflecting_item == c.MIRROR_DOWN_LEFT or reflecting_item == c.ROTMIRROR_DOWN_LEFT:
+                    elif (
+                        reflecting_item == c.MIRROR_DOWN_LEFT
+                        or reflecting_item == c.ROTMIRROR_DOWN_LEFT
+                    ):
                         if self.board.laser.Dir == c.D_UP:
                             self.board.laser.Dir = c.D_LEFT
                         else:
@@ -443,9 +469,9 @@ class GameState:
                     # Allows a second laser movement if laser is contacting a sliding mirror
                     for sliding_item in self.SlideMem:
                         if (
-                                sliding_item.s
-                                and sliding_item.x == self.board.laser.X
-                                and sliding_item.y == self.board.laser.Y
+                            sliding_item.s
+                            and sliding_item.x == self.board.laser.X
+                            and sliding_item.y == self.board.laser.Y
                         ):
                             LaserBounceOnIce = True
 
@@ -461,7 +487,9 @@ class GameState:
                 def TestIfConvCanMoveTank():
                     # Used to handle a bug :  the speed bug
                     # Return True if the tank is on Conveyor and can move.
-                    terrain_tank_on = self.board.terrain[self.board.tank.X][self.board.tank.Y]
+                    terrain_tank_on = self.board.terrain[self.board.tank.X][
+                        self.board.tank.Y
+                    ]
                     if self.is_tank_on_terrain():
                         if terrain_tank_on == c.CONVEYOR_UP:
                             if self.CheckLoc(self.board.tank.X, self.board.tank.Y - 1):
@@ -516,7 +544,7 @@ class GameState:
         for cy in range(c.PLAYFIELD_SIZE):
             for cx in range(c.PLAYFIELD_SIZE):
                 if self.board.terrain[cx][cy] == tunnel_id and not (
-                        self.board.tank.X == cx and self.board.tank.Y == cy
+                    self.board.tank.X == cx and self.board.tank.Y == cy
                 ):
                     # Found an exit tunnel (and not the same as entry)
                     if self.board.items[cx][cy] != c.EMPTY:
@@ -534,8 +562,10 @@ class GameState:
             self.BlackHole = True
 
     def MoveObj(self, x, y, dx, dy, sf):
-        self.change_log.append(f"MoveObj: Object ({self.board.items[x][y]}) on {x},{y} requesting to move to {x+dx}"
-                               f",{y+dy}")
+        self.change_log.append(
+            f"MoveObj: Object ({self.board.items[x][y]}) on {x},{y} requesting to move to {x+dx}"
+            f",{y+dy}"
+        )
         # Try to move object on square x,y that was pushed in dir dx,dy then play sound sf
         # Update terrain under object's initial position (x,y)
         # Also unblock tunnel if Obj blocking tunnel and let other end activate (cx,cy)
@@ -544,7 +574,9 @@ class GameState:
         terrain_loc = self.board.terrain[x][y]
 
         # Empty the vacating square
-        self.change_log.append(f"MoveObj: Item is {obt} and vacating terrain is {terrain_loc}")
+        self.change_log.append(
+            f"MoveObj: Item is {obt} and vacating terrain is {terrain_loc}"
+        )
         # Trigger waiting tunnel if vacating a tunnel
         if terrain_loc in c.TUNNEL_ALL:  # Check if Tunnel
             # Unblock tunnel
@@ -559,9 +591,9 @@ class GameState:
             for cy in range(c.PLAYFIELD_SIZE):
                 for cx in range(c.PLAYFIELD_SIZE):
                     if (
-                            self.board.terrain[cx][cy] == bb
-                            and self.board.items[cx][cy] != c.EMPTY
-                            and not (x == cx and y == cy)
+                        self.board.terrain[cx][cy] == bb
+                        and self.board.items[cx][cy] != c.EMPTY
+                        and not (x == cx and y == cy)
                     ):
                         # Search for another covered tunnel with the same ID (and not the same square)
                         ok = True
@@ -591,8 +623,8 @@ class GameState:
 
                 # We didn't find a match so maybe the tank is it
                 if (
-                        self.board.terrain[self.board.tank.X][self.board.tank.Y]
-                        == c.Tunnel_Set_Not_Waiting[bb]
+                    self.board.terrain[self.board.tank.X][self.board.tank.Y]
+                    == c.Tunnel_Set_Not_Waiting[bb]
                 ) and self.board.tank.Good:
                     self.score_moves -= 1
                     self.UpDateTankPos(0, 0)
@@ -606,7 +638,9 @@ class GameState:
 
         obt_dest = self.board.items[x][y]
         terrain_dest = self.board.terrain[x][y]
-        self.change_log.append(f"MoveObj: Destination terrain is {terrain_dest} which has object {obt_dest}")
+        self.change_log.append(
+            f"MoveObj: Destination terrain is {terrain_dest} which has object {obt_dest}"
+        )
 
         # If destination is a tunnel then set x,y to tunnel's exit
         if self.ISTunnel(x, y):
@@ -624,7 +658,9 @@ class GameState:
             for cy in range(c.PLAYFIELD_SIZE):
                 for cx in range(c.PLAYFIELD_SIZE):
                     # Find an empty destination tunnel
-                    if self.board.terrain[cx][cy] == tunnel_id and not (x == cx and y == cy):
+                    if self.board.terrain[cx][cy] == tunnel_id and not (
+                        x == cx and y == cy
+                    ):
                         # Found an exit tunnel (and not the same as entry)
                         if self.board.items[cx][cy] != c.EMPTY:
                             # Exit is blocked
@@ -686,7 +722,9 @@ class GameState:
         elif item_loc in c.SOLID_ITEMS:  # Include dead tanks as solid items
             self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.BLOCK:
-            if self.CheckLoc(x + dx, y + dy):  # Can block be moved in direction of laser? Is square free
+            if self.CheckLoc(
+                x + dx, y + dy
+            ):  # Can block be moved in direction of laser? Is square free
                 self.MoveObj(x, y, dx, dy, c.S_Push1)  # Push block
             else:
                 self.SoundPlay(c.S_LaserHit)
@@ -809,8 +847,8 @@ class GameState:
             # if destination is empty (not item and not tank)
             # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
             if self.CheckLoc(SlideO.x + SlideO.dx, SlideO.y + SlideO.dy) and not (
-                    SlideO.x + SlideO.dx == self.board.tank.X
-                    and SlideO.y + SlideO.dy == self.board.tank.Y
+                SlideO.x + SlideO.dx == self.board.tank.X
+                and SlideO.y + SlideO.dy == self.board.tank.Y
             ):
                 savei = self.wasIce
                 self.MoveObj(SlideO.x, SlideO.y, SlideO.dx, SlideO.dy, c.S_Push2)
@@ -836,7 +874,9 @@ class GameState:
         if self.board.terrain[self.SlideT.x][self.SlideT.y] == c.THINICE:
             self.board.terrain[self.SlideT.x][self.SlideT.y] = c.WATER
 
-        if self.CheckLoc(self.SlideT.x + self.SlideT.dx, self.SlideT.y + self.SlideT.dy):
+        if self.CheckLoc(
+            self.SlideT.x + self.SlideT.dx, self.SlideT.y + self.SlideT.dy
+        ):
             savei = self.wasIce
             self.ConvMoveTank(self.SlideT.dx, self.SlideT.dy, False)
 
@@ -1062,17 +1102,33 @@ class InputEngine:
         translated_events = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (
-                    event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_ESCAPE):
+                event.type == pygame.locals.KEYDOWN
+                and event.key == pygame.locals.K_ESCAPE
+            ):
                 return [c.K_QUIT]
-            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_UP:
+            elif (
+                event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_UP
+            ):
                 translated_events.append(c.K_UP)
-            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_DOWN:
+            elif (
+                event.type == pygame.locals.KEYDOWN
+                and event.key == pygame.locals.K_DOWN
+            ):
                 translated_events.append(c.K_DOWN)
-            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_LEFT:
+            elif (
+                event.type == pygame.locals.KEYDOWN
+                and event.key == pygame.locals.K_LEFT
+            ):
                 translated_events.append(c.K_LEFT)
-            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_RIGHT:
+            elif (
+                event.type == pygame.locals.KEYDOWN
+                and event.key == pygame.locals.K_RIGHT
+            ):
                 translated_events.append(c.K_RIGHT)
-            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_SPACE:
+            elif (
+                event.type == pygame.locals.KEYDOWN
+                and event.key == pygame.locals.K_SPACE
+            ):
                 translated_events.append(c.K_SHOOT)
             elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_u:
                 translated_events.append(c.K_UNDO)
@@ -1082,8 +1138,8 @@ class InputEngine:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (
-                        event.type == pygame.locals.KEYDOWN
-                        and event.key == pygame.locals.K_ESCAPE
+                    event.type == pygame.locals.KEYDOWN
+                    and event.key == pygame.locals.K_ESCAPE
                 ):
                     return [c.K_QUIT]
                 elif event.type == pygame.locals.KEYDOWN:
@@ -1098,9 +1154,9 @@ class TextGraphics:
         for y in range(c.PLAYFIELD_SIZE):
             for x in range(c.PLAYFIELD_SIZE):
                 if (
-                        board.terrain[x][y] not in (c.GRASS, c.WATER)
-                        or board.items[x][y] != c.EMPTY
-                        or (board.tank.X == x and board.tank.Y == y)
+                    board.terrain[x][y] not in (c.GRASS, c.WATER)
+                    or board.items[x][y] != c.EMPTY
+                    or (board.tank.X == x and board.tank.Y == y)
                 ):
                     # Square of interest
                     x_min = min(x_min, x)
