@@ -397,6 +397,10 @@ class GameState:
 
     def MoveLaser(self):
         self.change_log.append("Laser moving")
+
+        if not self.running:
+            return
+
         LaserBounceOnIce = True
         while LaserBounceOnIce:
             LaserBounceOnIce = False
