@@ -18,7 +18,7 @@ class TankRec:
         self.Y = y
         self.Dir = direction
         self.Firing = False  # Is laser on the board, move to board object?
-        self.Good = False  # Good is used for Tunnel Wait in Game.Tank
+        self.on_waiting_tunnel = False  # Indicates that tank is on a waiting tunnel
 
 
 class LaserRec:
@@ -43,12 +43,12 @@ class LevelInfo:
 
 class TIceRec:  # Sliding Struct
     def __init__(
-        self,
-        x,
-        y,
-        dx,
-        dy,
-        s=True,
+            self,
+            x,
+            y,
+            dx,
+            dy,
+            s=True,
     ):
         self.x = x  # Last XY position of object to move
         self.y = y
@@ -89,10 +89,10 @@ class GameState:
         self.tank_sliding_data = TIceRec(
             0, 0, 0, 0, False
         )  # Momentum of tank where SlideT.s = is tank sliding?
-        self.previous_tunnel_waiting = False  # Found tunnel output on PF2 (under something)
-        self.previous_tunnel_blackhole = (
-            False  # True if we TunnleTranslae to a Black Hole (no exit found)
-        )
+        # self.previous_tunnel_waiting = False  # Found tunnel output on PF2 (under something)
+        # self.previous_tunnel_blackhole = (
+        #     False  # True if we TunnleTranslae to a Black Hole (no exit found)
+        # )
         self.wasIce = False
 
     def is_objects_sliding(self):
@@ -164,10 +164,10 @@ class GameState:
 
         # Process keyboard buffer
         if self.moves_buffer and not (
-            self.tank.Firing
-            or self.tank_moving_on_conveyor
-            or self.is_objects_sliding()
-            or self.tank_sliding_data.s
+                self.tank.Firing
+                or self.tank_moving_on_conveyor
+                or self.is_objects_sliding()
+                or self.tank_sliding_data.s
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
@@ -241,12 +241,17 @@ class GameState:
         self.tank.X += x
 
         if self.ISTunnel(self.tank.X, self.tank.Y):
-            self.TranslateTunnelTank()
-            if self.previous_tunnel_blackhole:
+            tunnel_exit = self.find_tunnel_exit(self.tank.X, self.tank.Y)
+            if tunnel_exit is None:
+                # Tank fell in a black hole
                 self.game_over(victorious=False)
                 return
-        if self.previous_tunnel_waiting:
-            self.tank.Good = True
+            elif tunnel_exit == (self.tank.X, self.tank.Y):
+                # Blocked exit found
+                self.tank.on_waiting_tunnel = True
+            else:
+                self.tank.X, self.tank.Y = tunnel_exit
+
         self.tank_moving_on_conveyor = True
         if self.wasIce and check_ice:
             self.tank_sliding_data.x = self.tank.X
@@ -266,8 +271,8 @@ class GameState:
 
         # Set the wasIce flag if tested square is an empty ice or thin ice
         self.wasIce = (
-            self.terrain[x][y] == c.ICE or self.terrain[x][y] == c.THINICE
-        ) and self.items[x][y] == c.EMPTY
+                              self.terrain[x][y] == c.ICE or self.terrain[x][y] == c.THINICE
+                      ) and self.items[x][y] == c.EMPTY
         # if self.terrain[x][y] in c.TUNNEL_ALL:
         #     return True
 
@@ -286,9 +291,9 @@ class GameState:
         while self.CheckLoc(x, self.tank.Y):
             x += 1
         if (
-            (x < c.PLAYFIELD_SIZE)
-            and (self.items[x][self.tank.Y] == c.ANTITANK_LEFT)
-            and (self.tank.X != x)
+                (x < c.PLAYFIELD_SIZE)
+                and (self.items[x][self.tank.Y] == c.ANTITANK_LEFT)
+                and (self.tank.X != x)
         ):
             self.FireLaser(x, self.tank.Y, c.D_LEFT, False)
             return
@@ -297,9 +302,9 @@ class GameState:
         while self.CheckLoc(x, self.tank.Y):
             x -= 1
         if (
-            (x >= 0)
-            and (self.items[x][self.tank.Y] == c.ANTITANK_RIGHT)
-            and (self.tank.X != x)
+                (x >= 0)
+                and (self.items[x][self.tank.Y] == c.ANTITANK_RIGHT)
+                and (self.tank.X != x)
         ):
             self.FireLaser(x, self.tank.Y, c.D_RIGHT, False)
             return
@@ -308,9 +313,9 @@ class GameState:
         while self.CheckLoc(self.tank.X, y):
             y += 1
         if (
-            (y < c.PLAYFIELD_SIZE)
-            and (self.items[self.tank.X][y] == c.ANTITANK_UP)
-            and (self.tank.Y != y)
+                (y < c.PLAYFIELD_SIZE)
+                and (self.items[self.tank.X][y] == c.ANTITANK_UP)
+                and (self.tank.Y != y)
         ):
             self.FireLaser(self.tank.X, y, c.D_UP, False)
             return
@@ -319,9 +324,9 @@ class GameState:
         while self.CheckLoc(self.tank.X, y):
             y -= 1
         if (
-            (y >= 0)
-            and (self.items[self.tank.X][y] == c.ANTITANK_DOWN)
-            and (self.tank.Y != y)
+                (y >= 0)
+                and (self.items[self.tank.X][y] == c.ANTITANK_DOWN)
+                and (self.tank.Y != y)
         ):
             self.FireLaser(self.tank.X, y, c.D_DOWN, False)
             return
@@ -432,32 +437,32 @@ class GameState:
 
                     # Update laser direction if hitting a mirror
                     if (
-                        reflecting_item == c.MIRROR_LEFT_UP
-                        or reflecting_item == c.ROTMIRROR_LEFT_UP
+                            reflecting_item == c.MIRROR_LEFT_UP
+                            or reflecting_item == c.ROTMIRROR_LEFT_UP
                     ):
                         if self.laser.Dir == c.D_RIGHT:
                             self.laser.Dir = c.D_UP
                         else:
                             self.laser.Dir = c.D_LEFT
                     elif (
-                        reflecting_item == c.MIRROR_UP_RIGHT
-                        or reflecting_item == c.ROTMIRROR_UP_RIGHT
+                            reflecting_item == c.MIRROR_UP_RIGHT
+                            or reflecting_item == c.ROTMIRROR_UP_RIGHT
                     ):
                         if self.laser.Dir == c.D_DOWN:
                             self.laser.Dir = c.D_RIGHT
                         else:
                             self.laser.Dir = c.D_UP
                     elif (
-                        reflecting_item == c.MIRROR_RIGHT_DOWN
-                        or reflecting_item == c.ROTMIRROR_RIGHT_DOWN
+                            reflecting_item == c.MIRROR_RIGHT_DOWN
+                            or reflecting_item == c.ROTMIRROR_RIGHT_DOWN
                     ):
                         if self.laser.Dir == c.D_UP:
                             self.laser.Dir = c.D_RIGHT
                         else:
                             self.laser.Dir = c.D_DOWN
                     elif (
-                        reflecting_item == c.MIRROR_DOWN_LEFT
-                        or reflecting_item == c.ROTMIRROR_DOWN_LEFT
+                            reflecting_item == c.MIRROR_DOWN_LEFT
+                            or reflecting_item == c.ROTMIRROR_DOWN_LEFT
                     ):
                         if self.laser.Dir == c.D_UP:
                             self.laser.Dir = c.D_LEFT
@@ -468,9 +473,9 @@ class GameState:
                     # Allows a second laser movement if laser is contacting a sliding mirror
                     for sliding_item in self.sliding_items:
                         if (
-                            sliding_item.s
-                            and sliding_item.x == self.laser.X
-                            and sliding_item.y == self.laser.Y
+                                sliding_item.s
+                                and sliding_item.x == self.laser.X
+                                and sliding_item.y == self.laser.Y
                         ):
                             LaserBounceOnIce = True
 
@@ -520,50 +525,58 @@ class GameState:
 
         self.tank.Y += y
         self.tank.X += x
-        self.tank.Good = False  # Flag required for if we move off a tunnel
+        self.tank.on_waiting_tunnel = False  # Flag required for if we move off a tunnel
         if self.ISTunnel(self.tank.X, self.tank.Y):
-            self.TranslateTunnelTank()
-            if self.previous_tunnel_blackhole:
+            tunnel_exit = self.find_tunnel_exit(self.tank.X, self.tank.Y)
+            if tunnel_exit is None:
+                # Tank fell in a black hole
                 self.game_over(victorious=False)
                 return
-        if self.previous_tunnel_waiting:
-            self.tank.Good = True
+            elif tunnel_exit == (self.tank.X, self.tank.Y):
+                # Blocked exit found
+                self.tank.on_waiting_tunnel = True
+            else:
+                self.tank.X, self.tank.Y = tunnel_exit
 
     def SoundPlay(self, sound_id):
         self.sounds_buffer.append(sound_id)
 
-    def TranslateTunnelTank(self):
-        # Find the exit to a tunnel with matching ID (scans y:0-15, x:0-15) and set *x, *y to the destination
-        # sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
-        # sets BlackHole TRUE if no exit found
-        tunnel_id = self.terrain[self.tank.X][self.tank.Y]
-        self.previous_tunnel_waiting = False
-        self.previous_tunnel_blackhole = False
+    def find_tunnel_exit(self, x, y):
+        """ Look for other tunnels that match the one on this square (x,y)
+        Return:
+            (cx, cy) != x, y if empty exit found
+            (x, y) if blocked exit(s) found
+            None if black hole (no exits on map)
+        """
+
+        tunnel_id = self.terrain[x][y]
+
         found_blocked_exit = False
+
         for cy in range(c.PLAYFIELD_SIZE):
             for cx in range(c.PLAYFIELD_SIZE):
-                if self.terrain[cx][cy] == tunnel_id and not (
-                    self.tank.X == cx and self.tank.Y == cy
+                # Find an empty destination tunnel
+                if (
+                        self.terrain[cx][cy] == tunnel_id
+                        and not (x == cx and y == cy)
                 ):
                     # Found an exit tunnel (and not the same as entry)
                     if self.items[cx][cy] != c.EMPTY:
+                        # Exit is blocked
                         found_blocked_exit = True
                     else:
-                        # Teleport tank
-                        self.tank.X = cx
-                        self.tank.Y = cy
-                        return
+                        return (cx, cy)
 
         if found_blocked_exit:
-            self.previous_tunnel_waiting = True
+            return (x, y)
         else:
             # No exit found, so Tunnel is a Black Hole
-            self.previous_tunnel_blackhole = True
+            return None
 
     def MoveObj(self, x, y, dx, dy, sf):
         self.change_log.append(
-            f"MoveObj: Object ({self.items[x][y]}) on {x},{y} requesting to move to {x+dx}"
-            f",{y+dy}"
+            f"MoveObj: Object ({self.items[x][y]}) on {x},{y} requesting to move to {x + dx}"
+            f",{y + dy}"
         )
         # Try to move object on square x,y that was pushed in dir dx,dy then play sound sf
         # Update terrain under object's initial position (x,y)
@@ -579,20 +592,20 @@ class GameState:
         # Trigger waiting tunnel if vacating a tunnel
         if terrain_loc in c.TUNNEL_ALL:  # Check if Tunnel
             # Unblock tunnel
-            cx = None
-            cy = None
 
             # Search for a blocked tunnel with the same ID
             # signifies that tunnel has an object on it waiting to be transported
             bb = c.Tunnel_Set_Waiting[terrain_loc]
 
+            cx = None
+            cy = None
             ok = False
             for cy in range(c.PLAYFIELD_SIZE):
                 for cx in range(c.PLAYFIELD_SIZE):
                     if (
-                        self.terrain[cx][cy] == bb
-                        and self.items[cx][cy] != c.EMPTY
-                        and not (x == cx and y == cy)
+                            self.terrain[cx][cy] == bb
+                            and self.items[cx][cy] != c.EMPTY
+                            and not (x == cx and y == cy)
                     ):
                         # Search for another covered tunnel with the same ID (and not the same square)
                         ok = True
@@ -622,9 +635,9 @@ class GameState:
 
                 # We didn't find a match so maybe the tank is it
                 if (
-                    self.terrain[self.tank.X][self.tank.Y]
-                    == c.Tunnel_Set_Not_Waiting[bb]
-                ) and self.tank.Good:
+                        self.terrain[self.tank.X][self.tank.Y]
+                        == c.Tunnel_Set_Not_Waiting[bb]
+                ) and self.tank.on_waiting_tunnel:
                     self.score_moves -= 1
                     self.UpDateTankPos(0, 0)
                     self.PopUndo()
@@ -632,73 +645,28 @@ class GameState:
             self.items[x][y] = c.EMPTY
 
         # Now update destination
-        x += dx
-        y += dy
-
-        obt_dest = self.items[x][y]
-        terrain_dest = self.terrain[x][y]
-        self.change_log.append(
-            f"MoveObj: Destination terrain is {terrain_dest} which has object {obt_dest}"
-        )
+        dest_x = x + dx
+        dest_y = y + dy
 
         # If destination is a tunnel then set x,y to tunnel's exit
-        if self.ISTunnel(x, y):
-            self.change_log.append(f"MoveObj: Destination is tunnel")
-            # -------
-            # def TranslateTunnelItem(x, y):
-            # Find the exit to a tunnel with matching ID (scans y:0-15, x:0-15) and set *x, *y to the destination
-            # sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
-            # sets BlackHole TRUE if no exit found
-            tunnel_id = self.terrain[x][y]  # Tunnel must be empty from previous
-            self.previous_tunnel_waiting = False
-            self.previous_tunnel_blackhole = False
-            found_empty_exit = False
-            found_blocked_exit = False
-            for cy in range(c.PLAYFIELD_SIZE):
-                for cx in range(c.PLAYFIELD_SIZE):
-                    # Find an empty destination tunnel
-                    if self.terrain[cx][cy] == tunnel_id and not (
-                        x == cx and y == cy
-                    ):
-                        # Found an exit tunnel (and not the same as entry)
-                        if self.items[cx][cy] != c.EMPTY:
-                            # Exit is blocked
-                            found_blocked_exit = True
-                        else:
-                            # Teleport item
-                            x = cx
-                            y = cy
-                            found_empty_exit = True
-                            break
-                if found_empty_exit:
-                    break
-            if not found_empty_exit:
-                if found_blocked_exit:
-                    self.previous_tunnel_waiting = True
-                else:
-                    # No exit found, so Tunnel is a Black Hole
-                    self.previous_tunnel_blackhole = True
-
-            # -------
-            if self.previous_tunnel_blackhole:
+        if self.ISTunnel(dest_x, dest_y):
+            tunnel_exit = self.find_tunnel_exit(dest_x, dest_y)
+            if tunnel_exit is None:
                 return  # The tunnel was a black hole
-        else:
-            self.previous_tunnel_waiting = False
+            elif tunnel_exit == (dest_x, dest_y):
+                self.terrain[dest_x][dest_y] = c.Tunnel_Set_Waiting[self.terrain[dest_x][dest_y]]
+            else:
+                dest_x, dest_y = tunnel_exit
 
-        if self.previous_tunnel_waiting:
-            self.terrain[x][y] = c.Tunnel_Set_Waiting[self.terrain[x][y]]
-
-        if self.terrain[x][y] != c.WATER:
+        if self.terrain[dest_x][dest_y] != c.WATER:
             # Move object to destination square
-            self.items[x][y] = obt
+            self.items[dest_x][dest_y] = obt
         else:
             # Destination square is water
             sf = c.S_Sink
             if obt == c.BLOCK:
-                self.items[x][y] = c.EMPTY
-                self.terrain[x][y] = c.BRIDGE
-
-        self.SoundPlay(sf)
+                self.items[dest_x][dest_y] = c.EMPTY
+                self.terrain[dest_x][dest_y] = c.BRIDGE
 
     def CheckLLoc(self, x, y, dx, dy):
         def del_SlideO_from_Mem(x, y):
@@ -748,7 +716,7 @@ class GameState:
             self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.BLOCK:
             if self.CheckLoc(
-                x + dx, y + dy
+                    x + dx, y + dy
             ):  # Can block be moved in direction of laser? Is square free
                 self.MoveObj(x, y, dx, dy, c.S_Push1)  # Push block
             else:
@@ -872,8 +840,8 @@ class GameState:
             # if destination is empty (not item and not tank)
             # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
             if self.CheckLoc(SlideO.x + SlideO.dx, SlideO.y + SlideO.dy) and not (
-                SlideO.x + SlideO.dx == self.tank.X
-                and SlideO.y + SlideO.dy == self.tank.Y
+                    SlideO.x + SlideO.dx == self.tank.X
+                    and SlideO.y + SlideO.dy == self.tank.Y
             ):
                 savei = self.wasIce
                 self.MoveObj(SlideO.x, SlideO.y, SlideO.dx, SlideO.dy, c.S_Push2)
@@ -900,7 +868,8 @@ class GameState:
             self.terrain[self.tank_sliding_data.x][self.tank_sliding_data.y] = c.WATER
 
         if self.CheckLoc(
-                self.tank_sliding_data.x + self.tank_sliding_data.dx, self.tank_sliding_data.y + self.tank_sliding_data.dy
+                self.tank_sliding_data.x + self.tank_sliding_data.dx,
+                self.tank_sliding_data.y + self.tank_sliding_data.dy
         ):
             savei = self.wasIce
             self.ConvMoveTank(self.tank_sliding_data.dx, self.tank_sliding_data.dy, False)
@@ -912,8 +881,6 @@ class GameState:
 
         else:
             self.tank_sliding_data.s = False
-
-
 
 
 class Graphics:
@@ -1103,32 +1070,32 @@ class InputEngine:
         translated_events = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_ESCAPE
+                    event.type == pygame.locals.KEYDOWN
+                    and event.key == pygame.locals.K_ESCAPE
             ):
                 return [c.K_QUIT]
             elif (
-                event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_UP
+                    event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_UP
             ):
                 translated_events.append(c.K_UP)
             elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_DOWN
+                    event.type == pygame.locals.KEYDOWN
+                    and event.key == pygame.locals.K_DOWN
             ):
                 translated_events.append(c.K_DOWN)
             elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_LEFT
+                    event.type == pygame.locals.KEYDOWN
+                    and event.key == pygame.locals.K_LEFT
             ):
                 translated_events.append(c.K_LEFT)
             elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_RIGHT
+                    event.type == pygame.locals.KEYDOWN
+                    and event.key == pygame.locals.K_RIGHT
             ):
                 translated_events.append(c.K_RIGHT)
             elif (
-                event.type == pygame.locals.KEYDOWN
-                and event.key == pygame.locals.K_SPACE
+                    event.type == pygame.locals.KEYDOWN
+                    and event.key == pygame.locals.K_SPACE
             ):
                 translated_events.append(c.K_SHOOT)
             elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_u:
@@ -1139,8 +1106,8 @@ class InputEngine:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (
-                    event.type == pygame.locals.KEYDOWN
-                    and event.key == pygame.locals.K_ESCAPE
+                        event.type == pygame.locals.KEYDOWN
+                        and event.key == pygame.locals.K_ESCAPE
                 ):
                     return [c.K_QUIT]
                 elif event.type == pygame.locals.KEYDOWN:
@@ -1155,9 +1122,9 @@ class TextGraphics:
         for y in range(c.PLAYFIELD_SIZE):
             for x in range(c.PLAYFIELD_SIZE):
                 if (
-                    game.terrain[x][y] not in (c.GRASS, c.WATER)
-                    or game.items[x][y] != c.EMPTY
-                    or (game.tank.X == x and game.tank.Y == y)
+                        game.terrain[x][y] not in (c.GRASS, c.WATER)
+                        or game.items[x][y] != c.EMPTY
+                        or (game.tank.X == x and game.tank.Y == y)
                 ):
                     # Square of interest
                     x_min = min(x_min, x)
@@ -1323,4 +1290,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("deaths/Deaths", 6)
+    debug_level("tricks/Tricks", 5)
