@@ -64,7 +64,7 @@ class GameState:
         self.items = [[c.EMPTY for _ in range(BOARDSIZE)] for _2 in range(BOARDSIZE)]
         self.tank = TankRec(x=7, y=15, direction=c.D_UP)
         self.laser = LaserRec()
-        self.SlideMem = []  # SlideMem is list of TIceRec structs
+        self.sliding_items = []  # SlideMem is list of TIceRec structs
         self.moves_history = []
         self.moves_buffer = []  # RecBuffer
         self.score_shots = 0
@@ -85,12 +85,12 @@ class GameState:
         self.player_dead = False
 
         # Flags
-        self.ConvMoving = False
-        self.SlideT = TIceRec(
+        self.tank_moving_on_conveyor = False
+        self.tank_sliding_data = TIceRec(
             0, 0, 0, 0, False
         )  # Momentum of tank where SlideT.s = is tank sliding?
-        self.WaitToTrans = False  # Found tunnel output on PF2 (under something)
-        self.BlackHole = (
+        self.previous_tunnel_waiting = False  # Found tunnel output on PF2 (under something)
+        self.previous_tunnel_blackhole = (
             False  # True if we TunnleTranslae to a Black Hole (no exit found)
         )
         self.wasIce = False
@@ -98,14 +98,14 @@ class GameState:
     def is_objects_sliding(self):
         # Was named SlideO_s
         # Is anything sliding?
-        return len(self.SlideMem) > 0
+        return len(self.sliding_items) > 0
 
     def is_inputs_queued(self):
         """Are there player moves waiting in the buffer to be played?"""
         return len(self.moves_buffer) > 0
 
     def load_level(self, level_number, filename=DEFAULT_LEVEL_LOC):
-        self.SlideMem = []
+        self.sliding_items = []
         self.moves_history = []
         self.moves_buffer = []
         self.score_shots = 0
@@ -165,9 +165,9 @@ class GameState:
         # Process keyboard buffer
         if self.moves_buffer and not (
             self.tank.Firing
-            or self.ConvMoving
+            or self.tank_moving_on_conveyor
             or self.is_objects_sliding()
-            or self.SlideT.s
+            or self.tank_sliding_data.s
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
@@ -191,9 +191,9 @@ class GameState:
         # Resolve Momenta
         if self.is_objects_sliding():
             self.IceMoveO()  # NOTE: IceMoveO includes additional AntiTank() moves
-        if self.SlideT.s:
+        if self.tank_sliding_data.s:
             self.IceMoveT()
-        self.ConvMoving = False  # used to disable Laser on the conveyor
+        self.tank_moving_on_conveyor = False  # used to disable Laser on the conveyor
 
         self.change_log.append("Checking tank square")
         if self.is_tank_on_terrain():
@@ -242,18 +242,18 @@ class GameState:
 
         if self.ISTunnel(self.tank.X, self.tank.Y):
             self.TranslateTunnelTank()
-            if self.BlackHole:
+            if self.previous_tunnel_blackhole:
                 self.game_over(victorious=False)
                 return
-        if self.WaitToTrans:
+        if self.previous_tunnel_waiting:
             self.tank.Good = True
-        self.ConvMoving = True
+        self.tank_moving_on_conveyor = True
         if self.wasIce and check_ice:
-            self.SlideT.x = self.tank.X
-            self.SlideT.y = self.tank.Y
-            self.SlideT.s = True
-            self.SlideT.dx = x
-            self.SlideT.dy = y
+            self.tank_sliding_data.x = self.tank.X
+            self.tank_sliding_data.y = self.tank.Y
+            self.tank_sliding_data.s = True
+            self.tank_sliding_data.dx = x
+            self.tank_sliding_data.dy = y
         self.AntiTank()
 
     def CheckLoc(self, x, y):
@@ -366,34 +366,34 @@ class GameState:
                 self.UpDateTankPos(0, -1)
             else:
                 self.SoundPlay(c.S_Head)  # Bumpping into something
-            self.SlideT.dy = -1
-            self.SlideT.dx = 0
+            self.tank_sliding_data.dy = -1
+            self.tank_sliding_data.dx = 0
         elif d == c.D_RIGHT:
             if self.CheckLoc(self.tank.X + 1, self.tank.Y):
                 self.UpDateTankPos(1, 0)
             else:
                 self.SoundPlay(c.S_Head)
-            self.SlideT.dy = 0
-            self.SlideT.dx = 1
+            self.tank_sliding_data.dy = 0
+            self.tank_sliding_data.dx = 1
         elif d == c.D_DOWN:
             if self.CheckLoc(self.tank.X, self.tank.Y + 1):
                 self.UpDateTankPos(0, 1)
             else:
                 self.SoundPlay(c.S_Head)
-            self.SlideT.dy = 1
-            self.SlideT.dx = 0
+            self.tank_sliding_data.dy = 1
+            self.tank_sliding_data.dx = 0
         elif d == c.D_LEFT:
             if self.CheckLoc(self.tank.X - 1, self.tank.Y):
                 self.UpDateTankPos(-1, 0)
             else:
                 self.SoundPlay(c.S_Head)
-            self.SlideT.dy = 0
-            self.SlideT.dx = -1
+            self.tank_sliding_data.dy = 0
+            self.tank_sliding_data.dx = -1
 
         if self.wasIce:
-            self.SlideT.x = self.tank.X
-            self.SlideT.y = self.tank.Y
-            self.SlideT.s = True
+            self.tank_sliding_data.x = self.tank.X
+            self.tank_sliding_data.y = self.tank.Y
+            self.tank_sliding_data.s = True
 
     def MoveLaser(self):
         self.change_log.append("Laser moving")
@@ -466,7 +466,7 @@ class GameState:
 
                     # UpdateLaserBounce() updates the LaserBounceOnIce
                     # Allows a second laser movement if laser is contacting a sliding mirror
-                    for sliding_item in self.SlideMem:
+                    for sliding_item in self.sliding_items:
                         if (
                             sliding_item.s
                             and sliding_item.x == self.laser.X
@@ -505,7 +505,7 @@ class GameState:
                     return False
 
                 if TestIfConvCanMoveTank():
-                    self.ConvMoving = True
+                    self.tank_moving_on_conveyor = True
         # loops here if LaserBounceOnIce was set in the loop
 
     def ISTunnel(self, x, y):
@@ -523,10 +523,10 @@ class GameState:
         self.tank.Good = False  # Flag required for if we move off a tunnel
         if self.ISTunnel(self.tank.X, self.tank.Y):
             self.TranslateTunnelTank()
-            if self.BlackHole:
+            if self.previous_tunnel_blackhole:
                 self.game_over(victorious=False)
                 return
-        if self.WaitToTrans:
+        if self.previous_tunnel_waiting:
             self.tank.Good = True
 
     def SoundPlay(self, sound_id):
@@ -537,8 +537,8 @@ class GameState:
         # sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
         # sets BlackHole TRUE if no exit found
         tunnel_id = self.terrain[self.tank.X][self.tank.Y]
-        self.WaitToTrans = False
-        self.BlackHole = False
+        self.previous_tunnel_waiting = False
+        self.previous_tunnel_blackhole = False
         found_blocked_exit = False
         for cy in range(c.PLAYFIELD_SIZE):
             for cx in range(c.PLAYFIELD_SIZE):
@@ -555,10 +555,10 @@ class GameState:
                         return
 
         if found_blocked_exit:
-            self.WaitToTrans = True
+            self.previous_tunnel_waiting = True
         else:
             # No exit found, so Tunnel is a Black Hole
-            self.BlackHole = True
+            self.previous_tunnel_blackhole = True
 
     def MoveObj(self, x, y, dx, dy, sf):
         self.change_log.append(
@@ -650,8 +650,8 @@ class GameState:
             # sets WaitToTrans to TRUE of exit found in PF2 (under something) and does not change x,y
             # sets BlackHole TRUE if no exit found
             tunnel_id = self.terrain[x][y]  # Tunnel must be empty from previous
-            self.WaitToTrans = False
-            self.BlackHole = False
+            self.previous_tunnel_waiting = False
+            self.previous_tunnel_blackhole = False
             found_empty_exit = False
             found_blocked_exit = False
             for cy in range(c.PLAYFIELD_SIZE):
@@ -674,18 +674,18 @@ class GameState:
                     break
             if not found_empty_exit:
                 if found_blocked_exit:
-                    self.WaitToTrans = True
+                    self.previous_tunnel_waiting = True
                 else:
                     # No exit found, so Tunnel is a Black Hole
-                    self.BlackHole = True
+                    self.previous_tunnel_blackhole = True
 
             # -------
-            if self.BlackHole:
+            if self.previous_tunnel_blackhole:
                 return  # The tunnel was a black hole
         else:
-            self.WaitToTrans = False
+            self.previous_tunnel_waiting = False
 
-        if self.WaitToTrans:
+        if self.previous_tunnel_waiting:
             self.terrain[x][y] = c.Tunnel_Set_Waiting[self.terrain[x][y]]
 
         if self.terrain[x][y] != c.WATER:
@@ -705,25 +705,25 @@ class GameState:
             self.change_log.append("Object stopped sliding")
             # If an object is sliding and is hit by a laser,
             # delete it from stack. (Done before adding new slide direction to stack.)
-            for iSlideObj in reversed(self.SlideMem):
+            for iSlideObj in reversed(self.sliding_items):
                 if iSlideObj.x == x and iSlideObj.y == y:
                     iSlideObj.s = False
                     break
-            self.SlideMem = [slide for slide in self.SlideMem if slide.s]
+            self.sliding_items = [slide for slide in self.sliding_items if slide.s]
 
         def add_SlideO_to_Mem(sliding_obj):
             self.change_log.append("Object started sliding")
             # Add an object in the stack for slidings objects
             # But, if this object is already in this stack,
             # just change dir and don't increase the counter.
-            if len(self.SlideMem) < c.MAX_TICEMEM:
+            if len(self.sliding_items) < c.MAX_TICEMEM:
                 # Search for square in SlideMem and update if already there
-                for count, iSlideObj in enumerate(self.SlideMem):
+                for count, iSlideObj in enumerate(self.sliding_items):
                     if iSlideObj.x == sliding_obj.x and iSlideObj.y == sliding_obj.y:
-                        self.SlideMem[count] = sliding_obj  # TODO: check
+                        self.sliding_items[count] = sliding_obj  # TODO: check
                         return
                 # Not found so add to SlideMem
-                self.SlideMem.append(sliding_obj)
+                self.sliding_items.append(sliding_obj)
             else:
                 print("Debug: Sliding stack full.")
 
@@ -864,7 +864,7 @@ class GameState:
     def IceMoveO(self):
         self.change_log.append("Slid object on ice")
         # Move an item on the ice
-        for SlideO in reversed(self.SlideMem):
+        for SlideO in reversed(self.sliding_items):
             if self.terrain[SlideO.x][SlideO.y] == c.THINICE:
                 # Sliding off thin ice so melt the ice into water
                 self.terrain[SlideO.x][SlideO.y] = c.WATER
@@ -891,27 +891,27 @@ class GameState:
                 SlideO.s = False
                 self.AntiTank()
         # Remove items that are no-longer sliding (sub_SlideO_from_Mem)
-        self.SlideMem = [slide for slide in self.SlideMem if slide.s]
+        self.sliding_items = [slide for slide in self.sliding_items if slide.s]
 
     def IceMoveT(self):
         self.change_log.append("Slid tank on ice")
         #  Move the tank on the Ice
-        if self.terrain[self.SlideT.x][self.SlideT.y] == c.THINICE:
-            self.terrain[self.SlideT.x][self.SlideT.y] = c.WATER
+        if self.terrain[self.tank_sliding_data.x][self.tank_sliding_data.y] == c.THINICE:
+            self.terrain[self.tank_sliding_data.x][self.tank_sliding_data.y] = c.WATER
 
         if self.CheckLoc(
-            self.SlideT.x + self.SlideT.dx, self.SlideT.y + self.SlideT.dy
+                self.tank_sliding_data.x + self.tank_sliding_data.dx, self.tank_sliding_data.y + self.tank_sliding_data.dy
         ):
             savei = self.wasIce
-            self.ConvMoveTank(self.SlideT.dx, self.SlideT.dy, False)
+            self.ConvMoveTank(self.tank_sliding_data.dx, self.tank_sliding_data.dy, False)
 
-            self.SlideT.x += self.SlideT.dx
-            self.SlideT.y += self.SlideT.dy
+            self.tank_sliding_data.x += self.tank_sliding_data.dx
+            self.tank_sliding_data.y += self.tank_sliding_data.dy
             if not savei:
-                self.SlideT.s = False
+                self.tank_sliding_data.s = False
 
         else:
-            self.SlideT.s = False
+            self.tank_sliding_data.s = False
 
 
 
@@ -1323,4 +1323,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("custom_tests/CustomTests", 7)
+    debug_level("deaths/Deaths", 6)
