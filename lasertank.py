@@ -17,7 +17,7 @@ class TankRec:
         self.X = x
         self.Y = y
         self.Dir = direction
-        self.Firing = False  # Is laser on the board, move to board object?
+        # self.Firing = False  # Is laser on the board, move to board object?
         self.on_waiting_tunnel = False  # Indicates that tank is on a waiting tunnel
 
 
@@ -26,13 +26,8 @@ class LaserRec:
         self.X = 5
         self.Y = 10
         self.Dir = c.D_UP
-        # self.Firing = False  # Used only to update sprites
-        self.Good = False
-        # Other laser-related fields
         self.oDir = c.D_LEFT
         self.LaserColor = c.LaserColorR
-        self.LaserBounceOnIce = False  # If laser bouncing off sliding mirror
-        self.ConvMoving = False
 
 
 class LevelInfo:
@@ -64,6 +59,7 @@ class GameState:
         self.items = [[c.EMPTY for _ in range(BOARDSIZE)] for _2 in range(BOARDSIZE)]
         self.tank = TankRec(x=7, y=15, direction=c.D_UP)
         self.laser = LaserRec()
+        self.laser_live = False
         self.sliding_items = []  # SlideMem is list of TIceRec structs
         self.moves_history = []
         self.moves_buffer = []  # RecBuffer
@@ -159,12 +155,12 @@ class GameState:
         self.change_log = []
 
         # Main game loop (see C-3043)
-        if self.tank.Firing:
+        if self.laser_live:
             self.MoveLaser()
 
         # Process keyboard buffer
         if self.moves_buffer and not (
-                self.tank.Firing
+                self.laser_live
                 or self.tank_moving_on_conveyor
                 or self.is_objects_sliding()
                 or self.tank_sliding_data.s
@@ -284,7 +280,7 @@ class GameState:
         # Order: Right, left, down, above from Tank
 
         # Only one laser on board so returns if laser exists
-        if self.tank.Firing:
+        if self.laser_live:
             return
 
         x = self.tank.X  # Look to the right
@@ -333,18 +329,18 @@ class GameState:
 
     def FireLaser(self, x, y, d, is_player_tank):
 
-        self.tank.Firing = True
+        self.laser_live = True
 
         self.laser.Dir = d
         self.laser.oDir = d
         self.laser.X = x
         self.laser.Y = y
-        # self.laser.Firing = False  # True if laser has been moved. Used only to update sprited
-        self.laser.Good = is_player_tank
 
         if is_player_tank:
+            self.laser.LaserColor = c.LaserColorG
             self.SoundPlay(c.S_Fire)
         else:
+            self.laser.LaserColor = c.LaserColorR
             self.SoundPlay(c.S_Anti2)
         self.MoveLaser()
 
@@ -483,7 +479,7 @@ class GameState:
                 # self.laser.Firing = True
             else:
                 # Laser is off the board / hit something solid
-                self.tank.Firing = False
+                self.laser_live = False
 
                 # Antitank Turn
                 self.AntiTank()
@@ -542,7 +538,8 @@ class GameState:
         self.sounds_buffer.append(sound_id)
 
     def find_tunnel_exit(self, x, y):
-        """ Look for other tunnels that match the one on this square (x,y)
+        """
+        Look for other tunnels that match the one on this square (x,y)
         Return:
             (cx, cy) != x, y if empty exit found
             (x, y) if blocked exit(s) found
@@ -928,7 +925,7 @@ class Graphics:
                 self._draw_sprite(game.terrain[x][y], x, y)
                 self._draw_sprite(game.items[x][y], x, y)
         self._draw_tank(game.tank.X, game.tank.Y, game.tank.Dir)
-        if game.tank.Firing:
+        if game.laser_live:
             self._draw_laser(game.laser)
         pygame.display.update()
         self._increment_animation_counter()
@@ -1178,7 +1175,7 @@ class TextGraphics:
             item = " "
         if game.tank.X == x and game.tank.Y == y:
             item = "T"
-        if game.tank.Firing and game.laser.X == x and game.laser.Y == y:
+        if game.laser_live and game.laser.X == x and game.laser.Y == y:
             terrain = "-"
 
         return f"{terrain: >2}{item: >3}"
