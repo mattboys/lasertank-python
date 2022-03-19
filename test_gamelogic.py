@@ -39,7 +39,7 @@ def run_lvl_playback(level_name, level_number, show=False):
         moves_left_prev = moves_left
 
         if show:
-            graphics.draw_board(game.board)
+            graphics.draw_board(game)
             clock.tick(100)
     return game.reached_flag
 
