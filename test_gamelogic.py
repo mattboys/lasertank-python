@@ -873,3 +873,23 @@ def test_Tutor_with_Playbacks_level_0111():
 
 def test_Tutor_with_Playbacks_level_0112():
     assert run_lvl_playback("Tutor-with-Playbacks/Tutor-with-Playbacks", 112)
+
+# Deaths
+def test_Deaths_level_0001():
+    assert not run_lvl_playback("deaths/Deaths", 1, show=True)
+
+def test_Deaths_level_0002():
+    assert not run_lvl_playback("deaths/Deaths", 2, show=True)
+
+def test_Deaths_level_0003():
+    assert not run_lvl_playback("deaths/Deaths", 3, show=True)
+
+def test_Deaths_level_0004():
+    assert not run_lvl_playback("deaths/Deaths", 4, show=True)
+
+def test_Deaths_level_0005():
+    assert not run_lvl_playback("deaths/Deaths", 5, show=True)
+
+def test_Deaths_level_0006():
+    assert not run_lvl_playback("deaths/Deaths", 6, show=True)
+
