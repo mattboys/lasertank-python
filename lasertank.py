@@ -5,29 +5,74 @@ import pygame.locals
 
 import constants as c
 
-BOARDSIZE = 16  # Playfield is 16x16 grid
+c.PLAYFIELD_SIZE = 16  # Playfield is 16x16 grid
 
 DEFAULT_LEVEL_LOC = "./resources/LaserTank.lvl"
 DEFAULT_SPRITESHEET_LOC = "./resources/spritesheet.png"
 DEFAULT_LPB_LOC = "./resources/LaserTank_0001.lpb"
 
+Direction = tuple
+UP: Direction = (0, -1)
+DOWN: Direction = (0, 1)
+LEFT: Direction = (-1, 0)
+RIGHT: Direction = (1, 0)
+
+
+class Square(int):
+    def __new__(cls, x, y):
+        if not Square.on_board(x, y):
+            raise ValueError(f"Square ({x},{y}) is not on the board.")
+        value = x + (y * c.PLAYFIELD_SIZE)
+        return int.__new__(cls, value)
+
+    @staticmethod
+    def on_board(x, y):
+        return 0 <= x < c.PLAYFIELD_SIZE and 0 <= y < c.PLAYFIELD_SIZE
+
+    def coords(self):
+        x = self % c.PLAYFIELD_SIZE
+        y = int(self / c.PLAYFIELD_SIZE)
+        return x, y
+
+    def relative(self, direction: Direction):
+        """ Return the square one space in the specified direction if on the board, None otherwise """
+        x, y = self.coords()
+        dx, dy = direction
+        xp = x + dx
+        yp = y + dy
+        if not Square.on_board(xp, yp):
+            return None
+        else:
+            return Square(xp, yp)
+
+    def __repr__(self):
+        x, y = self.coords()
+        return f"Square({x}, {y})"
+
+    def __str__(self):
+        x, y = self.coords()
+        return f"({x},{y})"
+
+
+all_squares = [Square(x, y) for y in range(16) for x in range(16)]
+
 
 class TankRec:
     def __init__(self, x, y, direction):
-        self.X = x
-        self.Y = y
-        self.Dir = direction
+        self.x = x
+        self.y = y
+        self.direction = direction
         # self.Firing = False  # Is laser on the board, move to board object?
         self.on_waiting_tunnel = False  # Indicates that tank is on a waiting tunnel
 
 
 class LaserRec:
     def __init__(self):
-        self.X = 5
-        self.Y = 10
-        self.Dir = c.D_UP
-        self.oDir = c.D_LEFT
-        self.LaserColor = c.LaserColorR
+        self.x = 5
+        self.y = 10
+        self.dir_front = c.D_UP
+        self.dir_back = c.D_LEFT
+        self.colour = c.LaserColorR
 
 
 class LevelInfo:
@@ -55,8 +100,8 @@ class TIceRec:  # Sliding Struct
 class GameState:
     def __init__(self):
         self.change_log = []
-        self.terrain = [[c.GRASS for _ in range(BOARDSIZE)] for _2 in range(BOARDSIZE)]
-        self.items = [[c.EMPTY for _ in range(BOARDSIZE)] for _2 in range(BOARDSIZE)]
+        self.terrain = [[c.GRASS for _ in range(c.PLAYFIELD_SIZE)] for _2 in range(c.PLAYFIELD_SIZE)]
+        self.items = [[c.EMPTY for _ in range(c.PLAYFIELD_SIZE)] for _2 in range(c.PLAYFIELD_SIZE)]
         self.tank = TankRec(x=7, y=15, direction=c.D_UP)
         self.laser = LaserRec()
         self.laser_live = False
@@ -135,10 +180,10 @@ class GameState:
             "difficulty": difficulty,
         }
 
-        for x in range(BOARDSIZE):
-            for y in range(BOARDSIZE):
+        for x in range(c.PLAYFIELD_SIZE):
+            for y in range(c.PLAYFIELD_SIZE):
                 # Note that lvl files are saved in columns and playfield is in [x][y]
-                i = int(playfield_ints[y + x * BOARDSIZE])
+                i = int(playfield_ints[y + x * c.PLAYFIELD_SIZE])
                 terrain, item = c.DECODE_TABLE.get(i, (c.GRASS, c.EMPTY))
                 # Tank is not placed in the items array
                 if item == c.TANK:
@@ -179,7 +224,7 @@ class GameState:
                 self.UpdateUndo()
                 self.score_shots += 1
                 self.FireLaser(
-                    self.tank.X, self.tank.Y, self.tank.Dir, True
+                    self.tank.x, self.tank.y, self.tank.direction, True
                 )
             self.AntiTank()
 
@@ -194,27 +239,27 @@ class GameState:
         self.change_log.append("Checking tank square")
         if self.is_tank_on_terrain():
             # Check where the tank ended up
-            tank_terrain = self.terrain[self.tank.X][self.tank.Y]
+            tank_terrain = self.terrain[self.tank.x][self.tank.y]
             if tank_terrain == c.FLAG:
                 self.game_over(victorious=True)
             elif tank_terrain == c.WATER:
                 self.game_over(victorious=False)
             elif tank_terrain == c.CONVEYOR_UP:
-                if self.CheckLoc(self.tank.X, self.tank.Y - 1):
+                if self.CheckLoc(self.tank.x, self.tank.y - 1):
                     self.ConvMoveTank(0, -1, True)
             elif tank_terrain == c.CONVEYOR_RIGHT:
-                if self.CheckLoc(self.tank.X + 1, self.tank.Y):
+                if self.CheckLoc(self.tank.x + 1, self.tank.y):
                     self.ConvMoveTank(1, 0, True)
             elif tank_terrain == c.CONVEYOR_DOWN:
-                if self.CheckLoc(self.tank.X, self.tank.Y + 1):
+                if self.CheckLoc(self.tank.x, self.tank.y + 1):
                     self.ConvMoveTank(0, 1, True)
             elif tank_terrain == c.CONVEYOR_LEFT:
-                if self.CheckLoc(self.tank.X - 1, self.tank.Y):
+                if self.CheckLoc(self.tank.x - 1, self.tank.y):
                     self.ConvMoveTank(-1, 0, True)
 
     def is_tank_on_terrain(self):
         """If the tank up on an object from a trick-shot then the tank is not on the terrain"""
-        return self.items[self.tank.X][self.tank.Y] == c.EMPTY
+        return self.items[self.tank.x][self.tank.y] == c.EMPTY
 
     def game_over(self, victorious):
         self.running = False
@@ -233,25 +278,25 @@ class GameState:
         pass
 
     def ConvMoveTank(self, x, y, check_ice):
-        self.tank.Y += y
-        self.tank.X += x
+        self.tank.y += y
+        self.tank.x += x
 
-        if self.ISTunnel(self.tank.X, self.tank.Y):
-            tunnel_exit = self.find_tunnel_exit(self.tank.X, self.tank.Y)
+        if self.ISTunnel(self.tank.x, self.tank.y):
+            tunnel_exit = self.find_tunnel_exit(self.tank.x, self.tank.y)
             if tunnel_exit is None:
                 # Tank fell in a black hole
                 self.game_over(victorious=False)
                 return
-            elif tunnel_exit == (self.tank.X, self.tank.Y):
+            elif tunnel_exit == (self.tank.x, self.tank.y):
                 # Blocked exit found
                 self.tank.on_waiting_tunnel = True
             else:
-                self.tank.X, self.tank.Y = tunnel_exit
+                self.tank.x, self.tank.y = tunnel_exit
 
         self.tank_moving_on_conveyor = True
         if self.wasIce and check_ice:
-            self.tank_sliding_data.x = self.tank.X
-            self.tank_sliding_data.y = self.tank.Y
+            self.tank_sliding_data.x = self.tank.x
+            self.tank_sliding_data.y = self.tank.y
             self.tank_sliding_data.s = True
             self.tank_sliding_data.dx = x
             self.tank_sliding_data.dy = y
@@ -283,64 +328,64 @@ class GameState:
         if self.laser_live:
             return
 
-        x = self.tank.X  # Look to the right
-        while self.CheckLoc(x, self.tank.Y):
+        x = self.tank.x  # Look to the right
+        while self.CheckLoc(x, self.tank.y):
             x += 1
         if (
                 (x < c.PLAYFIELD_SIZE)
-                and (self.items[x][self.tank.Y] == c.ANTITANK_LEFT)
-                and (self.tank.X != x)
+                and (self.items[x][self.tank.y] == c.ANTITANK_LEFT)
+                and (self.tank.x != x)
         ):
-            self.FireLaser(x, self.tank.Y, c.D_LEFT, False)
+            self.FireLaser(x, self.tank.y, c.D_LEFT, False)
             return
 
-        x = self.tank.X  # Look to the left
-        while self.CheckLoc(x, self.tank.Y):
+        x = self.tank.x  # Look to the left
+        while self.CheckLoc(x, self.tank.y):
             x -= 1
         if (
                 (x >= 0)
-                and (self.items[x][self.tank.Y] == c.ANTITANK_RIGHT)
-                and (self.tank.X != x)
+                and (self.items[x][self.tank.y] == c.ANTITANK_RIGHT)
+                and (self.tank.x != x)
         ):
-            self.FireLaser(x, self.tank.Y, c.D_RIGHT, False)
+            self.FireLaser(x, self.tank.y, c.D_RIGHT, False)
             return
 
-        y = self.tank.Y  # Look Down
-        while self.CheckLoc(self.tank.X, y):
+        y = self.tank.y  # Look Down
+        while self.CheckLoc(self.tank.x, y):
             y += 1
         if (
                 (y < c.PLAYFIELD_SIZE)
-                and (self.items[self.tank.X][y] == c.ANTITANK_UP)
-                and (self.tank.Y != y)
+                and (self.items[self.tank.x][y] == c.ANTITANK_UP)
+                and (self.tank.y != y)
         ):
-            self.FireLaser(self.tank.X, y, c.D_UP, False)
+            self.FireLaser(self.tank.x, y, c.D_UP, False)
             return
 
-        y = self.tank.Y  # Look Up
-        while self.CheckLoc(self.tank.X, y):
+        y = self.tank.y  # Look Up
+        while self.CheckLoc(self.tank.x, y):
             y -= 1
         if (
                 (y >= 0)
-                and (self.items[self.tank.X][y] == c.ANTITANK_DOWN)
-                and (self.tank.Y != y)
+                and (self.items[self.tank.x][y] == c.ANTITANK_DOWN)
+                and (self.tank.y != y)
         ):
-            self.FireLaser(self.tank.X, y, c.D_DOWN, False)
+            self.FireLaser(self.tank.x, y, c.D_DOWN, False)
             return
 
     def FireLaser(self, x, y, d, is_player_tank):
 
         self.laser_live = True
 
-        self.laser.Dir = d
-        self.laser.oDir = d
-        self.laser.X = x
-        self.laser.Y = y
+        self.laser.dir_front = d
+        self.laser.dir_back = d
+        self.laser.x = x
+        self.laser.y = y
 
         if is_player_tank:
-            self.laser.LaserColor = c.LaserColorG
+            self.laser.colour = c.LaserColorG
             self.SoundPlay(c.S_Fire)
         else:
-            self.laser.LaserColor = c.LaserColorR
+            self.laser.colour = c.LaserColorR
             self.SoundPlay(c.S_Anti2)
         self.MoveLaser()
 
@@ -356,35 +401,35 @@ class GameState:
         pass
 
     def MoveTank(self, d):
-        if self.tank.Dir != d:
+        if self.tank.direction != d:
             # Tank is turning
-            self.tank.Dir = d
+            self.tank.direction = d
             self.SoundPlay(c.S_Turn)
             return
 
         if d == c.D_UP:
-            if self.CheckLoc(self.tank.X, self.tank.Y - 1):
+            if self.CheckLoc(self.tank.x, self.tank.y - 1):
                 self.UpDateTankPos(0, -1)
             else:
                 self.SoundPlay(c.S_Head)  # Bumpping into something
             self.tank_sliding_data.dy = -1
             self.tank_sliding_data.dx = 0
         elif d == c.D_RIGHT:
-            if self.CheckLoc(self.tank.X + 1, self.tank.Y):
+            if self.CheckLoc(self.tank.x + 1, self.tank.y):
                 self.UpDateTankPos(1, 0)
             else:
                 self.SoundPlay(c.S_Head)
             self.tank_sliding_data.dy = 0
             self.tank_sliding_data.dx = 1
         elif d == c.D_DOWN:
-            if self.CheckLoc(self.tank.X, self.tank.Y + 1):
+            if self.CheckLoc(self.tank.x, self.tank.y + 1):
                 self.UpDateTankPos(0, 1)
             else:
                 self.SoundPlay(c.S_Head)
             self.tank_sliding_data.dy = 1
             self.tank_sliding_data.dx = 0
         elif d == c.D_LEFT:
-            if self.CheckLoc(self.tank.X - 1, self.tank.Y):
+            if self.CheckLoc(self.tank.x - 1, self.tank.y):
                 self.UpDateTankPos(-1, 0)
             else:
                 self.SoundPlay(c.S_Head)
@@ -392,8 +437,8 @@ class GameState:
             self.tank_sliding_data.dx = -1
 
         if self.wasIce:
-            self.tank_sliding_data.x = self.tank.X
-            self.tank_sliding_data.y = self.tank.Y
+            self.tank_sliding_data.x = self.tank.x
+            self.tank_sliding_data.y = self.tank.y
             self.tank_sliding_data.s = True
 
     def MoveLaser(self):
@@ -408,25 +453,25 @@ class GameState:
 
             x = 0
             y = 0
-            if self.laser.Dir == c.D_UP:
+            if self.laser.dir_front == c.D_UP:
                 y = -1
-            elif self.laser.Dir == c.D_RIGHT:
+            elif self.laser.dir_front == c.D_RIGHT:
                 x = +1
-            elif self.laser.Dir == c.D_DOWN:
+            elif self.laser.dir_front == c.D_DOWN:
                 y = +1
-            elif self.laser.Dir == c.D_LEFT:
+            elif self.laser.dir_front == c.D_LEFT:
                 x = -1
 
-            self.laser.oDir = self.laser.Dir
+            self.laser.dir_back = self.laser.dir_front
 
             # Check destination square and start objects there moving if needed
-            if self.CheckLLoc(self.laser.X + x, self.laser.Y + y, x, y):
+            if self.CheckLLoc(self.laser.x + x, self.laser.y + y, x, y):
                 # Laser is still on the board
-                self.laser.Y += y
-                self.laser.X += x
+                self.laser.y += y
+                self.laser.x += x
 
-                reflecting_item = self.items[self.laser.X][
-                    self.laser.Y
+                reflecting_item = self.items[self.laser.x][
+                    self.laser.y
                 ]
                 if reflecting_item in c.MIRROR_ALL:
                     # Reflect off mirror
@@ -436,42 +481,42 @@ class GameState:
                             reflecting_item == c.MIRROR_LEFT_UP
                             or reflecting_item == c.ROTMIRROR_LEFT_UP
                     ):
-                        if self.laser.Dir == c.D_RIGHT:
-                            self.laser.Dir = c.D_UP
+                        if self.laser.dir_front == c.D_RIGHT:
+                            self.laser.dir_front = c.D_UP
                         else:
-                            self.laser.Dir = c.D_LEFT
+                            self.laser.dir_front = c.D_LEFT
                     elif (
                             reflecting_item == c.MIRROR_UP_RIGHT
                             or reflecting_item == c.ROTMIRROR_UP_RIGHT
                     ):
-                        if self.laser.Dir == c.D_DOWN:
-                            self.laser.Dir = c.D_RIGHT
+                        if self.laser.dir_front == c.D_DOWN:
+                            self.laser.dir_front = c.D_RIGHT
                         else:
-                            self.laser.Dir = c.D_UP
+                            self.laser.dir_front = c.D_UP
                     elif (
                             reflecting_item == c.MIRROR_RIGHT_DOWN
                             or reflecting_item == c.ROTMIRROR_RIGHT_DOWN
                     ):
-                        if self.laser.Dir == c.D_UP:
-                            self.laser.Dir = c.D_RIGHT
+                        if self.laser.dir_front == c.D_UP:
+                            self.laser.dir_front = c.D_RIGHT
                         else:
-                            self.laser.Dir = c.D_DOWN
+                            self.laser.dir_front = c.D_DOWN
                     elif (
                             reflecting_item == c.MIRROR_DOWN_LEFT
                             or reflecting_item == c.ROTMIRROR_DOWN_LEFT
                     ):
-                        if self.laser.Dir == c.D_UP:
-                            self.laser.Dir = c.D_LEFT
+                        if self.laser.dir_front == c.D_UP:
+                            self.laser.dir_front = c.D_LEFT
                         else:
-                            self.laser.Dir = c.D_DOWN
+                            self.laser.dir_front = c.D_DOWN
 
                     # UpdateLaserBounce() updates the LaserBounceOnIce
                     # Allows a second laser movement if laser is contacting a sliding mirror
                     for sliding_item in self.sliding_items:
                         if (
                                 sliding_item.s
-                                and sliding_item.x == self.laser.X
-                                and sliding_item.y == self.laser.Y
+                                and sliding_item.x == self.laser.x
+                                and sliding_item.y == self.laser.y
                         ):
                             LaserBounceOnIce = True
 
@@ -487,21 +532,21 @@ class GameState:
                 def TestIfConvCanMoveTank():
                     # Used to handle a bug :  the speed bug
                     # Return True if the tank is on Conveyor and can move.
-                    terrain_tank_on = self.terrain[self.tank.X][
-                        self.tank.Y
+                    terrain_tank_on = self.terrain[self.tank.x][
+                        self.tank.y
                     ]
                     if self.is_tank_on_terrain():
                         if terrain_tank_on == c.CONVEYOR_UP:
-                            if self.CheckLoc(self.tank.X, self.tank.Y - 1):
+                            if self.CheckLoc(self.tank.x, self.tank.y - 1):
                                 return True
                         elif terrain_tank_on == c.CONVEYOR_RIGHT:
-                            if self.CheckLoc(self.tank.X + 1, self.tank.Y):
+                            if self.CheckLoc(self.tank.x + 1, self.tank.y):
                                 return True
                         elif terrain_tank_on == c.CONVEYOR_DOWN:
-                            if self.CheckLoc(self.tank.X, self.tank.Y + 1):
+                            if self.CheckLoc(self.tank.x, self.tank.y + 1):
                                 return True
                         elif terrain_tank_on == c.CONVEYOR_LEFT:
-                            if self.CheckLoc(self.tank.X - 1, self.tank.Y):
+                            if self.CheckLoc(self.tank.x - 1, self.tank.y):
                                 return True
                     return False
 
@@ -519,20 +564,20 @@ class GameState:
 
         self.score_moves += 1
 
-        self.tank.Y += y
-        self.tank.X += x
+        self.tank.y += y
+        self.tank.x += x
         self.tank.on_waiting_tunnel = False  # Flag required for if we move off a tunnel
-        if self.ISTunnel(self.tank.X, self.tank.Y):
-            tunnel_exit = self.find_tunnel_exit(self.tank.X, self.tank.Y)
+        if self.ISTunnel(self.tank.x, self.tank.y):
+            tunnel_exit = self.find_tunnel_exit(self.tank.x, self.tank.y)
             if tunnel_exit is None:
                 # Tank fell in a black hole
                 self.game_over(victorious=False)
                 return
-            elif tunnel_exit == (self.tank.X, self.tank.Y):
+            elif tunnel_exit == (self.tank.x, self.tank.y):
                 # Blocked exit found
                 self.tank.on_waiting_tunnel = True
             else:
-                self.tank.X, self.tank.Y = tunnel_exit
+                self.tank.x, self.tank.y = tunnel_exit
 
     def SoundPlay(self, sound_id):
         self.sounds_buffer.append(sound_id)
@@ -632,7 +677,7 @@ class GameState:
 
                 # We didn't find a match so maybe the tank is it
                 if (
-                        self.terrain[self.tank.X][self.tank.Y]
+                        self.terrain[self.tank.x][self.tank.y]
                         == c.Tunnel_Set_Not_Waiting[bb]
                 ) and self.tank.on_waiting_tunnel:
                     self.score_moves -= 1
@@ -699,7 +744,7 @@ class GameState:
             # Laser out of board
             return False
 
-        if x == self.tank.X and y == self.tank.Y:
+        if x == self.tank.x and y == self.tank.y:
             # Hit tank
             self.game_over(victorious=False)
             return False
@@ -761,28 +806,28 @@ class GameState:
                 self.SoundPlay(c.S_LaserHit)
 
         elif item_loc == c.MIRROR_LEFT_UP:
-            if self.laser.Dir == c.D_RIGHT or self.laser.Dir == c.D_DOWN:
+            if self.laser.dir_front == c.D_RIGHT or self.laser.dir_front == c.D_DOWN:
                 return True
             if self.CheckLoc(x + dx, y + dy):
                 self.MoveObj(x, y, dx, dy, c.S_Push2)
             else:
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.MIRROR_UP_RIGHT:
-            if self.laser.Dir == c.D_DOWN or self.laser.Dir == c.D_LEFT:
+            if self.laser.dir_front == c.D_DOWN or self.laser.dir_front == c.D_LEFT:
                 return True
             if self.CheckLoc(x + dx, y + dy):
                 self.MoveObj(x, y, dx, dy, c.S_Push2)
             else:
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.MIRROR_RIGHT_DOWN:
-            if self.laser.Dir == c.D_UP or self.laser.Dir == c.D_LEFT:
+            if self.laser.dir_front == c.D_UP or self.laser.dir_front == c.D_LEFT:
                 return True
             if self.CheckLoc(x + dx, y + dy):
                 self.MoveObj(x, y, dx, dy, c.S_Push2)
             else:
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.MIRROR_DOWN_LEFT:
-            if self.laser.Dir == c.D_UP or self.laser.Dir == c.D_RIGHT:
+            if self.laser.dir_front == c.D_UP or self.laser.dir_front == c.D_RIGHT:
                 return True
             if self.CheckLoc(x + dx, y + dy):
                 self.MoveObj(x, y, dx, dy, c.S_Push2)
@@ -794,22 +839,22 @@ class GameState:
             return True
 
         elif item_loc == c.ROTMIRROR_LEFT_UP:
-            if self.laser.Dir == 2 or self.laser.Dir == 3:
+            if self.laser.dir_front == 2 or self.laser.dir_front == 3:
                 return True
             self.items[x][y] = c.ROTMIRROR_UP_RIGHT
             self.SoundPlay(c.S_Rotate)
         elif item_loc == c.ROTMIRROR_UP_RIGHT:
-            if self.laser.Dir == 3 or self.laser.Dir == 4:
+            if self.laser.dir_front == 3 or self.laser.dir_front == 4:
                 return True
             self.items[x][y] = c.ROTMIRROR_RIGHT_DOWN
             self.SoundPlay(c.S_Rotate)
         elif item_loc == c.ROTMIRROR_RIGHT_DOWN:
-            if self.laser.Dir == 1 or self.laser.Dir == 4:
+            if self.laser.dir_front == 1 or self.laser.dir_front == 4:
                 return True
             self.items[x][y] = c.ROTMIRROR_DOWN_LEFT
             self.SoundPlay(c.S_Rotate)
         elif item_loc == c.ROTMIRROR_DOWN_LEFT:
-            if self.laser.Dir == 1 or self.laser.Dir == 2:
+            if self.laser.dir_front == 1 or self.laser.dir_front == 2:
                 return True
             self.items[x][y] = c.ROTMIRROR_LEFT_UP
             self.SoundPlay(c.S_Rotate)
@@ -837,8 +882,8 @@ class GameState:
             # if destination is empty (not item and not tank)
             # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
             if self.CheckLoc(SlideO.x + SlideO.dx, SlideO.y + SlideO.dy) and not (
-                    SlideO.x + SlideO.dx == self.tank.X
-                    and SlideO.y + SlideO.dy == self.tank.Y
+                    SlideO.x + SlideO.dx == self.tank.x
+                    and SlideO.y + SlideO.dy == self.tank.y
             ):
                 savei = self.wasIce
                 self.MoveObj(SlideO.x, SlideO.y, SlideO.dx, SlideO.dy, c.S_Push2)
@@ -924,7 +969,7 @@ class Graphics:
             for x in range(c.PLAYFIELD_SIZE):
                 self._draw_sprite(game.terrain[x][y], x, y)
                 self._draw_sprite(game.items[x][y], x, y)
-        self._draw_tank(game.tank.X, game.tank.Y, game.tank.Dir)
+        self._draw_tank(game.tank.x, game.tank.y, game.tank.direction)
         if game.laser_live:
             self._draw_laser(game.laser)
         pygame.display.update()
@@ -980,13 +1025,13 @@ class Graphics:
 
     def _draw_laser(self, laser: LaserRec):
         # if laser.Firing:
-        colour = self.LASER_COLOURS[laser.LaserColor]
-        x = self.GAMEBOARD_OFFSET_X_PX + (laser.X * self.SPRITE_SIZE)
-        y = self.GAMEBOARD_OFFSET_Y_PX + (laser.Y * self.SPRITE_SIZE)
+        colour = self.LASER_COLOURS[laser.colour]
+        x = self.GAMEBOARD_OFFSET_X_PX + (laser.x * self.SPRITE_SIZE)
+        y = self.GAMEBOARD_OFFSET_Y_PX + (laser.y * self.SPRITE_SIZE)
         h = self.SPRITE_SIZE / 2
-        if laser.Dir == laser.oDir:
+        if laser.dir_front == laser.dir_back:
             # Not deflecting
-            if laser.Dir == c.D_UP or laser.Dir == c.D_DOWN:
+            if laser.dir_front == c.D_UP or laser.dir_front == c.D_DOWN:
                 # Vertical
                 beam = pygame.Rect(
                     x + self.LASER_OFFSET,
@@ -1037,8 +1082,8 @@ class Graphics:
                         self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
                     )
 
-            beam_a = laser_dir_to_rect(laser.Dir)
-            beam_b = laser_dir_to_rect(c.D_INVERT[laser.oDir])
+            beam_a = laser_dir_to_rect(laser.dir_front)
+            beam_b = laser_dir_to_rect(c.D_INVERT[laser.dir_back])
 
             pygame.draw.rect(self.screen, colour, beam_a, width=0, border_radius=2)
             pygame.draw.rect(self.screen, self.BLACK, beam_a, width=1, border_radius=2)
@@ -1121,7 +1166,7 @@ class TextGraphics:
                 if (
                         game.terrain[x][y] not in (c.GRASS, c.WATER)
                         or game.items[x][y] != c.EMPTY
-                        or (game.tank.X == x and game.tank.Y == y)
+                        or (game.tank.x == x and game.tank.y == y)
                 ):
                     # Square of interest
                     x_min = min(x_min, x)
@@ -1173,9 +1218,9 @@ class TextGraphics:
             terrain = " "
         if item == c.EMPTY:
             item = " "
-        if game.tank.X == x and game.tank.Y == y:
+        if game.tank.x == x and game.tank.y == y:
             item = "T"
-        if game.laser_live and game.laser.X == x and game.laser.Y == y:
+        if game.laser_live and game.laser.x == x and game.laser.y == y:
             terrain = "-"
 
         return f"{terrain: >2}{item: >3}"
