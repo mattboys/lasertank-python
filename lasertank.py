@@ -872,7 +872,7 @@ class Graphics:
         pygame.Color(0x00FF00FF),
         pygame.Color(0x0000FFFF),
         pygame.Color(0x00FFFFFF),
-        pygame.Color(0x00FFFFFF),
+        pygame.Color(0xFFFF00FF),
         pygame.Color(0xFF00FFFF),
         pygame.Color(0xFFFFFFFF),
         pygame.Color(0x808080FF),
