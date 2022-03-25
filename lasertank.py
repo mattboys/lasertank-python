@@ -80,9 +80,19 @@ class LaserRec:
 
 
 class LevelInfo:
-    def __init__(self):
-        self.name = ""
-        self.number = 1
+    def __init__(
+            self,
+            number: int,
+            title: str,
+            hint: str,
+            author: str,
+            difficulty: str,
+    ):
+        self.number: int = number
+        self.title: str = title
+        self.hint: str = hint
+        self.author: str = author
+        self.difficulty: str = difficulty
 
 
 class SlidingData:  # Sliding Struct
@@ -112,13 +122,7 @@ class GameState:
         self.score_moves = 0
         self.undo_state = []
         self.sounds_buffer = []
-        self.info = {
-            "number": 1,
-            "title": "",
-            "hint": "",
-            "author": "",
-            "difficulty": "",
-        }
+        self.level_info = LevelInfo(1, "", "", "", "")
 
         # Control flags
         self.running = True
@@ -172,13 +176,7 @@ class GameState:
         hint = convert_null_terminated_bytes_to_str_helper(hint)
         author = convert_null_terminated_bytes_to_str_helper(author)
         difficulty = c.DIFFICULTY_TEXTS.get(difficulty_int, c.DIFFICULTY_TEXTS[1])
-        self.info = {
-            "number": level_number,
-            "title": title,
-            "hint": hint,
-            "author": author,
-            "difficulty": difficulty,
-        }
+        self.level_info = LevelInfo(level_number, title, hint, author, difficulty)
 
         for sq in SQUARES:
             # Note that lvl files are saved in columns and playfield is in [x][y]
