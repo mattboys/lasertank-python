@@ -305,13 +305,14 @@ class GameState:
             return False
 
         # Set the wasIce flag if tested square is an empty ice or thin ice
-        self.wasIce = (
-                              self.terrain[sq] == c.ICE or self.terrain[sq] == c.THINICE
-                      ) and self.items[sq] == c.EMPTY
+        self.wasIce = self.is_ice(sq)
         # if self.terrain[x][y] in c.TUNNEL_ALL:
         #     return True
 
         return self.items[sq] == c.EMPTY
+
+    def is_ice(self, sq: Square):
+        return (self.terrain[sq] == c.ICE or self.terrain[sq] == c.THINICE) and self.items[sq] == c.EMPTY
 
     def AntiTank(self):
         self.change_log.append("AntiTank Move")
@@ -384,39 +385,16 @@ class GameState:
             # Tank is turning
             self.tank.direction = d
             self.SoundPlay(c.S_Turn)
-            return
-
-        if d == UP:
-            if self.CheckLoc(self.tank.sq.relative(UP)):
-                self.UpDateTankPos(UP)
+        else:
+            if self.CheckLoc(self.tank.sq.relative(d)):
+                self.UpDateTankPos(d)
             else:
                 self.SoundPlay(c.S_Head)  # Bumping into something
-            self.tank_sliding_data.dr = UP
+            self.tank_sliding_data.dr = d
 
-        elif d == RIGHT:
-            if self.CheckLoc(self.tank.sq.relative(RIGHT)):
-                self.UpDateTankPos(RIGHT)
-            else:
-                self.SoundPlay(c.S_Head)
-            self.tank_sliding_data.dr = RIGHT
-
-        elif d == DOWN:
-            if self.CheckLoc(self.tank.sq.relative(DOWN)):
-                self.UpDateTankPos(DOWN)
-            else:
-                self.SoundPlay(c.S_Head)
-            self.tank_sliding_data.dr = DOWN
-
-        elif d == LEFT:
-            if self.CheckLoc(self.tank.sq.relative(LEFT)):
-                self.UpDateTankPos(LEFT)
-            else:
-                self.SoundPlay(c.S_Head)
-            self.tank_sliding_data.dr = LEFT
-
-        if self.wasIce:
-            self.tank_sliding_data.sq = self.tank.sq
-            self.tank_sliding_data.live = True
+            if self.wasIce:
+                self.tank_sliding_data.sq = self.tank.sq
+                self.tank_sliding_data.live = True
 
     def MoveLaser(self):
         self.change_log.append("Laser moving")
@@ -795,14 +773,11 @@ class GameState:
                 print("Debug: Sliding stack full.")
 
         # If object is moving into an ice square then add it to the Sliding stack
+        del_SlideO_from_Mem(sq)
         if self.wasIce:
-            # If is already sliding, del it !
-            del_SlideO_from_Mem(sq)
             # and add a new slide in a new direction
             SlideO = SlidingData(sq.relative(dr), dr, True)
             add_SlideO_to_Mem(SlideO)
-        else:
-            del_SlideO_from_Mem(sq)
 
         return False
 

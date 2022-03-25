@@ -4415,15 +4415,16 @@ const int BMSTA[MaxBitMaps + 1] = {
 	0,
 	0
 };
+// Tunnel colours
 const long ColorList[8] = {
-	0x000000FF,
-	0x0000FF00,
-	0x00FF0000,
-	0x00FFFF00,
-	0x00FFFF,
-	0x00FF00FF,
-	0x00FFFFFF,
-	0x00808080
+	0x000000FF, // Red
+	0x0000FF00, // Green
+	0x00FF0000, // Blue
+	0x00FFFF00, // Cyan
+	0x00FFFF,	// Yellow
+	0x00FF00FF, // Magenta
+	0x00FFFFFF, // White
+	0x00808080	// Gray
 };
 int UndoP;
 TRECORDREC PBRec, PBSRec;
