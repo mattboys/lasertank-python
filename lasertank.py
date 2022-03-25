@@ -581,21 +581,17 @@ class GameState:
         # Also unblock tunnel if Obj blocking tunnel and let other end activate (cx,cy)
         # used by CheckLLoc and IceMoveO
         item = self.items[sq]  # Get object type
-        terrain_loc = self.terrain[sq]
 
         # Trigger waiting tunnel if vacating a tunnel
         if self.is_tunnel(sq):
             # Unblock tunnel
 
             # Search for a blocked tunnel with the same ID
-            # signifies that tunnel has an object on it waiting to be transported
-            bb = c.Tunnel_Set_Waiting[terrain_loc]
+            tunnel_waiting_id = c.Tunnel_Set_Waiting[self.terrain[sq]]
 
-            found_exit = False
-            sqx = None
             for sqx in SQUARES:
                 if (
-                        self.terrain[sqx] == bb
+                        self.terrain[sqx] == tunnel_waiting_id
                         and self.items[sqx] != c.EMPTY
                         and not (sqx == sq)
                 ):
@@ -620,7 +616,7 @@ class GameState:
                 # We didn't find a match so maybe the tank is it
                 if (
                         self.terrain[self.tank.sq]
-                        == c.Tunnel_Set_Not_Waiting[bb]
+                        == c.Tunnel_Set_Not_Waiting[tunnel_waiting_id]
                 ) and self.tank.on_waiting_tunnel:
                     self.score_moves -= 1
                     self.UpDateTankPos(STATIONARY)
