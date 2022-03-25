@@ -279,7 +279,7 @@ class GameState:
         self.tank.sq = self.tank.sq.relative(direction)
 
         # Check if tank ended up on a tunnel
-        if self.ISTunnel(self.tank.sq):
+        if self.is_tunnel(self.tank.sq):
             tunnel_exit = self.find_tunnel_exit(self.tank.sq)
             if tunnel_exit is None:
                 # Tank fell in a black hole
@@ -519,7 +519,7 @@ class GameState:
                     self.tank_moving_on_conveyor = True
         # loops here if LaserBounceOnIce was set in the loop
 
-    def ISTunnel(self, sq):
+    def is_tunnel(self, sq):
         return self.terrain[sq] in c.TUNNEL_ALL
 
     def UpDateTankPos(self, dr):
@@ -531,7 +531,7 @@ class GameState:
 
         self.tank.sq = self.tank.sq.relative(dr)
         self.tank.on_waiting_tunnel = False  # Flag required for if we move off a tunnel
-        if self.ISTunnel(self.tank.sq):
+        if self.is_tunnel(self.tank.sq):
             tunnel_exit = self.find_tunnel_exit(self.tank.sq)
             if tunnel_exit is None:
                 # Tank fell in a black hole
@@ -584,7 +584,7 @@ class GameState:
         terrain_loc = self.terrain[sq]
 
         # Trigger waiting tunnel if vacating a tunnel
-        if terrain_loc in c.TUNNEL_ALL:  # Check if Tunnel
+        if self.is_tunnel(sq):
             # Unblock tunnel
 
             # Search for a blocked tunnel with the same ID
@@ -632,7 +632,7 @@ class GameState:
         dest = sq.relative(dr)
 
         # If destination is a tunnel then set x,y to tunnel's exit
-        if self.ISTunnel(dest):
+        if self.is_tunnel(dest):
             tunnel_exit = self.find_tunnel_exit(dest)
             if tunnel_exit is None:
                 return  # The tunnel was a black hole
@@ -1277,4 +1277,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("tricks/Tricks", 20)
+    debug_level("tricks/Tricks", 22)
