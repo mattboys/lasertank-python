@@ -868,14 +868,14 @@ class Graphics:
     TUNNEL_ID_COLOURS = [
         # c: 0x00bbggrr
         # py:0xrrggbbaa
-        pygame.Color(0xFF0000FF),
-        pygame.Color(0x00FF00FF),
-        pygame.Color(0x0000FFFF),
-        pygame.Color(0x00FFFFFF),
-        pygame.Color(0xFFFF00FF),
-        pygame.Color(0xFF00FFFF),
-        pygame.Color(0xFFFFFFFF),
-        pygame.Color(0x808080FF),
+        pygame.Color(0xFF_00_00_FF),  # Red
+        pygame.Color(0x00_FF_00_FF),  # Green
+        pygame.Color(0x00_00_FF_FF),  # Blue
+        pygame.Color(0x00_FF_FF_FF),  # Cyan
+        pygame.Color(0xFF_FF_00_FF),  # Yellow
+        pygame.Color(0xFF_00_FF_FF),  # Magenta
+        pygame.Color(0xFF_FF_FF_FF),  # White
+        pygame.Color(0x80_80_80_FF),  # Gray
     ]
 
     LASER_COLOURS = {
