@@ -746,38 +746,49 @@ class GameState:
             self.items[sq] = c.ROTMIRROR_LEFT_UP
             self.SoundPlay(c.S_Rotate)
 
-        def del_SlideO_from_Mem(squ: Square):
-            self.change_log.append("Object stopped sliding")
-            # If an object is sliding and is hit by a laser,
-            # delete it from stack. (Done before adding new slide direction to stack.)
-            for iSlideObj in reversed(self.sliding_items):
-                if iSlideObj.sq == squ:
-                    iSlideObj.live = False
-                    break
-            self.sliding_items = [slide for slide in self.sliding_items if slide.live]
+        # def del_SlideO_from_Mem(squ: Square):
+        #     self.change_log.append("Object stopped sliding")
+        #     # If an object is sliding and is hit by a laser,
+        #     # delete it from stack. (Done before adding new slide direction to stack.)
+        #     for iSlideObj in reversed(self.sliding_items):
+        #         if iSlideObj.sq == squ:
+        #             iSlideObj.live = False
+        #             break
+        #     self.sliding_items = [slide for slide in self.sliding_items if slide.live]
 
-        def add_SlideO_to_Mem(sliding_obj):
-            self.change_log.append("Object started sliding")
-            # Add an object in the stack for sliding objects
-            # But, if this object is already in this stack,
-            # just change dir and don't increase the counter.
-            if len(self.sliding_items) < c.MAX_TICEMEM:
-                # Search for square in SlideMem and update if already there
-                for count, iSlideObj in enumerate(self.sliding_items):
-                    if iSlideObj.sq == sliding_obj.sq:
-                        self.sliding_items[count] = sliding_obj
-                        return
-                # Not found so add to SlideMem
-                self.sliding_items.append(sliding_obj)
-            else:
-                print("Debug: Sliding stack full.")
+        # def add_SlideO_to_Mem(sliding_obj):
+        #     self.change_log.append("Object started sliding")
+        #     # Add an object in the stack for sliding objects
+        #     # But, if this object is already in this stack,
+        #     # just change dir and don't increase the counter.
+        #     if len(self.sliding_items) < c.MAX_TICEMEM:
+        #         # Search for square in SlideMem and update if already there
+        #         for count, iSlideObj in enumerate(self.sliding_items):
+        #             if iSlideObj.sq == sliding_obj.sq:
+        #                 self.sliding_items[count] = sliding_obj
+        #                 return
+        #         # Not found so add to SlideMem
+        #         self.sliding_items.append(sliding_obj)
+        #     else:
+        #         print("Debug: Sliding stack full.")
 
         # If object is moving into an ice square then add it to the Sliding stack
-        del_SlideO_from_Mem(sq)
+        # del_SlideO_from_Mem(sq)
+        for iSlideObj in reversed(self.sliding_items):
+            if iSlideObj.sq == sq:
+                iSlideObj.live = False
+                break
+        self.sliding_items = [slide for slide in self.sliding_items if slide.live]
         if self.wasIce:
             # and add a new slide in a new direction
             SlideO = SlidingData(sq.relative(dr), dr, True)
-            add_SlideO_to_Mem(SlideO)
+            for count, iSlideObj in enumerate(self.sliding_items):
+                if iSlideObj.sq == SlideO.sq:
+                    self.sliding_items[count] = SlideO
+                    return
+            # Not found so add to SlideMem
+            self.sliding_items.append(SlideO)
+            # add_SlideO_to_Mem(SlideO)
 
         return False
 
