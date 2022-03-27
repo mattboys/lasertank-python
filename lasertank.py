@@ -115,13 +115,15 @@ class GameState:
         self.tank = TankRec(Square(x=7, y=15), direction=UP)
         self.laser = LaserRec()
         self.laser_live = False
-        self.sliding_items: list[SlidingData] = []  # SlideMem is list of TIceRec structs
+        self.sliding_items: dict[Square, Direction] = {}
         self.moves_history = []
         self.moves_buffer = []  # RecBuffer
         self.score_shots = 0
         self.score_moves = 0
         self.undo_state = []
         self.sounds_buffer = []
+
+        # Static Info
         self.level_info = LevelInfo(1, "", "", "", "")
 
         # Control flags
@@ -129,7 +131,7 @@ class GameState:
         self.reached_flag = False
         self.player_dead = False
 
-        # Flags
+        # Dynamic flags
         self.tank_moving_on_conveyor = False
         self.tank_sliding_data = SlidingData(
             Square(0, 0), STATIONARY, False
@@ -150,7 +152,7 @@ class GameState:
         return len(self.moves_buffer) > 0
 
     def load_level(self, level_number, filename=DEFAULT_LEVEL_LOC):
-        self.sliding_items = []
+        self.sliding_items = {}
         self.moves_history = []
         self.moves_buffer = []
         self.score_shots = 0
@@ -456,12 +458,8 @@ class GameState:
 
                     # UpdateLaserBounce() updates the LaserBounceOnIce
                     # Allows a second laser movement if laser is contacting a sliding mirror
-                    for sliding_item in self.sliding_items:
-                        if (
-                                sliding_item.live
-                                and sliding_item.sq == self.laser.sq
-                        ):
-                            LaserBounceOnIce = True
+                    if self.laser.sq in self.sliding_items:
+                        LaserBounceOnIce = True
 
                     self.SoundPlay(c.S_Deflb)
                 # self.laser.Firing = True
@@ -746,80 +744,49 @@ class GameState:
             self.items[sq] = c.ROTMIRROR_LEFT_UP
             self.SoundPlay(c.S_Rotate)
 
-        # def del_SlideO_from_Mem(squ: Square):
-        #     self.change_log.append("Object stopped sliding")
-        #     # If an object is sliding and is hit by a laser,
-        #     # delete it from stack. (Done before adding new slide direction to stack.)
-        #     for iSlideObj in reversed(self.sliding_items):
-        #         if iSlideObj.sq == squ:
-        #             iSlideObj.live = False
-        #             break
-        #     self.sliding_items = [slide for slide in self.sliding_items if slide.live]
-
-        # def add_SlideO_to_Mem(sliding_obj):
-        #     self.change_log.append("Object started sliding")
-        #     # Add an object in the stack for sliding objects
-        #     # But, if this object is already in this stack,
-        #     # just change dir and don't increase the counter.
-        #     if len(self.sliding_items) < c.MAX_TICEMEM:
-        #         # Search for square in SlideMem and update if already there
-        #         for count, iSlideObj in enumerate(self.sliding_items):
-        #             if iSlideObj.sq == sliding_obj.sq:
-        #                 self.sliding_items[count] = sliding_obj
-        #                 return
-        #         # Not found so add to SlideMem
-        #         self.sliding_items.append(sliding_obj)
-        #     else:
-        #         print("Debug: Sliding stack full.")
+        # Stop it sliding if it is on the sliding_items list
+        self.sliding_items.pop(sq, None)
 
         # If object is moving into an ice square then add it to the Sliding stack
-        # del_SlideO_from_Mem(sq)
-        for iSlideObj in reversed(self.sliding_items):
-            if iSlideObj.sq == sq:
-                iSlideObj.live = False
-                break
-        self.sliding_items = [slide for slide in self.sliding_items if slide.live]
         if self.wasIce:
-            # and add a new slide in a new direction
-            SlideO = SlidingData(sq.relative(dr), dr, True)
-            for count, iSlideObj in enumerate(self.sliding_items):
-                if iSlideObj.sq == SlideO.sq:
-                    self.sliding_items[count] = SlideO
-                    return
-            # Not found so add to SlideMem
-            self.sliding_items.append(SlideO)
-            # add_SlideO_to_Mem(SlideO)
+            self.sliding_items[sq.relative(dr)] = dr
 
         return False
 
     def IceMoveO(self):
         self.change_log.append("Slid object on ice")
         # Move an item on the ice
-        for sliding_item in reversed(self.sliding_items):
-            if self.terrain[sliding_item.sq] == c.THINICE:
+        for sliding_item_sq, sliding_item_dr in reversed(list(self.sliding_items.items())):
+            if self.terrain[sliding_item_sq] == c.THINICE:
                 # Sliding off thin ice so melt the ice into water
-                self.terrain[sliding_item.sq] = c.WATER
+                self.terrain[sliding_item_sq] = c.WATER
 
             # if destination is empty (not item and not tank)
             # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
-            destination = sliding_item.sq.relative(sliding_item.dr)
+            destination = sliding_item_sq.relative(sliding_item_dr)
             if self.CheckLoc(destination) and not destination == self.tank.sq:
                 savei = self.wasIce
-                self.MoveObj(sliding_item.sq, sliding_item.dr, c.S_Push2)
+                self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
                 self.AntiTank()
-
-                # Update position of tracked sliding object
-                sliding_item.sq = destination
                 if not savei:
-                    sliding_item.live = False  # Mark for deletion
+                    del self.sliding_items[sliding_item_sq]
+                else:
+                    # Update position of tracked sliding object
+                    # Insert destination item at the position of the original
+                    new_list = {}
+                    for s, d in self.sliding_items.items():
+                        if s == sliding_item_sq:
+                            new_list[destination] = d
+                        else:
+                            new_list[s] = d
+                    new_list[destination] = sliding_item_dr
+                    self.sliding_items = new_list
             else:
-                if self.terrain[sliding_item.sq] == c.WATER:
+                if self.terrain[sliding_item_sq] == c.WATER:
                     # Drop into water if ice melted and item couldn't move
-                    self.MoveObj(sliding_item.sq, STATIONARY, c.S_Sink)
-                sliding_item.live = False
+                    self.MoveObj(sliding_item_sq, STATIONARY, c.S_Sink)
+                del self.sliding_items[sliding_item_sq]
                 self.AntiTank()
-        # Remove items that are no-longer sliding (sub_SlideO_from_Mem)
-        self.sliding_items = [slide for slide in self.sliding_items if slide.live]
 
     def IceMoveT(self):
         self.change_log.append("Slid tank on ice")
@@ -1257,4 +1224,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("tricks/Tricks", 22)
+    debug_level("tricks/Tricks", 2)
