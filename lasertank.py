@@ -313,6 +313,100 @@ class GameState:
 
         return self.items[sq] == c.EMPTY
 
+    def check_loc_move_start_sliding(self, sq, dr):
+
+        # Stop it sliding if already
+        self.sliding_items.pop(sq, None)
+
+        destination = sq.relative(dr)
+        if destination is None:
+            # Hitting edge of board
+            return False
+
+        if self.items[destination] != c.EMPTY:
+            return False
+
+        was_ice = self.is_ice(destination)
+
+        def MoveObj2(sq: Square, dr: Direction, sf):
+            # Try to move object on square x,y that was pushed in dir dx,dy then play sound sf
+            # Update terrain under object's initial position (x,y)
+            # Also unblock tunnel if Obj blocking tunnel and let other end activate (cx,cy)
+            # used by CheckLLoc and IceMoveO
+            item = self.items[sq]  # Get object type
+
+            # Trigger waiting tunnel if vacating a tunnel
+            if self.is_tunnel(sq):
+                # Unblock tunnel
+
+                # Search for a blocked tunnel with the same ID
+                tunnel_waiting_id = c.Tunnel_Set_Waiting[self.terrain[sq]]
+
+                for sqx in SQUARES:
+                    if (
+                            self.terrain[sqx] == tunnel_waiting_id
+                            and self.items[sqx] != c.EMPTY
+                            and not (sqx == sq)
+                    ):
+                        # We are moving an object through a tunnel
+                        # Other end of blocked tunnel had an object so move it through now
+                        # Move object through a tunnel (from xy to cx, cy)
+                        # Transfer blocked object
+                        self.items[sq] = self.items[sqx]
+                        self.items[sqx] = c.EMPTY
+                        self.terrain[sqx] = c.Tunnel_Set_Not_Waiting[
+                            self.terrain[sqx]
+                        ]
+                        break
+                else:
+                    # Did not find another end of this tunnel with an object on
+                    # Not Blocked Anymore
+                    self.items[sq] = c.EMPTY
+                    self.terrain[sq] = c.Tunnel_Set_Not_Waiting[
+                        self.terrain[sq]
+                    ]
+
+                    # We didn't find a match so maybe the tank is it
+                    if (
+                            self.terrain[self.tank.sq]
+                            == c.Tunnel_Set_Not_Waiting[tunnel_waiting_id]
+                    ) and self.tank.on_waiting_tunnel:
+                        self.score_moves -= 1
+                        self.UpDateTankPos(STATIONARY)
+                        self.PopUndo()
+            else:
+                self.items[sq] = c.EMPTY
+
+            # Now update destination
+            dest = sq.relative(dr)
+
+            # If destination is a tunnel then set x,y to tunnel's exit
+            if self.is_tunnel(dest):
+                tunnel_exit = self.find_tunnel_exit(dest)
+                if tunnel_exit is None:
+                    return  # The tunnel was a black hole
+                elif tunnel_exit == dest:
+                    self.terrain[dest] = c.Tunnel_Set_Waiting[self.terrain[dest]]
+                else:
+                    dest = tunnel_exit
+
+            if self.terrain[dest] != c.WATER:
+                # Move object to destination square
+                self.items[dest] = item
+            else:
+                # Destination square is water
+                sf = c.S_Sink
+                if item == c.BLOCK:
+                    self.items[dest] = c.EMPTY
+                    self.terrain[dest] = c.BRIDGE
+            self.SoundPlay(sf)
+
+        MoveObj2(sq, dr, c.S_Push1)
+        if was_ice:
+            self.sliding_items[destination] = dr
+
+        return True
+
     def is_ice(self, sq: Square):
         return (self.terrain[sq] == c.ICE or self.terrain[sq] == c.THINICE) and self.items[sq] == c.EMPTY
 
@@ -626,6 +720,7 @@ class GameState:
         # Check destination square of laser, and start objects there moving if needed
         #  this is were the laser does its damage
         # returns true if laser didn't hit anything and still in board
+
         if sq is None:
             # Laser out of board
             return False
@@ -636,87 +731,76 @@ class GameState:
             return False
 
         self.wasIce = False
+        destination = sq.relative(dr)
 
         item_loc = self.items[sq]
         if item_loc == c.EMPTY:
             return True
-        elif item_loc in c.SOLID_ITEMS:  # Include dead tanks as solid items
+        elif item_loc in c.DEADANTITANK_ALL:  # Include dead tanks as solid items
             self.SoundPlay(c.S_LaserHit)
+            self.sliding_items.pop(sq, None)
+
+        elif item_loc == c.SOLID:
+            self.SoundPlay(c.S_LaserHit)
+
         elif item_loc == c.BLOCK:
             # Can block be moved in direction of laser? Is square free
-            if self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push1)  # Push block
-            else:
+            if not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
+
         elif item_loc == c.WALL:
             self.items[sq] = c.EMPTY  # Destroy wall with laser
             self.SoundPlay(c.S_Bricks)
 
         elif item_loc == c.ANTITANK_UP:
             if dr == DOWN:  # Laser hit front of antitank
-                # KillAtank()
+                # Kill Atank
                 self.items[sq] = c.DEADANTITANK_UP
                 self.SoundPlay(c.S_Anti1)
                 return False
-            elif self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push3)
-            else:
+            elif not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.ANTITANK_RIGHT:
             if dr == LEFT:
                 self.items[sq] = c.DEADANTITANK_RIGHT
                 self.SoundPlay(c.S_Anti1)
                 return False
-            elif self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push3)
-            else:
+            elif not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.ANTITANK_DOWN:
             if dr == UP:
                 self.items[sq] = c.DEADANTITANK_DOWN
                 self.SoundPlay(c.S_Anti1)
                 return False
-            elif self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push3)
-            else:
+            elif not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.ANTITANK_LEFT:
             if dr == RIGHT:
                 self.items[sq] = c.DEADANTITANK_LEFT
                 self.SoundPlay(c.S_Anti1)
                 return False
-            elif self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push3)
-            else:
+            elif not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
 
         elif item_loc == c.MIRROR_LEFT_UP:
             if self.laser.dir_front == RIGHT or self.laser.dir_front == DOWN:
                 return True
-            if self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push2)
-            else:
+            if not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.MIRROR_UP_RIGHT:
             if self.laser.dir_front == DOWN or self.laser.dir_front == LEFT:
                 return True
-            if self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push2)
-            else:
+            if not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.MIRROR_RIGHT_DOWN:
             if self.laser.dir_front == UP or self.laser.dir_front == LEFT:
                 return True
-            if self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push2)
-            else:
+            if not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
         elif item_loc == c.MIRROR_DOWN_LEFT:
             if self.laser.dir_front == UP or self.laser.dir_front == RIGHT:
                 return True
-            if self.CheckLoc(sq.relative(dr)):
-                self.MoveObj(sq, dr, c.S_Push2)
-            else:
+            if not self.check_loc_move_start_sliding(sq, dr):
                 self.SoundPlay(c.S_LaserHit)
 
         elif item_loc == c.GLASS:
@@ -744,12 +828,12 @@ class GameState:
             self.items[sq] = c.ROTMIRROR_LEFT_UP
             self.SoundPlay(c.S_Rotate)
 
-        # Stop it sliding if it is on the sliding_items list
-        self.sliding_items.pop(sq, None)
-
-        # If object is moving into an ice square then add it to the Sliding stack
-        if self.wasIce:
-            self.sliding_items[sq.relative(dr)] = dr
+        # # Stop it sliding if it is on the sliding_items list
+        # self.sliding_items.pop(sq, None)
+        #
+        # # If object is moving into an ice square then add it to the Sliding stack
+        # if self.wasIce:  # self.is_ice(destination):
+        #     self.sliding_items[destination] = dr
 
         return False
 
@@ -1194,9 +1278,11 @@ def debug_level(level_name, level_number):
 
     def display():
         graphics.draw_board(game)
+        print("")
         print(f"Tick: {tick_counter}")
         print(f"Moves:{txtgrphcs.print_directions(game.moves_buffer)}")
         print(f"Actions: {game.change_log}")
+        print(f"Sliding: {game.sliding_items}")
         print("Board:")
         txtgrphcs.draw_interesting_crop(game)
         game.queue_new_inputs(inputs.wait_for_anykey())
@@ -1224,4 +1310,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("tricks/Tricks", 2)
+    debug_level("Pono_trick/Pono's_trick", 11)
