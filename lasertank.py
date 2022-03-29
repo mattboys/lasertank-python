@@ -69,6 +69,9 @@ class TankRec:
         self.direction: Direction = direction
         # self.Firing = False  # Is laser on the board, move to board object?
         self.on_waiting_tunnel = False  # Indicates that tank is on a waiting tunnel
+        self.is_sliding = False
+        self.sliding_sq: Square = Square(0, 0)
+        self.sliding_dr: Direction = STATIONARY
 
 
 class LaserRec:
@@ -95,16 +98,14 @@ class LevelInfo:
         self.difficulty: str = difficulty
 
 
-class SlidingData:  # Sliding Struct
-    def __init__(
-            self,
-            sq: Square,
-            dr: Direction,
-            live=True,
-    ):
-        self.sq: Square = sq  # Last XY position of object to move
-        self.dr: Direction = dr  # Direction to move in Delta Cords
-        self.live = live  # True if sliding
+# class SlidingData:  # Sliding Struct
+#     def __init__(
+#             self,
+#             sq: Square,
+#             dr: Direction,
+#     ):
+#         self.sq: Square = sq  # Last XY position of object to move
+#         self.dr: Direction = dr  # Direction to move in Delta Cords
 
 
 class GameState:
@@ -133,9 +134,8 @@ class GameState:
 
         # Dynamic flags
         self.tank_moving_on_conveyor = False
-        self.tank_sliding_data = SlidingData(
-            Square(0, 0), STATIONARY, False
-        )  # Momentum of tank where SlideT.s = is tank sliding?
+        # Momentum of tank where SlideT.s = is tank sliding?
+        # self.tank_sliding_data = SlidingData(Square(0, 0), STATIONARY)
         # self.previous_tunnel_waiting = False  # Found tunnel output on PF2 (under something)
         # self.previous_tunnel_blackhole = (
         #     False  # True if we TunnleTranslae to a Black Hole (no exit found)
@@ -207,7 +207,7 @@ class GameState:
                 self.laser_live
                 or self.tank_moving_on_conveyor
                 or self.is_objects_sliding()
-                or self.tank_sliding_data.live
+                or self.tank.is_sliding
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
@@ -263,23 +263,23 @@ class GameState:
                     del self.sliding_items[sliding_item_sq]
                     self.AntiTank()
 
-        if self.tank_sliding_data.live:
+        if self.tank.is_sliding:
             # self.IceMoveT()
             self.change_log.append("Slid tank on ice")
             #  Move the tank on the Ice
-            if self.terrain[self.tank_sliding_data.sq] == c.THINICE:
-                self.terrain[self.tank_sliding_data.sq] = c.WATER
+            if self.terrain[self.tank.sliding_sq] == c.THINICE:
+                self.terrain[self.tank.sliding_sq] = c.WATER
 
-            destination = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+            destination = self.tank.sliding_sq.relative(self.tank.sliding_dr)
             if self.CheckLoc(destination):
                 savei = self.is_ice(destination)
-                self.ConvMoveTank(self.tank_sliding_data.dr, False)
+                self.ConvMoveTank(self.tank.sliding_dr, False)
                 # Move tank an additional square
-                self.tank_sliding_data.sq = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+                self.tank.sliding_sq = self.tank.sliding_sq.relative(self.tank.sliding_dr)
                 if not savei:
-                    self.tank_sliding_data.live = False
+                    self.tank.is_sliding = False
             else:
-                self.tank_sliding_data.live = False
+                self.tank.is_sliding = False
         self.tank_moving_on_conveyor = False  # used to disable Laser on the conveyor
 
         self.change_log.append("Checking tank square")
@@ -342,9 +342,9 @@ class GameState:
 
         self.tank_moving_on_conveyor = True
         if self.is_ice(self.tank.sq) and check_ice:
-            self.tank_sliding_data.sq = self.tank.sq
-            self.tank_sliding_data.live = True
-            self.tank_sliding_data.dr = direction
+            self.tank.sliding_sq = self.tank.sq
+            self.tank.is_sliding = True
+            self.tank.sliding_dr = direction
         self.AntiTank()
 
     def CheckLoc(self, sq):
@@ -535,11 +535,11 @@ class GameState:
             if self.CheckLoc(destination):
                 self.UpDateTankPos(d)
                 if self.is_ice(destination):
-                    self.tank_sliding_data.sq = self.tank.sq
-                    self.tank_sliding_data.live = True
+                    self.tank.sliding_sq = self.tank.sq
+                    self.tank.is_sliding = True
             else:
                 self.SoundPlay(c.S_Head)  # Bumping into something
-            self.tank_sliding_data.dr = d
+            self.tank.sliding_dr = d
 
 
 
@@ -1041,15 +1041,15 @@ class GameState:
     # def IceMoveT(self):
     #     self.change_log.append("Slid tank on ice")
     #     #  Move the tank on the Ice
-    #     if self.terrain[self.tank_sliding_data.sq] == c.THINICE:
-    #         self.terrain[self.tank_sliding_data.sq] = c.WATER
+    #     if self.terrain[self.tank.sliding_sq] == c.THINICE:
+    #         self.terrain[self.tank.sliding_sq] = c.WATER
     #
-    #     destination = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+    #     destination = self.tank.sliding_sq.relative(self.tank.sliding_dr)
     #     if self.CheckLoc(destination):
     #         savei = self.is_ice(destination)
-    #         self.ConvMoveTank(self.tank_sliding_data.dr, False)
+    #         self.ConvMoveTank(self.tank.sliding_dr, False)
     #         # Move tank an additional square
-    #         self.tank_sliding_data.sq = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+    #         self.tank.sliding_sq = self.tank.sliding_sq.relative(self.tank.sliding_dr)
     #         if not savei:
     #             self.tank_sliding_data.live = False
     #     else:
