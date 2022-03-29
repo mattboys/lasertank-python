@@ -228,9 +228,58 @@ class GameState:
         self.change_log.append("Resolving momenta")
         # Resolve Momenta
         if self.is_objects_sliding():
-            self.IceMoveO()  # NOTE: IceMoveO includes additional AntiTank() moves
+            # self.IceMoveO()  # NOTE: IceMoveO includes additional AntiTank() moves
+            self.change_log.append("Slid object on ice")
+            # Move an item on the ice
+            for sliding_item_sq, sliding_item_dr in reversed(list(self.sliding_items.items())):
+                if self.terrain[sliding_item_sq] == c.THINICE:
+                    # Sliding off thin ice so melt the ice into water
+                    self.terrain[sliding_item_sq] = c.WATER
+
+                # if destination is empty (not item and not tank)
+                # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
+                destination = sliding_item_sq.relative(sliding_item_dr)
+                if self.CheckLoc(destination) and not destination == self.tank.sq:
+                    savei = self.is_ice(destination)
+                    self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
+                    self.AntiTank()
+                    if not savei:
+                        del self.sliding_items[sliding_item_sq]
+                    else:
+                        # Update position of tracked sliding object
+                        # Insert destination item at the position of the original
+                        new_list = {}
+                        for s, d in self.sliding_items.items():
+                            if s == sliding_item_sq:
+                                new_list[destination] = d
+                            else:
+                                new_list[s] = d
+                        new_list[destination] = sliding_item_dr
+                        self.sliding_items = new_list
+                else:
+                    if self.terrain[sliding_item_sq] == c.WATER:
+                        # Drop into water if ice melted and item couldn't move
+                        self.MoveObj(sliding_item_sq, STATIONARY, c.S_Sink)
+                    del self.sliding_items[sliding_item_sq]
+                    self.AntiTank()
+
         if self.tank_sliding_data.live:
-            self.IceMoveT()
+            # self.IceMoveT()
+            self.change_log.append("Slid tank on ice")
+            #  Move the tank on the Ice
+            if self.terrain[self.tank_sliding_data.sq] == c.THINICE:
+                self.terrain[self.tank_sliding_data.sq] = c.WATER
+
+            destination = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+            if self.CheckLoc(destination):
+                savei = self.is_ice(destination)
+                self.ConvMoveTank(self.tank_sliding_data.dr, False)
+                # Move tank an additional square
+                self.tank_sliding_data.sq = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+                if not savei:
+                    self.tank_sliding_data.live = False
+            else:
+                self.tank_sliding_data.live = False
         self.tank_moving_on_conveyor = False  # used to disable Laser on the conveyor
 
         self.change_log.append("Checking tank square")
@@ -839,57 +888,57 @@ class GameState:
 
         return False
 
-    def IceMoveO(self):
-        self.change_log.append("Slid object on ice")
-        # Move an item on the ice
-        for sliding_item_sq, sliding_item_dr in reversed(list(self.sliding_items.items())):
-            if self.terrain[sliding_item_sq] == c.THINICE:
-                # Sliding off thin ice so melt the ice into water
-                self.terrain[sliding_item_sq] = c.WATER
+    # def IceMoveO(self):
+    #     self.change_log.append("Slid object on ice")
+    #     # Move an item on the ice
+    #     for sliding_item_sq, sliding_item_dr in reversed(list(self.sliding_items.items())):
+    #         if self.terrain[sliding_item_sq] == c.THINICE:
+    #             # Sliding off thin ice so melt the ice into water
+    #             self.terrain[sliding_item_sq] = c.WATER
+    #
+    #         # if destination is empty (not item and not tank)
+    #         # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
+    #         destination = sliding_item_sq.relative(sliding_item_dr)
+    #         if self.CheckLoc(destination) and not destination == self.tank.sq:
+    #             savei = self.is_ice(destination)
+    #             self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
+    #             self.AntiTank()
+    #             if not savei:
+    #                 del self.sliding_items[sliding_item_sq]
+    #             else:
+    #                 # Update position of tracked sliding object
+    #                 # Insert destination item at the position of the original
+    #                 new_list = {}
+    #                 for s, d in self.sliding_items.items():
+    #                     if s == sliding_item_sq:
+    #                         new_list[destination] = d
+    #                     else:
+    #                         new_list[s] = d
+    #                 new_list[destination] = sliding_item_dr
+    #                 self.sliding_items = new_list
+    #         else:
+    #             if self.terrain[sliding_item_sq] == c.WATER:
+    #                 # Drop into water if ice melted and item couldn't move
+    #                 self.MoveObj(sliding_item_sq, STATIONARY, c.S_Sink)
+    #             del self.sliding_items[sliding_item_sq]
+    #             self.AntiTank()
 
-            # if destination is empty (not item and not tank)
-            # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
-            destination = sliding_item_sq.relative(sliding_item_dr)
-            if self.CheckLoc(destination) and not destination == self.tank.sq:
-                savei = self.is_ice(destination)
-                self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
-                self.AntiTank()
-                if not savei:
-                    del self.sliding_items[sliding_item_sq]
-                else:
-                    # Update position of tracked sliding object
-                    # Insert destination item at the position of the original
-                    new_list = {}
-                    for s, d in self.sliding_items.items():
-                        if s == sliding_item_sq:
-                            new_list[destination] = d
-                        else:
-                            new_list[s] = d
-                    new_list[destination] = sliding_item_dr
-                    self.sliding_items = new_list
-            else:
-                if self.terrain[sliding_item_sq] == c.WATER:
-                    # Drop into water if ice melted and item couldn't move
-                    self.MoveObj(sliding_item_sq, STATIONARY, c.S_Sink)
-                del self.sliding_items[sliding_item_sq]
-                self.AntiTank()
-
-    def IceMoveT(self):
-        self.change_log.append("Slid tank on ice")
-        #  Move the tank on the Ice
-        if self.terrain[self.tank_sliding_data.sq] == c.THINICE:
-            self.terrain[self.tank_sliding_data.sq] = c.WATER
-
-        destination = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
-        if self.CheckLoc(destination):
-            savei = self.is_ice(destination)
-            self.ConvMoveTank(self.tank_sliding_data.dr, False)
-            # Move tank an additional square
-            self.tank_sliding_data.sq = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
-            if not savei:
-                self.tank_sliding_data.live = False
-        else:
-            self.tank_sliding_data.live = False
+    # def IceMoveT(self):
+    #     self.change_log.append("Slid tank on ice")
+    #     #  Move the tank on the Ice
+    #     if self.terrain[self.tank_sliding_data.sq] == c.THINICE:
+    #         self.terrain[self.tank_sliding_data.sq] = c.WATER
+    #
+    #     destination = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+    #     if self.CheckLoc(destination):
+    #         savei = self.is_ice(destination)
+    #         self.ConvMoveTank(self.tank_sliding_data.dr, False)
+    #         # Move tank an additional square
+    #         self.tank_sliding_data.sq = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
+    #         if not savei:
+    #             self.tank_sliding_data.live = False
+    #     else:
+    #         self.tank_sliding_data.live = False
 
 
 class Graphics:
