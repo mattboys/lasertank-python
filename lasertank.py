@@ -239,7 +239,7 @@ class GameState:
                 # if destination is empty (not item and not tank)
                 # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
                 destination = sliding_item_sq.relative(sliding_item_dr)
-                if self.CheckLoc(destination) and not destination == self.tank.sq:
+                if self.is_on_board_and_empty(destination) and not destination == self.tank.sq:
                     savei = self.is_ice(destination)
                     self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
                     self.AntiTank()
@@ -271,7 +271,7 @@ class GameState:
                 self.terrain[self.tank.sliding_sq] = c.WATER
 
             destination = self.tank.sliding_sq.relative(self.tank.sliding_dr)
-            if self.CheckLoc(destination):
+            if self.is_on_board_and_empty(destination):
                 savei = self.is_ice(destination)
                 self.ConvMoveTank(self.tank.sliding_dr, False)
                 # Move tank an additional square
@@ -291,16 +291,16 @@ class GameState:
             elif tank_terrain == c.WATER:
                 self.game_over(victorious=False)
             elif tank_terrain == c.CONVEYOR_UP:
-                if self.CheckLoc(self.tank.sq.relative(UP)):
+                if self.is_on_board_and_empty(self.tank.sq.relative(UP)):
                     self.ConvMoveTank(UP, True)
             elif tank_terrain == c.CONVEYOR_RIGHT:
-                if self.CheckLoc(self.tank.sq.relative(RIGHT)):
+                if self.is_on_board_and_empty(self.tank.sq.relative(RIGHT)):
                     self.ConvMoveTank(RIGHT, True)
             elif tank_terrain == c.CONVEYOR_DOWN:
-                if self.CheckLoc(self.tank.sq.relative(DOWN)):
+                if self.is_on_board_and_empty(self.tank.sq.relative(DOWN)):
                     self.ConvMoveTank(DOWN, True)
             elif tank_terrain == c.CONVEYOR_LEFT:
-                if self.CheckLoc(self.tank.sq.relative(LEFT)):
+                if self.is_on_board_and_empty(self.tank.sq.relative(LEFT)):
                     self.ConvMoveTank(LEFT, True)
 
     def is_tank_on_terrain(self):
@@ -347,20 +347,8 @@ class GameState:
             self.tank.sliding_dr = direction
         self.AntiTank()
 
-    def CheckLoc(self, sq):
-        # Sets wasIce to True if the square is ice or thin ice
-        # then checks if space can be moved into by tank
-
-        # Check if destination is on the board
-        if sq is None:
-            return False
-
-        # Set the wasIce flag if tested square is an empty ice or thin ice
-        # self.wasIce = self.is_ice(sq)
-        # if self.terrain[x][y] in c.TUNNEL_ALL:
-        #     return True
-
-        return self.items[sq] == c.EMPTY
+    def is_on_board_and_empty(self, sq):
+        return False if sq is None else self.items[sq] == c.EMPTY
 
     def check_loc_move_start_sliding(self, sq, dr):
 
@@ -474,7 +462,7 @@ class GameState:
 
         def find_next_object(direction: Direction):
             sq = self.tank.sq
-            while self.CheckLoc(sq := sq.relative(direction)):
+            while self.is_on_board_and_empty(sq := sq.relative(direction)):
                 pass
             return sq
 
@@ -532,7 +520,7 @@ class GameState:
             self.SoundPlay(c.S_Turn)
         else:
             destination = self.tank.sq.relative(d)
-            if self.CheckLoc(destination):
+            if self.is_on_board_and_empty(destination):
                 self.UpDateTankPos(d)
                 if self.is_ice(destination):
                     self.tank.sliding_sq = self.tank.sq
@@ -736,16 +724,16 @@ class GameState:
                     terrain_tank_on = self.terrain[self.tank.sq]
                     if self.is_tank_on_terrain():
                         if terrain_tank_on == c.CONVEYOR_UP:
-                            if self.CheckLoc(self.tank.sq.relative(UP)):
+                            if self.is_on_board_and_empty(self.tank.sq.relative(UP)):
                                 return True
                         elif terrain_tank_on == c.CONVEYOR_RIGHT:
-                            if self.CheckLoc(self.tank.sq.relative(RIGHT)):
+                            if self.is_on_board_and_empty(self.tank.sq.relative(RIGHT)):
                                 return True
                         elif terrain_tank_on == c.CONVEYOR_DOWN:
-                            if self.CheckLoc(self.tank.sq.relative(DOWN)):
+                            if self.is_on_board_and_empty(self.tank.sq.relative(DOWN)):
                                 return True
                         elif terrain_tank_on == c.CONVEYOR_LEFT:
-                            if self.CheckLoc(self.tank.sq.relative(LEFT)):
+                            if self.is_on_board_and_empty(self.tank.sq.relative(LEFT)):
                                 return True
                     return False
 
