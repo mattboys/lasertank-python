@@ -140,7 +140,7 @@ class GameState:
         # self.previous_tunnel_blackhole = (
         #     False  # True if we TunnleTranslae to a Black Hole (no exit found)
         # )
-        self.wasIce = False
+        # self.wasIce = False
 
     def is_objects_sliding(self):
         # Was named SlideO_s
@@ -307,7 +307,7 @@ class GameState:
             return False
 
         # Set the wasIce flag if tested square is an empty ice or thin ice
-        self.wasIce = self.is_ice(sq)
+        # self.wasIce = self.is_ice(sq)
         # if self.terrain[x][y] in c.TUNNEL_ALL:
         #     return True
 
@@ -482,15 +482,17 @@ class GameState:
             self.tank.direction = d
             self.SoundPlay(c.S_Turn)
         else:
-            if self.CheckLoc(self.tank.sq.relative(d)):
+            destination = self.tank.sq.relative(d)
+            if self.CheckLoc(destination):
                 self.UpDateTankPos(d)
+                if self.is_ice(destination):
+                    self.tank_sliding_data.sq = self.tank.sq
+                    self.tank_sliding_data.live = True
             else:
                 self.SoundPlay(c.S_Head)  # Bumping into something
             self.tank_sliding_data.dr = d
 
-            if self.wasIce:
-                self.tank_sliding_data.sq = self.tank.sq
-                self.tank_sliding_data.live = True
+
 
     def MoveLaser(self):
         self.change_log.append("Laser moving")
@@ -849,7 +851,7 @@ class GameState:
             # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
             destination = sliding_item_sq.relative(sliding_item_dr)
             if self.CheckLoc(destination) and not destination == self.tank.sq:
-                savei = self.wasIce
+                savei = self.is_ice(destination)
                 self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
                 self.AntiTank()
                 if not savei:
@@ -880,7 +882,7 @@ class GameState:
 
         destination = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
         if self.CheckLoc(destination):
-            savei = self.wasIce
+            savei = self.is_ice(destination)
             self.ConvMoveTank(self.tank_sliding_data.dr, False)
             # Move tank an additional square
             self.tank_sliding_data.sq = self.tank_sliding_data.sq.relative(self.tank_sliding_data.dr)
@@ -1310,4 +1312,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("Pono_trick/Pono's_trick", 11)
+    debug_level("standard_levels/LaserTank", 2)
