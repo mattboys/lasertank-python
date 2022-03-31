@@ -240,10 +240,9 @@ class GameState:
                 # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
                 destination = sliding_item_sq.relative(sliding_item_dr)
                 if self.is_on_board_and_empty(destination) and not destination == self.tank.sq:
-                    savei = self.is_ice(destination)
                     self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
                     self.AntiTank()
-                    if not savei:
+                    if not self.is_ice(destination):
                         del self.sliding_items[sliding_item_sq]
                     else:
                         # Update position of tracked sliding object
@@ -272,11 +271,10 @@ class GameState:
 
             destination = self.tank.sliding_sq.relative(self.tank.sliding_dr)
             if self.is_on_board_and_empty(destination):
-                savei = self.is_ice(destination)
                 self.ConvMoveTank(self.tank.sliding_dr, False)
                 # Move tank an additional square
                 self.tank.sliding_sq = self.tank.sliding_sq.relative(self.tank.sliding_dr)
-                if not savei:
+                if not self.is_ice(destination):
                     self.tank.is_sliding = False
             else:
                 self.tank.is_sliding = False
@@ -316,12 +314,6 @@ class GameState:
         else:
             self.player_dead = True
         print(f"Game over! {'Win!' if victorious else 'Dead!'}")
-
-    def LoadPlayback(self, filename=DEFAULT_LPB_LOC):
-        # C-2574
-        # Read off PBRec and Pec
-        # TODO
-        pass
 
     def ConvMoveTank(self, direction, check_ice):
         # Move tank in the direction of the conveyor
@@ -460,31 +452,44 @@ class GameState:
         if not self.is_tank_on_terrain():
             return
 
-        def find_next_object(direction: Direction):
+        # def find_next_object(direction: Direction):
+        #     sq = self.tank.sq
+        #     while self.is_on_board_and_empty(sq := sq.relative(direction)):
+        #         pass
+        #     return sq
+
+        for scan_dir, antitank, shoot_dir in [
+            (RIGHT, c.ANTITANK_LEFT, LEFT),
+            (LEFT, c.ANTITANK_RIGHT, RIGHT),
+            (DOWN, c.ANTITANK_UP, UP),
+            (UP, c.ANTITANK_DOWN, DOWN),
+        ]:
             sq = self.tank.sq
-            while self.is_on_board_and_empty(sq := sq.relative(direction)):
+            while self.is_on_board_and_empty(sq := sq.relative(scan_dir)):
                 pass
-            return sq
+            if sq is not None and (self.items[sq] == antitank):
+                self.FireLaser(sq, shoot_dir, False)
+                break
 
-        s = find_next_object(RIGHT)
-        if s is not None and (self.items[s] == c.ANTITANK_LEFT):
-            self.FireLaser(s, LEFT, False)
-            return
-
-        s = find_next_object(LEFT)
-        if s is not None and (self.items[s] == c.ANTITANK_RIGHT):
-            self.FireLaser(s, RIGHT, False)
-            return
-
-        s = find_next_object(DOWN)
-        if s is not None and (self.items[s] == c.ANTITANK_UP):
-            self.FireLaser(s, UP, False)
-            return
-
-        s = find_next_object(UP)
-        if s is not None and (self.items[s] == c.ANTITANK_DOWN):
-            self.FireLaser(s, DOWN, False)
-            return
+        # s = find_next_object(RIGHT)
+        # if s is not None and (self.items[s] == c.ANTITANK_LEFT):
+        #     self.FireLaser(s, LEFT, False)
+        #     return
+        #
+        # s = find_next_object(LEFT)
+        # if s is not None and (self.items[s] == c.ANTITANK_RIGHT):
+        #     self.FireLaser(s, RIGHT, False)
+        #     return
+        #
+        # s = find_next_object(DOWN)
+        # if s is not None and (self.items[s] == c.ANTITANK_UP):
+        #     self.FireLaser(s, UP, False)
+        #     return
+        #
+        # s = find_next_object(UP)
+        # if s is not None and (self.items[s] == c.ANTITANK_DOWN):
+        #     self.FireLaser(s, DOWN, False)
+        #     return
 
     def FireLaser(self, sq, dr, is_player_tank):
 
