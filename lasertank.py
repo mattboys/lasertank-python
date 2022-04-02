@@ -350,6 +350,7 @@ class GameState:
         self.tank_moving_on_conveyor = True
 
     def check_tunnel_tank(self):
+        self.tank.on_waiting_tunnel = False
         # Check if tank ended up on a tunnel
         if self.is_tunnel(self.tank.sq):
             tunnel_exit = self.find_tunnel_exit(self.tank.sq)
@@ -377,11 +378,8 @@ class GameState:
         self.sliding_items.pop(sq, None)
 
         destination = sq.relative(dr)
-        if destination is None:
-            # Hitting edge of board
-            return False
-
-        if self.items[destination] != c.EMPTY:
+        if destination is None or self.items[destination] != c.EMPTY:
+            # Hitting edge of board or occupied square
             return False
 
         sf = c.S_Push1
@@ -478,12 +476,6 @@ class GameState:
         if not self.is_tank_on_terrain():
             return
 
-        # def find_next_object(direction: Direction):
-        #     sq = self.tank.sq
-        #     while self.is_on_board_and_empty(sq := sq.relative(direction)):
-        #         pass
-        #     return sq
-
         for scan_dir, antitank, shoot_dir in [
             (RIGHT, c.ANTITANK_LEFT, LEFT),
             (LEFT, c.ANTITANK_RIGHT, RIGHT),
@@ -497,25 +489,6 @@ class GameState:
                 self.FireLaser(sq, shoot_dir, False)
                 break
 
-        # s = find_next_object(RIGHT)
-        # if s is not None and (self.items[s] == c.ANTITANK_LEFT):
-        #     self.FireLaser(s, LEFT, False)
-        #     return
-        #
-        # s = find_next_object(LEFT)
-        # if s is not None and (self.items[s] == c.ANTITANK_RIGHT):
-        #     self.FireLaser(s, RIGHT, False)
-        #     return
-        #
-        # s = find_next_object(DOWN)
-        # if s is not None and (self.items[s] == c.ANTITANK_UP):
-        #     self.FireLaser(s, UP, False)
-        #     return
-        #
-        # s = find_next_object(UP)
-        # if s is not None and (self.items[s] == c.ANTITANK_DOWN):
-        #     self.FireLaser(s, DOWN, False)
-        #     return
 
     def FireLaser(self, sq, dr, is_player_tank):
 
@@ -781,18 +754,7 @@ class GameState:
         self.score_moves += 1
 
         self.tank.sq = self.tank.sq.relative(dr)
-        self.tank.on_waiting_tunnel = False  # Flag required for if we move off a tunnel
-        if self.is_tunnel(self.tank.sq):
-            tunnel_exit = self.find_tunnel_exit(self.tank.sq)
-            if tunnel_exit is None:
-                # Tank fell in a black hole
-                self.game_over(victorious=False)
-                return
-            elif tunnel_exit == self.tank.sq:
-                # Blocked exit found
-                self.tank.on_waiting_tunnel = True
-            else:
-                self.tank.sq = tunnel_exit
+        self.check_tunnel_tank()
 
     def SoundPlay(self, sound_id):
         self.sounds_buffer.append(sound_id)
