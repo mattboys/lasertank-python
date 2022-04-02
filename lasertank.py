@@ -262,7 +262,7 @@ class GameState:
                 # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
                 destination = sliding_item_sq.relative(sliding_item_dr)
                 if self.is_on_board_and_empty(destination) and not destination == self.tank.sq:
-                    self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
+                    self.MoveObj(sliding_item_sq, sliding_item_dr)
                     self.AntiTank()
                     if not self.is_ice(destination):
                         del self.sliding_items[sliding_item_sq]
@@ -280,7 +280,7 @@ class GameState:
                 else:
                     if self.terrain[sliding_item_sq] == c.WATER:
                         # Drop into water if ice melted and item couldn't move
-                        self.MoveObj(sliding_item_sq, STATIONARY, c.S_Sink)
+                        self.sink_item_in_water(sliding_item_sq)
                     del self.sliding_items[sliding_item_sq]
                     self.AntiTank()
 
@@ -391,51 +391,7 @@ class GameState:
         # used by CheckLLoc and IceMoveO
         item = self.items[sq]  # Get object type
 
-        # Trigger waiting tunnel if vacating a tunnel
-        if self.is_tunnel(sq):
-            # Unblock tunnel
-
-            # Search for a blocked tunnel with the same ID
-            tunnel_waiting_id = c.Tunnel_Set_Waiting[self.terrain[sq]]
-
-            for sqx in SQUARES:
-                if (
-                        self.terrain[sqx] == tunnel_waiting_id
-                        and self.items[sqx] != c.EMPTY
-                        and not (sqx == sq)
-                ):
-                    # We are moving an object through a tunnel
-                    # Other end of blocked tunnel had an object so move it through now
-                    # Move object through a tunnel (from xy to cx, cy)
-                    # Transfer blocked object
-                    self.items[sq] = self.items[sqx]
-                    self.items[sqx] = c.EMPTY
-                    self.terrain[sqx] = c.Tunnel_Set_Not_Waiting[
-                        self.terrain[sqx]
-                    ]
-                    break
-            else:
-                # Did not find another end of this tunnel with an object on
-                # Not Blocked Anymore
-                self.items[sq] = c.EMPTY
-                self.terrain[sq] = c.Tunnel_Set_Not_Waiting[
-                    self.terrain[sq]
-                ]
-
-                # We didn't find a match so maybe the tank is it
-                if (
-                        self.terrain[self.tank.sq]
-                        == c.Tunnel_Set_Not_Waiting[tunnel_waiting_id]
-                ) and self.tank.on_waiting_tunnel:
-                    self.score_moves -= 1
-                    self.UpDateTankPos(STATIONARY)
-                    self.PopUndo()
-        else:
-            self.items[sq] = c.EMPTY
-
-        # Now update destination
-        dest = sq.relative(dr)
-        self.move_item_to_destination(dest, item)
+        self.MoveObj(sq, dr)
 
         # MoveObj2(sq, dr, c.S_Push1)
         if self.is_ice(destination):
@@ -768,7 +724,7 @@ class GameState:
             # No exit found, so Tunnel is a Black Hole
             return None
 
-    def MoveObj(self, sq: Square, dr: Direction, sf):
+    def MoveObj(self, sq: Square, dr: Direction):
         # Try to move object on square x,y that was pushed in dir dx,dy then play sound sf
         # Update terrain under object's initial position (x,y)
         # Also unblock tunnel if Obj blocking tunnel and let other end activate (cx,cy)
@@ -778,48 +734,44 @@ class GameState:
         # Trigger waiting tunnel if vacating a tunnel
         if self.is_tunnel(sq):
             # Unblock tunnel
-
-            # Search for a blocked tunnel with the same ID
-            tunnel_waiting_id = c.Tunnel_Set_Waiting[self.terrain[sq]]
-
-            for sqx in SQUARES:
-                if (
-                        self.terrain[sqx] == tunnel_waiting_id
-                        and self.items[sqx] != c.EMPTY
-                        and not (sqx == sq)
-                ):
-                    # We are moving an object through a tunnel
-                    # Other end of blocked tunnel had an object so move it through now
-                    # Move object through a tunnel (from xy to cx, cy)
-                    # Transfer blocked object
-                    self.items[sq] = self.items[sqx]
-                    self.items[sqx] = c.EMPTY
-                    self.terrain[sqx] = c.Tunnel_Set_Not_Waiting[
-                        self.terrain[sqx]
-                    ]
-                    break
-            else:
-                # Did not find another end of this tunnel with an object on
-                # Not Blocked Anymore
-                self.items[sq] = c.EMPTY
-                self.terrain[sq] = c.Tunnel_Set_Not_Waiting[
-                    self.terrain[sq]
-                ]
-
-                # We didn't find a match so maybe the tank is it
-                if (
-                        self.terrain[self.tank.sq]
-                        == c.Tunnel_Set_Not_Waiting[tunnel_waiting_id]
-                ) and self.tank.on_waiting_tunnel:
-                    self.score_moves -= 1
-                    self.UpDateTankPos(STATIONARY)
-                    self.PopUndo()
+            self.move_item_off_tunnel(sq)
         else:
             self.items[sq] = c.EMPTY
 
         # Now update destination
         dest = sq.relative(dr)
         self.move_item_to_destination(dest, item)
+
+    def move_item_off_tunnel(self, sq: Square):
+        # Search for a blocked tunnel with the same ID
+        tunnel_waiting_id = c.Tunnel_Set_Waiting[self.terrain[sq]]
+        tunnel_id = c.Tunnel_Set_Not_Waiting[tunnel_waiting_id]
+
+        for sqx in SQUARES:
+            if (
+                    self.terrain[sqx] == tunnel_waiting_id
+                    and self.items[sqx] != c.EMPTY
+                    and not (sqx == sq)
+            ):
+                # We are moving an object through a tunnel
+                # Other end of blocked tunnel had an object so move it through now
+                # Move object through a tunnel (from xy to cx, cy)
+                # Transfer blocked object
+                self.items[sq] = self.items[sqx]
+                self.items[sqx] = c.EMPTY
+                self.terrain[sqx] = tunnel_id
+                break
+        else:
+            # Did not find another end of this tunnel with an object on
+            # Not Blocked Anymore
+            self.items[sq] = c.EMPTY
+            self.terrain[sq] = c.Tunnel_Set_Not_Waiting[self.terrain[sq]]
+
+            # We didn't find a match so maybe the tank is it
+            if self.tank.on_waiting_tunnel and self.terrain[self.tank.sq] == tunnel_id:
+                self.score_moves -= 1
+                self.UpDateTankPos(STATIONARY)
+                self.PopUndo()
 
     def move_item_to_destination(self, dest: Square, item):
         # If destination is a tunnel then set dest to tunnel's exit
@@ -832,17 +784,20 @@ class GameState:
             else:
                 dest = tunnel_exit
 
+        self.items[dest] = item
         if self.terrain[dest] == c.WATER:
             # Destination square is water
-            if item == c.BLOCK:
-                self.items[dest] = c.EMPTY
-                self.terrain[dest] = c.BRIDGE
-            self.SoundPlay(c.S_Sink)
+            self.sink_item_in_water(dest)
         else:
             # Move object to destination square
-            self.items[dest] = item
             self.SoundPlay(c.S_Push2)
 
+    def sink_item_in_water(self, sq: Square):
+        item = self.items[sq]
+        self.items[sq] = c.EMPTY
+        if item == c.BLOCK:
+            self.terrain[sq] = c.BRIDGE
+        self.SoundPlay(c.S_Sink)
 
 class Graphics:
     GAMEBOARD_OFFSET_X_PX = 17  # XOffset
