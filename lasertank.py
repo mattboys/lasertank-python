@@ -458,11 +458,11 @@ class GameState:
                 self.tank.sq = self.tank.sq.relative(dr)
                 self.check_tunnel_tank()
                 if self.is_ice(destination):
-                    self.tank.sliding_sq = self.tank.sq
                     self.tank.is_sliding = True
+                    self.tank.sliding_sq = self.tank.sq
+                    self.tank.sliding_dr = dr
             else:
                 self.SoundPlay(c.S_Head)  # Bumping into something
-            self.tank.sliding_dr = dr
 
     def MoveLaser(self):
         self.change_log.append("Laser moving")
