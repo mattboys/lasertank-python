@@ -141,13 +141,6 @@ class GameState:
 
         # Dynamic flags
         self.tank_moving_on_conveyor = False
-        # Momentum of tank where SlideT.s = is tank sliding?
-        # self.tank_sliding_data = SlidingData(Square(0, 0), STATIONARY)
-        # self.previous_tunnel_waiting = False  # Found tunnel output on PF2 (under something)
-        # self.previous_tunnel_blackhole = (
-        #     False  # True if we TunnleTranslae to a Black Hole (no exit found)
-        # )
-        # self.wasIce = False
 
     def is_objects_sliding(self):
         # Was named SlideO_s
@@ -244,6 +237,7 @@ class GameState:
                 self.UpdateUndo()
                 self.score_shots += 1
                 self.FireLaser(self.tank.sq, self.tank.direction, True)
+                self.MoveLaser()
             self.AntiTank()
 
     def tick_resolve_object_momenta(self):
@@ -294,7 +288,9 @@ class GameState:
 
             destination = self.tank.sliding_sq.relative(self.tank.sliding_dr)
             if self.is_on_board_and_empty(destination):
-                self.ConvMoveTank(self.tank.sliding_dr)
+                # self.ConvMoveTank(self.tank.sliding_dr)
+                self.tank.sq = self.tank.sq.relative(self.tank.sliding_dr)
+                # self.tank_moving_on_conveyor = True
                 self.check_tunnel_tank()
                 self.AntiTank()
                 # Move tank an additional square
@@ -317,7 +313,9 @@ class GameState:
             elif tank_terrain in CONVEYORS_DIRECTIONS:
                 direction = CONVEYORS_DIRECTIONS.get(tank_terrain)
                 if self.is_on_board_and_empty(self.tank.sq.relative(direction)):
-                    self.ConvMoveTank(direction)
+                    # self.ConvMoveTank(direction)
+                    self.tank.sq = self.tank.sq.relative(direction)
+                    self.tank_moving_on_conveyor = True
                     self.check_tunnel_tank()
                     self.check_ice_tank(direction)
                     self.AntiTank()
@@ -332,17 +330,17 @@ class GameState:
             self.player_dead = True
         print(f"Game over! {'Win!' if victorious else 'Dead!'}")
 
-    def change_tank_sq(self, destination):
-        self.change_log.append((c.TANK, self.tank.sq, destination))
-        self.tank.sq = destination
-
-    def change_item(self, sq, new_item):
-        self.change_log.append((self.items[sq], sq, new_item))
-        self.items[sq] = new_item
-
-    def change_terrain(self, sq, new_terrain):
-        self.change_log.append((self.terrain[sq], sq, new_terrain))
-        self.terrain[sq] = new_terrain
+    # def change_tank_sq(self, destination):
+    #     self.change_log.append((c.TANK, self.tank.sq, destination))
+    #     self.tank.sq = destination
+    #
+    # def change_item(self, sq, new_item):
+    #     self.change_log.append((self.items[sq], sq, new_item))
+    #     self.items[sq] = new_item
+    #
+    # def change_terrain(self, sq, new_terrain):
+    #     self.change_log.append((self.terrain[sq], sq, new_terrain))
+    #     self.terrain[sq] = new_terrain
 
     def ConvMoveTank(self, direction):
         # Move tank in the direction of the conveyor
@@ -382,13 +380,6 @@ class GameState:
             # Hitting edge of board or occupied square
             return False
 
-        sf = c.S_Push1
-
-        # def MoveObj2(sq: Square, dr: Direction, sf):
-        # Try to move object on square x,y that was pushed in dir dx,dy then play sound sf
-        # Update terrain under object's initial position (x,y)
-        # Also unblock tunnel if Obj blocking tunnel and let other end activate (cx,cy)
-        # used by CheckLLoc and IceMoveO
         item = self.items[sq]  # Get object type
 
         self.MoveObj(sq, dr)
@@ -423,8 +414,8 @@ class GameState:
                 pass
             if sq is not None and (self.items[sq] == antitank):
                 self.FireLaser(sq, shoot_dir, False)
+                self.MoveLaser()
                 break
-
 
     def FireLaser(self, sq, dr, is_player_tank):
 
@@ -440,7 +431,7 @@ class GameState:
         else:
             self.laser.colour = c.LaserColorR
             self.SoundPlay(c.S_Anti2)
-        self.MoveLaser()
+        # self.MoveLaser()
 
     def UpdateUndo(self):
         # Should be done whenever player moves or shoots
@@ -489,18 +480,16 @@ class GameState:
 
             if sq is None:
                 # Laser out of board
-                laser_still_live = False
+                pass
             elif sq == self.tank.sq:
                 # Hit tank
                 self.game_over(victorious=False)
-                laser_still_live = False
             else:
-                # self.wasIce = False
-                # destination = sq.relative(dr)
-
                 item_loc = self.items[sq]
+
                 if item_loc == c.EMPTY:
                     laser_still_live = True
+
                 elif item_loc in c.DEADANTITANK_ALL:  # Include dead tanks as solid items
                     self.SoundPlay(c.S_LaserHit)
                     self.sliding_items.pop(sq, None)
@@ -517,33 +506,18 @@ class GameState:
                     self.items[sq] = c.EMPTY  # Destroy wall with laser
                     self.SoundPlay(c.S_Bricks)
 
-                elif item_loc == c.ANTITANK_UP:
-                    if dr == DOWN:  # Laser hit front of antitank
+                elif item_loc in c.ANTITANKS_ALL:
+                    ANTITANK_HIT_DIRECTION = {
+                        c.ANTITANK_UP: (DOWN, c.DEADANTITANK_UP),
+                        c.ANTITANK_RIGHT: (LEFT, c.DEADANTITANK_RIGHT),
+                        c.ANTITANK_DOWN: (UP, c.DEADANTITANK_DOWN),
+                        c.ANTITANK_LEFT: (RIGHT, c.DEADANTITANK_LEFT),
+                    }
+                    hit_direction, deadantitank = ANTITANK_HIT_DIRECTION.get(item_loc)
+                    if dr == hit_direction:  # Laser hit front of antitank
                         # Kill Atank
-                        self.items[sq] = c.DEADANTITANK_UP
+                        self.items[sq] = deadantitank
                         self.SoundPlay(c.S_Anti1)
-                        laser_still_live = False
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
-                elif item_loc == c.ANTITANK_RIGHT:
-                    if dr == LEFT:
-                        self.items[sq] = c.DEADANTITANK_RIGHT
-                        self.SoundPlay(c.S_Anti1)
-                        laser_still_live = False
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
-                elif item_loc == c.ANTITANK_DOWN:
-                    if dr == UP:
-                        self.items[sq] = c.DEADANTITANK_DOWN
-                        self.SoundPlay(c.S_Anti1)
-                        laser_still_live = False
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
-                elif item_loc == c.ANTITANK_LEFT:
-                    if dr == RIGHT:
-                        self.items[sq] = c.DEADANTITANK_LEFT
-                        self.SoundPlay(c.S_Anti1)
-                        laser_still_live = False
                     elif not self.check_loc_move_start_sliding(sq, dr):
                         self.SoundPlay(c.S_LaserHit)
 
@@ -656,26 +630,17 @@ class GameState:
                 # Antitank Turn
                 self.AntiTank()
 
-                def TestIfConvCanMoveTank():
-                    # Used to handle a bug :  the speed bug
-                    # Return True if the tank is on Conveyor and can move.
-                    terrain_tank_on = self.terrain[self.tank.sq]
-                    if self.is_tank_on_terrain():
-                        if terrain_tank_on == c.CONVEYOR_UP:
-                            if self.is_on_board_and_empty(self.tank.sq.relative(UP)):
-                                return True
-                        elif terrain_tank_on == c.CONVEYOR_RIGHT:
-                            if self.is_on_board_and_empty(self.tank.sq.relative(RIGHT)):
-                                return True
-                        elif terrain_tank_on == c.CONVEYOR_DOWN:
-                            if self.is_on_board_and_empty(self.tank.sq.relative(DOWN)):
-                                return True
-                        elif terrain_tank_on == c.CONVEYOR_LEFT:
-                            if self.is_on_board_and_empty(self.tank.sq.relative(LEFT)):
-                                return True
-                    return False
-
-                if TestIfConvCanMoveTank():
+                terrain_tank_on = self.terrain[self.tank.sq]
+                if self.is_tank_on_terrain() and (
+                        (terrain_tank_on == c.CONVEYOR_UP and self.is_on_board_and_empty(self.tank.sq.relative(UP)))
+                        or (terrain_tank_on == c.CONVEYOR_RIGHT and self.is_on_board_and_empty(
+                    self.tank.sq.relative(RIGHT)))
+                        or (terrain_tank_on == c.CONVEYOR_DOWN and self.is_on_board_and_empty(
+                    self.tank.sq.relative(DOWN)))
+                        or (terrain_tank_on == c.CONVEYOR_LEFT and self.is_on_board_and_empty(
+                    self.tank.sq.relative(LEFT)))
+                ):
+                    # TestIfConvCanMoveTank: Used to handle the speed bug
                     self.tank_moving_on_conveyor = True
         # loops here if LaserBounceOnIce was set in the loop
 
@@ -798,6 +763,7 @@ class GameState:
         if item == c.BLOCK:
             self.terrain[sq] = c.BRIDGE
         self.SoundPlay(c.S_Sink)
+
 
 class Graphics:
     GAMEBOARD_OFFSET_X_PX = 17  # XOffset
