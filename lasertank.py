@@ -435,7 +435,7 @@ class GameState:
 
         # Now update destination
         dest = sq.relative(dr)
-        self.check_destination_of_item(dest, item, sf)
+        self.move_item_to_destination(dest, item)
 
         # MoveObj2(sq, dr, c.S_Push1)
         if self.is_ice(destination):
@@ -819,10 +819,10 @@ class GameState:
 
         # Now update destination
         dest = sq.relative(dr)
-        self.check_destination_of_item(dest, item, sf)
+        self.move_item_to_destination(dest, item)
 
-    def check_destination_of_item(self, dest: Square, item, sf):
-        # If destination is a tunnel then set x,y to tunnel's exit
+    def move_item_to_destination(self, dest: Square, item):
+        # If destination is a tunnel then set dest to tunnel's exit
         if self.is_tunnel(dest):
             tunnel_exit = self.find_tunnel_exit(dest)
             if tunnel_exit is None:
@@ -832,189 +832,16 @@ class GameState:
             else:
                 dest = tunnel_exit
 
-        if self.terrain[dest] != c.WATER:
-            # Move object to destination square
-            self.items[dest] = item
-        else:
+        if self.terrain[dest] == c.WATER:
             # Destination square is water
-            sf = c.S_Sink
             if item == c.BLOCK:
                 self.items[dest] = c.EMPTY
                 self.terrain[dest] = c.BRIDGE
-        self.SoundPlay(sf)
-
-    # def CheckLLoc(self, sq: Square, dr: Direction):
-    #     # Check destination square of laser, and start objects there moving if needed
-    #     #  this is were the laser does its damage
-    #     # returns true if laser didn't hit anything and still in board
-    #
-    #     if sq is None:
-    #         # Laser out of board
-    #         return False
-    #
-    #     if sq == self.tank.sq:
-    #         # Hit tank
-    #         self.game_over(victorious=False)
-    #         return False
-    #
-    #     # self.wasIce = False
-    #     # destination = sq.relative(dr)
-    #
-    #     item_loc = self.items[sq]
-    #     if item_loc == c.EMPTY:
-    #         return True
-    #     elif item_loc in c.DEADANTITANK_ALL:  # Include dead tanks as solid items
-    #         self.SoundPlay(c.S_LaserHit)
-    #         self.sliding_items.pop(sq, None)
-    #
-    #     elif item_loc == c.SOLID:
-    #         self.SoundPlay(c.S_LaserHit)
-    #
-    #     elif item_loc == c.BLOCK:
-    #         # Can block be moved in direction of laser? Is square free
-    #         if not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #
-    #     elif item_loc == c.WALL:
-    #         self.items[sq] = c.EMPTY  # Destroy wall with laser
-    #         self.SoundPlay(c.S_Bricks)
-    #
-    #     elif item_loc == c.ANTITANK_UP:
-    #         if dr == DOWN:  # Laser hit front of antitank
-    #             # Kill Atank
-    #             self.items[sq] = c.DEADANTITANK_UP
-    #             self.SoundPlay(c.S_Anti1)
-    #             return False
-    #         elif not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #     elif item_loc == c.ANTITANK_RIGHT:
-    #         if dr == LEFT:
-    #             self.items[sq] = c.DEADANTITANK_RIGHT
-    #             self.SoundPlay(c.S_Anti1)
-    #             return False
-    #         elif not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #     elif item_loc == c.ANTITANK_DOWN:
-    #         if dr == UP:
-    #             self.items[sq] = c.DEADANTITANK_DOWN
-    #             self.SoundPlay(c.S_Anti1)
-    #             return False
-    #         elif not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #     elif item_loc == c.ANTITANK_LEFT:
-    #         if dr == RIGHT:
-    #             self.items[sq] = c.DEADANTITANK_LEFT
-    #             self.SoundPlay(c.S_Anti1)
-    #             return False
-    #         elif not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #
-    #     elif item_loc == c.MIRROR_LEFT_UP:
-    #         if self.laser.dir_front == RIGHT or self.laser.dir_front == DOWN:
-    #             return True
-    #         if not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #     elif item_loc == c.MIRROR_UP_RIGHT:
-    #         if self.laser.dir_front == DOWN or self.laser.dir_front == LEFT:
-    #             return True
-    #         if not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #     elif item_loc == c.MIRROR_RIGHT_DOWN:
-    #         if self.laser.dir_front == UP or self.laser.dir_front == LEFT:
-    #             return True
-    #         if not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #     elif item_loc == c.MIRROR_DOWN_LEFT:
-    #         if self.laser.dir_front == UP or self.laser.dir_front == RIGHT:
-    #             return True
-    #         if not self.check_loc_move_start_sliding(sq, dr):
-    #             self.SoundPlay(c.S_LaserHit)
-    #
-    #     elif item_loc == c.GLASS:
-    #         # In original, this is where glass is set to a glowing sprite
-    #         return True
-    #
-    #     elif item_loc == c.ROTMIRROR_LEFT_UP:
-    #         if self.laser.dir_front == RIGHT or self.laser.dir_front == DOWN:
-    #             return True
-    #         self.items[sq] = c.ROTMIRROR_UP_RIGHT
-    #         self.SoundPlay(c.S_Rotate)
-    #     elif item_loc == c.ROTMIRROR_UP_RIGHT:
-    #         if self.laser.dir_front == DOWN or self.laser.dir_front == LEFT:
-    #             return True
-    #         self.items[sq] = c.ROTMIRROR_RIGHT_DOWN
-    #         self.SoundPlay(c.S_Rotate)
-    #     elif item_loc == c.ROTMIRROR_RIGHT_DOWN:
-    #         if self.laser.dir_front == UP or self.laser.dir_front == LEFT:
-    #             return True
-    #         self.items[sq] = c.ROTMIRROR_DOWN_LEFT
-    #         self.SoundPlay(c.S_Rotate)
-    #     elif item_loc == c.ROTMIRROR_DOWN_LEFT:
-    #         if self.laser.dir_front == UP or self.laser.dir_front == RIGHT:
-    #             return True
-    #         self.items[sq] = c.ROTMIRROR_LEFT_UP
-    #         self.SoundPlay(c.S_Rotate)
-    #
-    #     # # Stop it sliding if it is on the sliding_items list
-    #     # self.sliding_items.pop(sq, None)
-    #     #
-    #     # # If object is moving into an ice square then add it to the Sliding stack
-    #     # if self.wasIce:  # self.is_ice(destination):
-    #     #     self.sliding_items[destination] = dr
-    #
-    #     return False
-
-    # def IceMoveO(self):
-    #     self.change_log.append("Slid object on ice")
-    #     # Move an item on the ice
-    #     for sliding_item_sq, sliding_item_dr in reversed(list(self.sliding_items.items())):
-    #         if self.terrain[sliding_item_sq] == c.THINICE:
-    #             # Sliding off thin ice so melt the ice into water
-    #             self.terrain[sliding_item_sq] = c.WATER
-    #
-    #         # if destination is empty (not item and not tank)
-    #         # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
-    #         destination = sliding_item_sq.relative(sliding_item_dr)
-    #         if self.CheckLoc(destination) and not destination == self.tank.sq:
-    #             savei = self.is_ice(destination)
-    #             self.MoveObj(sliding_item_sq, sliding_item_dr, c.S_Push2)
-    #             self.AntiTank()
-    #             if not savei:
-    #                 del self.sliding_items[sliding_item_sq]
-    #             else:
-    #                 # Update position of tracked sliding object
-    #                 # Insert destination item at the position of the original
-    #                 new_list = {}
-    #                 for s, d in self.sliding_items.items():
-    #                     if s == sliding_item_sq:
-    #                         new_list[destination] = d
-    #                     else:
-    #                         new_list[s] = d
-    #                 new_list[destination] = sliding_item_dr
-    #                 self.sliding_items = new_list
-    #         else:
-    #             if self.terrain[sliding_item_sq] == c.WATER:
-    #                 # Drop into water if ice melted and item couldn't move
-    #                 self.MoveObj(sliding_item_sq, STATIONARY, c.S_Sink)
-    #             del self.sliding_items[sliding_item_sq]
-    #             self.AntiTank()
-
-    # def IceMoveT(self):
-    #     self.change_log.append("Slid tank on ice")
-    #     #  Move the tank on the Ice
-    #     if self.terrain[self.tank.sliding_sq] == c.THINICE:
-    #         self.terrain[self.tank.sliding_sq] = c.WATER
-    #
-    #     destination = self.tank.sliding_sq.relative(self.tank.sliding_dr)
-    #     if self.CheckLoc(destination):
-    #         savei = self.is_ice(destination)
-    #         self.ConvMoveTank(self.tank.sliding_dr, False)
-    #         # Move tank an additional square
-    #         self.tank.sliding_sq = self.tank.sliding_sq.relative(self.tank.sliding_dr)
-    #         if not savei:
-    #             self.tank_sliding_data.live = False
-    #     else:
-    #         self.tank_sliding_data.live = False
+            self.SoundPlay(c.S_Sink)
+        else:
+            # Move object to destination square
+            self.items[dest] = item
+            self.SoundPlay(c.S_Push2)
 
 
 class Graphics:
