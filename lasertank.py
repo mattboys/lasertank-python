@@ -444,21 +444,25 @@ class GameState:
         # TODO
         pass
 
-    def MoveTank(self, d: Direction):
-        if self.tank.direction != d:
+    def MoveTank(self, dr: Direction):
+        if self.tank.direction != dr:
             # Tank is turning
-            self.tank.direction = d
+            self.tank.direction = dr
             self.SoundPlay(c.S_Turn)
         else:
-            destination = self.tank.sq.relative(d)
+            destination = self.tank.sq.relative(dr)
             if self.is_on_board_and_empty(destination):
-                self.UpDateTankPos(d)
+                self.SoundPlay(c.S_Move)
+                self.UpdateUndo()
+                self.score_moves += 1
+                self.tank.sq = self.tank.sq.relative(dr)
+                self.check_tunnel_tank()
                 if self.is_ice(destination):
                     self.tank.sliding_sq = self.tank.sq
                     self.tank.is_sliding = True
             else:
                 self.SoundPlay(c.S_Head)  # Bumping into something
-            self.tank.sliding_dr = d
+            self.tank.sliding_dr = dr
 
     def MoveLaser(self):
         self.change_log.append("Laser moving")
@@ -609,16 +613,6 @@ class GameState:
     def is_tunnel(self, sq):
         return self.terrain[sq] in c.TUNNEL_ALL
 
-    def UpDateTankPos(self, dr):
-        self.change_log.append("Tank position updated")
-        self.SoundPlay(c.S_Move)
-        self.UpdateUndo()
-
-        self.score_moves += 1
-
-        self.tank.sq = self.tank.sq.relative(dr)
-        self.check_tunnel_tank()
-
     def SoundPlay(self, sound_id):
         self.sounds_buffer.append(sound_id)
 
@@ -696,9 +690,7 @@ class GameState:
 
             # We didn't find a match so maybe the tank is it
             if self.tank.on_waiting_tunnel and self.terrain[self.tank.sq] == tunnel_id:
-                self.score_moves -= 1
-                self.UpDateTankPos(STATIONARY)
-                self.PopUndo()
+                self.check_tunnel_tank()
 
     def move_item_to_destination(self, dest: Square, item):
         # If destination is a tunnel then set dest to tunnel's exit
