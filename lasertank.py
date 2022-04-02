@@ -225,19 +225,33 @@ class GameState:
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
-            if move == c.K_UP:
-                self.MoveTank(UP)
-            elif move == c.K_RIGHT:
-                self.MoveTank(RIGHT)
-            elif move == c.K_DOWN:
-                self.MoveTank(DOWN)
-            elif move == c.K_LEFT:
-                self.MoveTank(LEFT)
-            elif move == c.K_SHOOT:
+            if move == c.K_SHOOT:
                 self.UpdateUndo()
                 self.score_shots += 1
                 self.FireLaser(self.tank.sq, self.tank.direction, True)
                 self.MoveLaser()
+            elif move in [c.K_UP, c.K_RIGHT, c.K_DOWN, c.K_LEFT]:
+                K_TO_DIRECTION = {c.K_UP: UP, c.K_RIGHT: RIGHT, c.K_DOWN: DOWN, c.K_LEFT: LEFT}
+                dr = K_TO_DIRECTION.get(move)
+                # MoveTank
+                if self.tank.direction != dr:
+                    # Tank is turning
+                    self.tank.direction = dr
+                    self.SoundPlay(c.S_Turn)
+                else:
+                    destination = self.tank.sq.relative(dr)
+                    if self.is_on_board_and_empty(destination):
+                        self.SoundPlay(c.S_Move)
+                        self.UpdateUndo()
+                        self.score_moves += 1
+                        self.tank.sq = self.tank.sq.relative(dr)
+                        self.check_tunnel_tank()
+                        if self.is_ice(destination):
+                            self.tank.is_sliding = True
+                            # self.tank.sliding_sq = self.tank.sq
+                            self.tank.sliding_dr = dr
+                    else:
+                        self.SoundPlay(c.S_Head)  # Bumping into something
             self.AntiTank()
 
     def tick_resolve_object_momenta(self):
@@ -443,26 +457,6 @@ class GameState:
         # Remove an undo when tank moving through a tunnel
         # TODO
         pass
-
-    def MoveTank(self, dr: Direction):
-        if self.tank.direction != dr:
-            # Tank is turning
-            self.tank.direction = dr
-            self.SoundPlay(c.S_Turn)
-        else:
-            destination = self.tank.sq.relative(dr)
-            if self.is_on_board_and_empty(destination):
-                self.SoundPlay(c.S_Move)
-                self.UpdateUndo()
-                self.score_moves += 1
-                self.tank.sq = self.tank.sq.relative(dr)
-                self.check_tunnel_tank()
-                if self.is_ice(destination):
-                    self.tank.is_sliding = True
-                    # self.tank.sliding_sq = self.tank.sq
-                    self.tank.sliding_dr = dr
-            else:
-                self.SoundPlay(c.S_Head)  # Bumping into something
 
     def MoveLaser(self):
         self.change_log.append("Laser moving")
