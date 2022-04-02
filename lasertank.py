@@ -469,42 +469,47 @@ class GameState:
         LaserBounceOnIce = True
         while LaserBounceOnIce:
             LaserBounceOnIce = False
-
             dr = self.laser.dir_front
+            sq = self.laser.sq.relative(dr)
 
             self.laser.dir_back = self.laser.dir_front
 
-            # def CheckLLoc(self, sq: Square, dr: Direction):
-            laser_still_live = False
-            sq = self.laser.sq.relative(dr)
-
             if sq is None:
                 # Laser out of board
-                pass
+                self.laser_live = False
             elif sq == self.tank.sq:
                 # Hit tank
                 self.game_over(victorious=False)
             else:
                 item_loc = self.items[sq]
 
+                # Laser interact with item
                 if item_loc == c.EMPTY:
-                    laser_still_live = True
+                    pass
 
-                elif item_loc in c.DEADANTITANK_ALL:  # Include dead tanks as solid items
-                    self.SoundPlay(c.S_LaserHit)
-                    self.sliding_items.pop(sq, None)
+                elif item_loc == c.GLASS:
+                    # In original, this is where glass is set to a glowing sprite
+                    pass
 
                 elif item_loc == c.SOLID:
+                    self.laser_live = False
                     self.SoundPlay(c.S_LaserHit)
 
                 elif item_loc == c.BLOCK:
+                    self.laser_live = False
                     # Can block be moved in direction of laser? Is square free
                     if not self.check_loc_move_start_sliding(sq, dr):
                         self.SoundPlay(c.S_LaserHit)
 
                 elif item_loc == c.WALL:
+                    self.laser_live = False
                     self.items[sq] = c.EMPTY  # Destroy wall with laser
                     self.SoundPlay(c.S_Bricks)
+
+                elif item_loc in c.DEADANTITANK_ALL:  # Include dead tanks as solid items
+                    self.laser_live = False
+                    self.SoundPlay(c.S_LaserHit)
+                    self.sliding_items.pop(sq, None)
 
                 elif item_loc in c.ANTITANKS_ALL:
                     ANTITANK_HIT_DIRECTION = {
@@ -514,122 +519,80 @@ class GameState:
                         c.ANTITANK_LEFT: (RIGHT, c.DEADANTITANK_LEFT),
                     }
                     hit_direction, deadantitank = ANTITANK_HIT_DIRECTION.get(item_loc)
+                    self.laser_live = False
                     if dr == hit_direction:  # Laser hit front of antitank
-                        # Kill Atank
+                        # Kill Antitank
                         self.items[sq] = deadantitank
                         self.SoundPlay(c.S_Anti1)
                     elif not self.check_loc_move_start_sliding(sq, dr):
                         self.SoundPlay(c.S_LaserHit)
 
-                elif item_loc == c.MIRROR_LEFT_UP:
-                    if self.laser.dir_front == RIGHT or self.laser.dir_front == DOWN:
-                        laser_still_live = True
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
-                elif item_loc == c.MIRROR_UP_RIGHT:
-                    if self.laser.dir_front == DOWN or self.laser.dir_front == LEFT:
-                        laser_still_live = True
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
-                elif item_loc == c.MIRROR_RIGHT_DOWN:
-                    if self.laser.dir_front == UP or self.laser.dir_front == LEFT:
-                        laser_still_live = True
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
-                elif item_loc == c.MIRROR_DOWN_LEFT:
-                    if self.laser.dir_front == UP or self.laser.dir_front == RIGHT:
-                        laser_still_live = True
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
+                elif item_loc in [c.MIRROR_LEFT_UP, c.MIRROR_UP_RIGHT, c.MIRROR_RIGHT_DOWN, c.MIRROR_DOWN_LEFT, ]:
+                    MIRROR_REFLECTION_DIRECTION = {
+                        c.MIRROR_LEFT_UP: {UP: None, RIGHT: UP, DOWN: LEFT, LEFT: None},
+                        c.MIRROR_UP_RIGHT: {UP: None, RIGHT: None, DOWN: RIGHT, LEFT: UP},
+                        c.MIRROR_RIGHT_DOWN: {UP: RIGHT, RIGHT: None, DOWN: None, LEFT: DOWN},
+                        c.MIRROR_DOWN_LEFT: {UP: LEFT, RIGHT: DOWN, DOWN: None, LEFT: None},
+                    }
+                    reflection_direction = MIRROR_REFLECTION_DIRECTION.get(item_loc).get(dr)
+                    if reflection_direction is not None:
+                        self.laser.dir_front = reflection_direction
+                        self.SoundPlay(c.S_Deflb)
+                        if sq in self.sliding_items:
+                            LaserBounceOnIce = True
+                    else:
+                        self.laser_live = False
+                        if not self.check_loc_move_start_sliding(sq, dr):
+                            self.SoundPlay(c.S_LaserHit)
 
-                elif item_loc == c.GLASS:
-                    # In original, this is where glass is set to a glowing sprite
-                    laser_still_live = True
+                elif item_loc in [c.ROTMIRROR_LEFT_UP, c.ROTMIRROR_UP_RIGHT, c.ROTMIRROR_RIGHT_DOWN,
+                                  c.ROTMIRROR_DOWN_LEFT, ]:
+                    ROTMIRROR_REFLECTION_DIRECTION = {
+                        c.ROTMIRROR_LEFT_UP: {
+                            UP: c.ROTMIRROR_UP_RIGHT,
+                            RIGHT: UP,
+                            DOWN: LEFT,
+                            LEFT: c.ROTMIRROR_UP_RIGHT
+                        },
+                        c.ROTMIRROR_UP_RIGHT: {
+                            UP: c.ROTMIRROR_RIGHT_DOWN,
+                            RIGHT: c.ROTMIRROR_RIGHT_DOWN,
+                            DOWN: RIGHT,
+                            LEFT: UP
+                        },
+                        c.ROTMIRROR_RIGHT_DOWN: {
+                            UP: RIGHT,
+                            RIGHT: c.ROTMIRROR_DOWN_LEFT,
+                            DOWN: c.ROTMIRROR_DOWN_LEFT,
+                            LEFT: DOWN
+                        },
+                        c.ROTMIRROR_DOWN_LEFT: {
+                            UP: LEFT,
+                            RIGHT: DOWN,
+                            DOWN: c.ROTMIRROR_LEFT_UP,
+                            LEFT: c.ROTMIRROR_LEFT_UP
+                        },
+                    }
+                    reflection_action = ROTMIRROR_REFLECTION_DIRECTION.get(item_loc).get(dr)
+                    if type(reflection_action) is Direction:
+                        self.laser.dir_front = reflection_action
+                        self.SoundPlay(c.S_Deflb)
+                    else:
+                        self.laser_live = False
+                        self.items[sq] = reflection_action
+                        self.SoundPlay(c.S_Rotate)
 
-                elif item_loc == c.ROTMIRROR_LEFT_UP:
-                    if self.laser.dir_front == RIGHT or self.laser.dir_front == DOWN:
-                        laser_still_live = True
-                    else:
-                        self.items[sq] = c.ROTMIRROR_UP_RIGHT
-                        self.SoundPlay(c.S_Rotate)
-                elif item_loc == c.ROTMIRROR_UP_RIGHT:
-                    if self.laser.dir_front == DOWN or self.laser.dir_front == LEFT:
-                        laser_still_live = True
-                    else:
-                        self.items[sq] = c.ROTMIRROR_RIGHT_DOWN
-                        self.SoundPlay(c.S_Rotate)
-                elif item_loc == c.ROTMIRROR_RIGHT_DOWN:
-                    if self.laser.dir_front == UP or self.laser.dir_front == LEFT:
-                        laser_still_live = True
-                    else:
-                        self.items[sq] = c.ROTMIRROR_DOWN_LEFT
-                        self.SoundPlay(c.S_Rotate)
-                elif item_loc == c.ROTMIRROR_DOWN_LEFT:
-                    if self.laser.dir_front == UP or self.laser.dir_front == RIGHT:
-                        laser_still_live = True
-                    else:
-                        self.items[sq] = c.ROTMIRROR_LEFT_UP
-                        self.SoundPlay(c.S_Rotate)
-
-            ############################
             # Check destination square and start objects there moving if needed
-            if laser_still_live:
+            if self.laser_live:
                 # Laser is still on the board
                 # Move laser
                 self.laser.sq = self.laser.sq.relative(dr)
-
-                reflecting_item = self.items[self.laser.sq]
-                if reflecting_item in c.MIRROR_ALL:
-                    # Reflect off mirror
-
-                    # Update laser direction if hitting a mirror
-                    if (
-                            reflecting_item == c.MIRROR_LEFT_UP
-                            or reflecting_item == c.ROTMIRROR_LEFT_UP
-                    ):
-                        if self.laser.dir_front == RIGHT:
-                            self.laser.dir_front = UP
-                        else:
-                            self.laser.dir_front = LEFT
-                    elif (
-                            reflecting_item == c.MIRROR_UP_RIGHT
-                            or reflecting_item == c.ROTMIRROR_UP_RIGHT
-                    ):
-                        if self.laser.dir_front == DOWN:
-                            self.laser.dir_front = RIGHT
-                        else:
-                            self.laser.dir_front = UP
-                    elif (
-                            reflecting_item == c.MIRROR_RIGHT_DOWN
-                            or reflecting_item == c.ROTMIRROR_RIGHT_DOWN
-                    ):
-                        if self.laser.dir_front == UP:
-                            self.laser.dir_front = RIGHT
-                        else:
-                            self.laser.dir_front = DOWN
-                    elif (
-                            reflecting_item == c.MIRROR_DOWN_LEFT
-                            or reflecting_item == c.ROTMIRROR_DOWN_LEFT
-                    ):
-                        if self.laser.dir_front == UP:
-                            self.laser.dir_front = LEFT
-                        else:
-                            self.laser.dir_front = DOWN
-
-                    # UpdateLaserBounce() updates the LaserBounceOnIce
-                    # Allows a second laser movement if laser is contacting a sliding mirror
-                    if self.laser.sq in self.sliding_items:
-                        LaserBounceOnIce = True
-
-                    self.SoundPlay(c.S_Deflb)
-                # self.laser.Firing = True
             else:
                 # Laser is off the board / hit something solid
-                self.laser_live = False
-
                 # Antitank Turn
                 self.AntiTank()
 
+                # TestIfConvCanMoveTank: Used to handle the speed bug
                 terrain_tank_on = self.terrain[self.tank.sq]
                 if self.is_tank_on_terrain() and (
                         (terrain_tank_on == c.CONVEYOR_UP and self.is_on_board_and_empty(self.tank.sq.relative(UP)))
@@ -640,7 +603,6 @@ class GameState:
                         or (terrain_tank_on == c.CONVEYOR_LEFT and self.is_on_board_and_empty(
                     self.tank.sq.relative(LEFT)))
                 ):
-                    # TestIfConvCanMoveTank: Used to handle the speed bug
                     self.tank_moving_on_conveyor = True
         # loops here if LaserBounceOnIce was set in the loop
 
@@ -1185,4 +1147,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("standard_levels/LaserTank", 2)
+    debug_level("Game-Objects-in-LT/Game-Objects-in-LT", 12)
