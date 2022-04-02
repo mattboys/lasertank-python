@@ -839,7 +839,9 @@ class GameState:
 
         # Now update destination
         dest = sq.relative(dr)
+        self.check_destination_of_item(dest, item, sf)
 
+    def check_destination_of_item(self, dest: Square, item, sf):
         # If destination is a tunnel then set x,y to tunnel's exit
         if self.is_tunnel(dest):
             tunnel_exit = self.find_tunnel_exit(dest)
