@@ -435,27 +435,7 @@ class GameState:
 
         # Now update destination
         dest = sq.relative(dr)
-
-        # If destination is a tunnel then set x,y to tunnel's exit
-        if self.is_tunnel(dest):
-            tunnel_exit = self.find_tunnel_exit(dest)
-            if tunnel_exit is None:
-                return  # The tunnel was a black hole
-            elif tunnel_exit == dest:
-                self.terrain[dest] = c.Tunnel_Set_Waiting[self.terrain[dest]]
-            else:
-                dest = tunnel_exit
-
-        if self.terrain[dest] != c.WATER:
-            # Move object to destination square
-            self.items[dest] = item
-        else:
-            # Destination square is water
-            sf = c.S_Sink
-            if item == c.BLOCK:
-                self.items[dest] = c.EMPTY
-                self.terrain[dest] = c.BRIDGE
-        self.SoundPlay(sf)
+        self.check_destination_of_item(dest, item, sf)
 
         # MoveObj2(sq, dr, c.S_Push1)
         if self.is_ice(destination):
