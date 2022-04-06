@@ -1,4 +1,5 @@
 import struct
+import pickle
 
 import pygame
 import pygame.locals
@@ -71,22 +72,35 @@ SQUARES = [Square(x, y) for y in range(c.PLAYFIELD_SIZE) for x in range(c.PLAYFI
 
 
 class TankRec:
-    def __init__(self, sq: Square, direction: Direction):
+    def __init__(
+            self,
+            sq: Square,
+            direction: Direction,
+            on_waiting_tunnel=False,
+            is_sliding=False,
+            sliding_dr=STATIONARY
+    ):
         self.sq: Square = sq
         self.direction: Direction = direction
-        # self.Firing = False  # Is laser on the board, move to board object?
-        self.on_waiting_tunnel = False  # Indicates that tank is on a waiting tunnel
-        self.is_sliding = False
-        # self.sliding_sq: Square = Square(0, 0)
-        self.sliding_dr: Direction = STATIONARY
+        self.on_waiting_tunnel = on_waiting_tunnel  # Indicates that tank is on a waiting tunnel
+        self.is_sliding = is_sliding
+        self.sliding_dr: Direction = sliding_dr
 
+    def __repr__(self):
+        return f"TankRec({self.sq}, {self.direction}, {self.on_waiting_tunnel}, {self.is_sliding}, {self.sliding_dr})"
 
 class LaserRec:
-    def __init__(self):
-        self.sq: Square = Square(5, 10)
-        self.dir_front: Direction = UP
-        self.dir_back: Direction = LEFT
-        self.colour = c.LaserColorR
+    def __init__(
+            self,
+            sq=Square(5, 10),
+            dir_front=UP,
+            dir_back=LEFT,
+            colour=c.LaserColorR,
+    ):
+        self.sq: Square = sq
+        self.dir_front: Direction = dir_front
+        self.dir_back: Direction = dir_back
+        self.colour = colour
 
 
 class LevelInfo:
@@ -131,7 +145,6 @@ class GameState:
 
 class Game:
     def __init__(self):
-        self.change_log = []
 
         self.state: GameState = GameState()
 
@@ -148,6 +161,8 @@ class Game:
 
         # Dynamic flags
         self.tank_moving_on_conveyor = False
+
+        self.microtick = 0
 
     def is_objects_sliding(self):
         # Was named SlideO_s
@@ -211,12 +226,20 @@ class Game:
     def tick(self):
         # Main game loop (see C-3043)
         # TODO: handle an undo to avoid inf loop
-        self.change_log = []
-        self.tick_laser_turn()
-        self.tick_tank_turn()
-        self.tick_resolve_object_momenta()
-        self.tick_resolve_tank_momenta()
-        self.tick_tank_destination()
+        if self.microtick == 0:
+            self.tick_laser_turn()
+        elif self.microtick == 1:
+            self.tick_tank_turn()
+        elif self.microtick == 2:
+            self.tick_resolve_object_momenta()
+        elif self.microtick == 3:
+            self.tick_resolve_tank_momenta()
+        elif self.microtick == 4:
+            self.tick_tank_destination()
+
+        self.microtick += 1
+        if self.microtick > 4:
+            self.microtick = 0
 
     def tick_laser_turn(self):
         if self.state.laser_live:
@@ -231,7 +254,6 @@ class Game:
                 or self.state.tank.is_sliding
         ):
             move = self.moves_buffer.pop(0)
-            self.change_log.append(f"Popped movement {move}")
             if move == c.K_SHOOT:
                 self.UpdateUndo()
                 self.state.score_shots += 1
@@ -262,11 +284,9 @@ class Game:
             self.AntiTank()
 
     def tick_resolve_object_momenta(self):
-        self.change_log.append("Resolving momenta")
         # Resolve Momenta
         if self.is_objects_sliding():
             # self.IceMoveO()  # NOTE: IceMoveO includes additional AntiTank() moves
-            self.change_log.append("Slid object on ice")
             # Move an item on the ice
             for sliding_item_sq, sliding_item_dr in reversed(list(self.state.sliding_items.items())):
                 if self.state.terrain[sliding_item_sq] == c.THINICE:
@@ -302,7 +322,6 @@ class Game:
     def tick_resolve_tank_momenta(self):
         if self.state.tank.is_sliding:
             # self.IceMoveT()
-            self.change_log.append("Slid tank on ice")
             #  Move the tank on the Ice
             if self.state.terrain[self.state.tank.sq] == c.THINICE:
                 self.state.terrain[self.state.tank.sq] = c.WATER
@@ -323,7 +342,6 @@ class Game:
         self.tank_moving_on_conveyor = False  # used to disable Laser on the conveyor
 
     def tick_tank_destination(self):
-        self.change_log.append("Checking tank square")
         if self.is_tank_on_terrain():
             # Check where the tank ended up
             tank_terrain = self.state.terrain[self.state.tank.sq]
@@ -352,15 +370,12 @@ class Game:
         print(f"Game over! {'Win!' if victorious else 'Dead!'}")
 
     # def change_tank_sq(self, destination):
-    #     self.change_log.append((c.TANK, self.tank.sq, destination))
     #     self.tank.sq = destination
     #
     # def change_item(self, sq, new_item):
-    #     self.change_log.append((self.items[sq], sq, new_item))
     #     self.items[sq] = new_item
     #
     # def change_terrain(self, sq, new_terrain):
-    #     self.change_log.append((self.terrain[sq], sq, new_terrain))
     #     self.terrain[sq] = new_terrain
 
     def ConvMoveTank(self, direction):
@@ -412,7 +427,6 @@ class Game:
         return True
 
     def AntiTank(self):
-        self.change_log.append("AntiTank Move")
         # Look for antitanks on same row/col as tank and let them fire (only if laser not already existing)
         # Order: Right, left, down, above from Tank
 
@@ -456,17 +470,21 @@ class Game:
 
     def UpdateUndo(self):
         # Should be done whenever player moves or shoots
-        # TODO
-        # self.undo_state.append(self.deepcopy())
-        pass
+        self.undo_state.append(pickle.dumps(self.state))
 
     def PopUndo(self):
         # Remove an undo when tank moving through a tunnel
-        # TODO
-        pass
+        if len(self.undo_state) > 0:
+            return pickle.loads(self.undo_state.pop())
+        else:
+            return None
+
+    def undo(self):
+        old_state = self.PopUndo()
+        if old_state is not None:
+            self.state = old_state
 
     def MoveLaser(self):
-        self.change_log.append("Laser moving")
 
         if not self.running:
             return
@@ -1112,16 +1130,16 @@ def debug_level(level_name, level_number):
         print("")
         print(f"Tick: {tick_counter}")
         print(f"Moves:{txtgrphcs.print_directions(game.moves_buffer)}")
-        print(f"Actions: {game.change_log}")
+        print(f"Actions:")
         print(f"Sliding: {game.state.sliding_items}")
         print("Board:")
         txtgrphcs.draw_interesting_crop(game)
-        game.queue_new_inputs(inputs.wait_for_anykey())
+        # game.queue_new_inputs(inputs.wait_for_anykey())
 
     # Initial State
     display()
 
-    while game.running and timeout_counter < 500:
+    while game.running and timeout_counter < 2000:
 
         # End early if stuck on no moves or inf loop
         moves_left = len(game.moves_buffer)
@@ -1141,4 +1159,4 @@ def debug_level(level_name, level_number):
 
 
 if __name__ == "__main__":
-    debug_level("tutor/Tutor", 4)
+    debug_level("tricks/Tricks", 26)

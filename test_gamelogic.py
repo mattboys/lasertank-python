@@ -27,7 +27,7 @@ def run_lvl_playback(level_name, level_number, show=False):
 
     timeout_counter = 0
     moves_left_prev = 0
-    while game.running and timeout_counter < 500:
+    while game.running and timeout_counter < 2000:
         game.tick()
 
         # End early if stuck on no moves or inf loop
