@@ -41,7 +41,7 @@ def run_lvl_playback(level_name, level_number, show=False):
         if show:
             graphics.draw_board(game)
             clock.tick(100)
-    return game.reached_flag
+    return game.state.reached_flag
 
 
 # Tutors

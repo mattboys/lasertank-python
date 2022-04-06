@@ -117,17 +117,26 @@ class LevelInfo:
 
 class GameState:
     def __init__(self):
-        self.change_log = []
         self.terrain = [c.GRASS for _ in range(c.PLAYFIELD_SIZE ** 2)]
         self.items = [c.EMPTY for _ in range(c.PLAYFIELD_SIZE ** 2)]
         self.tank = TankRec(Square(x=7, y=15), direction=UP)
         self.laser = LaserRec()
         self.laser_live = False
         self.sliding_items: dict[Square, Direction] = {}
-        self.moves_history = []
-        self.moves_buffer = []  # RecBuffer
         self.score_shots = 0
         self.score_moves = 0
+        self.reached_flag = False
+        self.player_dead = False
+
+
+class Game:
+    def __init__(self):
+        self.change_log = []
+
+        self.state: GameState = GameState()
+
+        self.moves_history = []
+        self.moves_buffer = []  # RecBuffer
         self.undo_state = []
         self.sounds_buffer = []
 
@@ -136,8 +145,6 @@ class GameState:
 
         # Control flags
         self.running = True
-        self.reached_flag = False
-        self.player_dead = False
 
         # Dynamic flags
         self.tank_moving_on_conveyor = False
@@ -145,7 +152,7 @@ class GameState:
     def is_objects_sliding(self):
         # Was named SlideO_s
         # Is anything sliding?
-        return len(self.sliding_items) > 0
+        return len(self.state.sliding_items) > 0
 
     def is_inputs_queued(self):
         """Are there player moves waiting in the buffer to be played?"""
@@ -153,17 +160,17 @@ class GameState:
 
     def is_tank_on_terrain(self):
         """If the tank up on an object from a trick-shot then the tank is not on the terrain"""
-        return self.items[self.tank.sq] == c.EMPTY
+        return self.state.items[self.state.tank.sq] == c.EMPTY
 
     def is_ice(self, sq: Square):
-        return self.terrain[sq] == c.ICE or self.terrain[sq] == c.THINICE
+        return self.state.terrain[sq] == c.ICE or self.state.terrain[sq] == c.THINICE
 
     def load_level(self, level_number, filename=DEFAULT_LEVEL_LOC):
-        self.sliding_items = {}
+        self.state.sliding_items = {}
         self.moves_history = []
         self.moves_buffer = []
-        self.score_shots = 0
-        self.score_moves = 0
+        self.state.score_shots = 0
+        self.state.score_moves = 0
         self.undo_state = []
         self.sounds_buffer = []
 
@@ -193,10 +200,10 @@ class GameState:
             terrain, item = c.DECODE_TABLE.get(i, (c.GRASS, c.EMPTY))
             # Tank is not placed in the items array
             if item == c.TANK:
-                self.tank = TankRec(sq, direction=UP)
+                self.state.tank = TankRec(sq, direction=UP)
             else:
-                self.items[sq] = item
-            self.terrain[sq] = terrain
+                self.state.items[sq] = item
+            self.state.terrain[sq] = terrain
 
     def queue_new_inputs(self, new_inputs):
         self.moves_buffer.extend(new_inputs)
@@ -212,44 +219,44 @@ class GameState:
         self.tick_tank_destination()
 
     def tick_laser_turn(self):
-        if self.laser_live:
+        if self.state.laser_live:
             self.MoveLaser()
 
     def tick_tank_turn(self):
         # Process keyboard buffer
         if self.moves_buffer and not (
-                self.laser_live
+                self.state.laser_live
                 or self.tank_moving_on_conveyor
                 or self.is_objects_sliding()
-                or self.tank.is_sliding
+                or self.state.tank.is_sliding
         ):
             move = self.moves_buffer.pop(0)
             self.change_log.append(f"Popped movement {move}")
             if move == c.K_SHOOT:
                 self.UpdateUndo()
-                self.score_shots += 1
-                self.FireLaser(self.tank.sq, self.tank.direction, True)
+                self.state.score_shots += 1
+                self.FireLaser(self.state.tank.sq, self.state.tank.direction, True)
                 self.MoveLaser()
             elif move in [c.K_UP, c.K_RIGHT, c.K_DOWN, c.K_LEFT]:
                 K_TO_DIRECTION = {c.K_UP: UP, c.K_RIGHT: RIGHT, c.K_DOWN: DOWN, c.K_LEFT: LEFT}
                 dr = K_TO_DIRECTION.get(move)
                 # MoveTank
-                if self.tank.direction != dr:
+                if self.state.tank.direction != dr:
                     # Tank is turning
-                    self.tank.direction = dr
+                    self.state.tank.direction = dr
                     self.SoundPlay(c.S_Turn)
                 else:
-                    destination = self.tank.sq.relative(dr)
+                    destination = self.state.tank.sq.relative(dr)
                     if self.is_on_board_and_empty(destination):
                         self.SoundPlay(c.S_Move)
                         self.UpdateUndo()
-                        self.score_moves += 1
-                        self.tank.sq = self.tank.sq.relative(dr)
+                        self.state.score_moves += 1
+                        self.state.tank.sq = self.state.tank.sq.relative(dr)
                         self.check_tunnel_tank()
                         if self.is_ice(destination):
-                            self.tank.is_sliding = True
+                            self.state.tank.is_sliding = True
                             # self.tank.sliding_sq = self.tank.sq
-                            self.tank.sliding_dr = dr
+                            self.state.tank.sliding_dr = dr
                     else:
                         self.SoundPlay(c.S_Head)  # Bumping into something
             self.AntiTank()
@@ -261,74 +268,74 @@ class GameState:
             # self.IceMoveO()  # NOTE: IceMoveO includes additional AntiTank() moves
             self.change_log.append("Slid object on ice")
             # Move an item on the ice
-            for sliding_item_sq, sliding_item_dr in reversed(list(self.sliding_items.items())):
-                if self.terrain[sliding_item_sq] == c.THINICE:
+            for sliding_item_sq, sliding_item_dr in reversed(list(self.state.sliding_items.items())):
+                if self.state.terrain[sliding_item_sq] == c.THINICE:
                     # Sliding off thin ice so melt the ice into water
-                    self.terrain[sliding_item_sq] = c.WATER
+                    self.state.terrain[sliding_item_sq] = c.WATER
 
                 # if destination is empty (not item and not tank)
                 # note: CheckLoc also sets wasIce to True is destination is Ice or ThinIce
                 destination = sliding_item_sq.relative(sliding_item_dr)
-                if self.is_on_board_and_empty(destination) and not destination == self.tank.sq:
+                if self.is_on_board_and_empty(destination) and not destination == self.state.tank.sq:
                     self.MoveObj(sliding_item_sq, sliding_item_dr)
                     self.AntiTank()
                     if not self.is_ice(destination):
-                        del self.sliding_items[sliding_item_sq]
+                        del self.state.sliding_items[sliding_item_sq]
                     else:
                         # Update position of tracked sliding object
                         # Insert destination item at the position of the original
                         new_list = {}
-                        for s, d in self.sliding_items.items():
+                        for s, d in self.state.sliding_items.items():
                             if s == sliding_item_sq:
                                 new_list[destination] = d
                             else:
                                 new_list[s] = d
                         new_list[destination] = sliding_item_dr
-                        self.sliding_items = new_list
+                        self.state.sliding_items = new_list
                 else:
-                    if self.terrain[sliding_item_sq] == c.WATER:
+                    if self.state.terrain[sliding_item_sq] == c.WATER:
                         # Drop into water if ice melted and item couldn't move
                         self.sink_item_in_water(sliding_item_sq)
-                    del self.sliding_items[sliding_item_sq]
+                    del self.state.sliding_items[sliding_item_sq]
                     self.AntiTank()
 
     def tick_resolve_tank_momenta(self):
-        if self.tank.is_sliding:
+        if self.state.tank.is_sliding:
             # self.IceMoveT()
             self.change_log.append("Slid tank on ice")
             #  Move the tank on the Ice
-            if self.terrain[self.tank.sq] == c.THINICE:
-                self.terrain[self.tank.sq] = c.WATER
+            if self.state.terrain[self.state.tank.sq] == c.THINICE:
+                self.state.terrain[self.state.tank.sq] = c.WATER
 
-            destination = self.tank.sq.relative(self.tank.sliding_dr)
+            destination = self.state.tank.sq.relative(self.state.tank.sliding_dr)
             if self.is_on_board_and_empty(destination):
                 # self.ConvMoveTank(self.tank.sliding_dr)
-                self.tank.sq = self.tank.sq.relative(self.tank.sliding_dr)
+                self.state.tank.sq = self.state.tank.sq.relative(self.state.tank.sliding_dr)
                 # self.tank_moving_on_conveyor = True
                 self.check_tunnel_tank()
                 self.AntiTank()
                 # Move tank an additional square
                 # self.tank.sq = self.tank.sq.relative(self.tank.sliding_dr)
                 if not self.is_ice(destination):
-                    self.tank.is_sliding = False
+                    self.state.tank.is_sliding = False
             else:
-                self.tank.is_sliding = False
+                self.state.tank.is_sliding = False
         self.tank_moving_on_conveyor = False  # used to disable Laser on the conveyor
 
     def tick_tank_destination(self):
         self.change_log.append("Checking tank square")
         if self.is_tank_on_terrain():
             # Check where the tank ended up
-            tank_terrain = self.terrain[self.tank.sq]
+            tank_terrain = self.state.terrain[self.state.tank.sq]
             if tank_terrain == c.FLAG:
                 self.game_over(victorious=True)
             elif tank_terrain == c.WATER:
                 self.game_over(victorious=False)
             elif tank_terrain in CONVEYORS_DIRECTIONS:
                 direction = CONVEYORS_DIRECTIONS.get(tank_terrain)
-                if self.is_on_board_and_empty(self.tank.sq.relative(direction)):
+                if self.is_on_board_and_empty(self.state.tank.sq.relative(direction)):
                     # self.ConvMoveTank(direction)
-                    self.tank.sq = self.tank.sq.relative(direction)
+                    self.state.tank.sq = self.state.tank.sq.relative(direction)
                     self.tank_moving_on_conveyor = True
                     self.check_tunnel_tank()
                     self.check_ice_tank(direction)
@@ -339,9 +346,9 @@ class GameState:
         # Skipping sound, playback, save recording
         if victorious:
             # self.CheckHighScore()
-            self.reached_flag = True
+            self.state.reached_flag = True
         else:
-            self.player_dead = True
+            self.state.player_dead = True
         print(f"Game over! {'Win!' if victorious else 'Dead!'}")
 
     # def change_tank_sq(self, destination):
@@ -358,49 +365,49 @@ class GameState:
 
     def ConvMoveTank(self, direction):
         # Move tank in the direction of the conveyor
-        self.tank.sq = self.tank.sq.relative(direction)
+        self.state.tank.sq = self.state.tank.sq.relative(direction)
         self.tank_moving_on_conveyor = True
 
     def check_tunnel_tank(self):
-        self.tank.on_waiting_tunnel = False
+        self.state.tank.on_waiting_tunnel = False
         # Check if tank ended up on a tunnel
-        if self.is_tunnel(self.tank.sq):
-            tunnel_exit = self.find_tunnel_exit(self.tank.sq)
+        if self.is_tunnel(self.state.tank.sq):
+            tunnel_exit = self.find_tunnel_exit(self.state.tank.sq)
             if tunnel_exit is None:
                 # Tank fell in a black hole
                 self.game_over(victorious=False)
-            elif tunnel_exit == self.tank.sq:
+            elif tunnel_exit == self.state.tank.sq:
                 # Blocked exit found
-                self.tank.on_waiting_tunnel = True
+                self.state.tank.on_waiting_tunnel = True
             else:
-                self.tank.sq = tunnel_exit
+                self.state.tank.sq = tunnel_exit
 
     def check_ice_tank(self, direction):
-        if self.is_ice(self.tank.sq):
+        if self.is_ice(self.state.tank.sq):
             # self.tank.sliding_sq = self.tank.sq
-            self.tank.is_sliding = True
-            self.tank.sliding_dr = direction
+            self.state.tank.is_sliding = True
+            self.state.tank.sliding_dr = direction
 
     def is_on_board_and_empty(self, sq):
-        return False if sq is None else self.items[sq] == c.EMPTY
+        return False if sq is None else self.state.items[sq] == c.EMPTY
 
     def check_loc_move_start_sliding(self, sq, dr):
 
         # Stop it sliding if already
-        self.sliding_items.pop(sq, None)
+        self.state.sliding_items.pop(sq, None)
 
         destination = sq.relative(dr)
-        if destination is None or self.items[destination] != c.EMPTY:
+        if destination is None or self.state.items[destination] != c.EMPTY:
             # Hitting edge of board or occupied square
             return False
 
-        item = self.items[sq]  # Get object type
+        item = self.state.items[sq]  # Get object type
 
         self.MoveObj(sq, dr)
 
         # MoveObj2(sq, dr, c.S_Push1)
         if self.is_ice(destination):
-            self.sliding_items[destination] = dr
+            self.state.sliding_items[destination] = dr
 
         return True
 
@@ -410,7 +417,7 @@ class GameState:
         # Order: Right, left, down, above from Tank
 
         # Only one laser on board so returns if laser exists
-        if self.laser_live:
+        if self.state.laser_live:
             return
 
         # Tank on an item is hidden from AntiTanks
@@ -423,27 +430,27 @@ class GameState:
             (DOWN, c.ANTITANK_UP, UP),
             (UP, c.ANTITANK_DOWN, DOWN),
         ]:
-            sq = self.tank.sq
+            sq = self.state.tank.sq
             while self.is_on_board_and_empty(sq := sq.relative(scan_dir)):
                 pass
-            if sq is not None and (self.items[sq] == antitank):
+            if sq is not None and (self.state.items[sq] == antitank):
                 self.FireLaser(sq, shoot_dir, False)
                 self.MoveLaser()
                 break
 
     def FireLaser(self, sq, dr, is_player_tank):
 
-        self.laser_live = True
+        self.state.laser_live = True
 
-        self.laser.dir_front = dr
-        self.laser.dir_back = dr
-        self.laser.sq = sq
+        self.state.laser.dir_front = dr
+        self.state.laser.dir_back = dr
+        self.state.laser.sq = sq
 
         if is_player_tank:
-            self.laser.colour = c.LaserColorG
+            self.state.laser.colour = c.LaserColorG
             self.SoundPlay(c.S_Fire)
         else:
-            self.laser.colour = c.LaserColorR
+            self.state.laser.colour = c.LaserColorR
             self.SoundPlay(c.S_Anti2)
         # self.MoveLaser()
 
@@ -467,19 +474,19 @@ class GameState:
         LaserBounceOnIce = True
         while LaserBounceOnIce:
             LaserBounceOnIce = False
-            dr = self.laser.dir_front
-            sq = self.laser.sq.relative(dr)
+            dr = self.state.laser.dir_front
+            sq = self.state.laser.sq.relative(dr)
 
-            self.laser.dir_back = self.laser.dir_front
+            self.state.laser.dir_back = self.state.laser.dir_front
 
             if sq is None:
                 # Laser out of board
-                self.laser_live = False
-            elif sq == self.tank.sq:
+                self.state.laser_live = False
+            elif sq == self.state.tank.sq:
                 # Hit tank
                 self.game_over(victorious=False)
             else:
-                item_loc = self.items[sq]
+                item_loc = self.state.items[sq]
 
                 # Laser interact with item
                 if item_loc == c.EMPTY:
@@ -490,24 +497,24 @@ class GameState:
                     pass
 
                 elif item_loc == c.SOLID:
-                    self.laser_live = False
+                    self.state.laser_live = False
                     self.SoundPlay(c.S_LaserHit)
 
                 elif item_loc == c.BLOCK:
-                    self.laser_live = False
+                    self.state.laser_live = False
                     # Can block be moved in direction of laser? Is square free
                     if not self.check_loc_move_start_sliding(sq, dr):
                         self.SoundPlay(c.S_LaserHit)
 
                 elif item_loc == c.WALL:
-                    self.laser_live = False
-                    self.items[sq] = c.EMPTY  # Destroy wall with laser
+                    self.state.laser_live = False
+                    self.state.items[sq] = c.EMPTY  # Destroy wall with laser
                     self.SoundPlay(c.S_Bricks)
 
                 elif item_loc in c.DEADANTITANK_ALL:  # Include dead tanks as solid items
-                    self.laser_live = False
+                    self.state.laser_live = False
                     self.SoundPlay(c.S_LaserHit)
-                    self.sliding_items.pop(sq, None)
+                    self.state.sliding_items.pop(sq, None)
 
                 elif item_loc in c.ANTITANKS_ALL:
                     ANTITANK_HIT_DIRECTION = {
@@ -517,10 +524,10 @@ class GameState:
                         c.ANTITANK_LEFT: (RIGHT, c.DEADANTITANK_LEFT),
                     }
                     hit_direction, deadantitank = ANTITANK_HIT_DIRECTION.get(item_loc)
-                    self.laser_live = False
+                    self.state.laser_live = False
                     if dr == hit_direction:  # Laser hit front of antitank
                         # Kill Antitank
-                        self.items[sq] = deadantitank
+                        self.state.items[sq] = deadantitank
                         self.SoundPlay(c.S_Anti1)
                     elif not self.check_loc_move_start_sliding(sq, dr):
                         self.SoundPlay(c.S_LaserHit)
@@ -534,12 +541,12 @@ class GameState:
                     }
                     reflection_direction = MIRROR_REFLECTION_DIRECTION.get(item_loc).get(dr)
                     if reflection_direction is not None:
-                        self.laser.dir_front = reflection_direction
+                        self.state.laser.dir_front = reflection_direction
                         self.SoundPlay(c.S_Deflb)
-                        if sq in self.sliding_items:
+                        if sq in self.state.sliding_items:
                             LaserBounceOnIce = True
                     else:
-                        self.laser_live = False
+                        self.state.laser_live = False
                         if not self.check_loc_move_start_sliding(sq, dr):
                             self.SoundPlay(c.S_LaserHit)
 
@@ -573,39 +580,40 @@ class GameState:
                     }
                     reflection_action = ROTMIRROR_REFLECTION_DIRECTION.get(item_loc).get(dr)
                     if type(reflection_action) is Direction:
-                        self.laser.dir_front = reflection_action
+                        self.state.laser.dir_front = reflection_action
                         self.SoundPlay(c.S_Deflb)
                     else:
-                        self.laser_live = False
-                        self.items[sq] = reflection_action
+                        self.state.laser_live = False
+                        self.state.items[sq] = reflection_action
                         self.SoundPlay(c.S_Rotate)
 
             # Check destination square and start objects there moving if needed
-            if self.laser_live:
+            if self.state.laser_live:
                 # Laser is still on the board
                 # Move laser
-                self.laser.sq = self.laser.sq.relative(dr)
+                self.state.laser.sq = self.state.laser.sq.relative(dr)
             else:
                 # Laser is off the board / hit something solid
                 # Antitank Turn
                 self.AntiTank()
 
                 # TestIfConvCanMoveTank: Used to handle the speed bug
-                terrain_tank_on = self.terrain[self.tank.sq]
+                terrain_tank_on = self.state.terrain[self.state.tank.sq]
                 if self.is_tank_on_terrain() and (
-                        (terrain_tank_on == c.CONVEYOR_UP and self.is_on_board_and_empty(self.tank.sq.relative(UP)))
+                        (terrain_tank_on == c.CONVEYOR_UP and self.is_on_board_and_empty(
+                            self.state.tank.sq.relative(UP)))
                         or (terrain_tank_on == c.CONVEYOR_RIGHT and self.is_on_board_and_empty(
-                    self.tank.sq.relative(RIGHT)))
+                    self.state.tank.sq.relative(RIGHT)))
                         or (terrain_tank_on == c.CONVEYOR_DOWN and self.is_on_board_and_empty(
-                    self.tank.sq.relative(DOWN)))
+                    self.state.tank.sq.relative(DOWN)))
                         or (terrain_tank_on == c.CONVEYOR_LEFT and self.is_on_board_and_empty(
-                    self.tank.sq.relative(LEFT)))
+                    self.state.tank.sq.relative(LEFT)))
                 ):
                     self.tank_moving_on_conveyor = True
         # loops here if LaserBounceOnIce was set in the loop
 
     def is_tunnel(self, sq):
-        return self.terrain[sq] in c.TUNNEL_ALL
+        return self.state.terrain[sq] in c.TUNNEL_ALL
 
     def SoundPlay(self, sound_id):
         self.sounds_buffer.append(sound_id)
@@ -619,15 +627,15 @@ class GameState:
             None if black hole (no exits on map)
         """
 
-        tunnel_id = self.terrain[sq]
+        tunnel_id = self.state.terrain[sq]
 
         found_blocked_exit = False
 
         # Find an empty destination tunnel
         for sqx in SQUARES:
-            if self.terrain[sqx] == tunnel_id and not sqx == sq:
+            if self.state.terrain[sqx] == tunnel_id and not sqx == sq:
                 # Found an exit tunnel (and not the same as entry)
-                if self.items[sqx] != c.EMPTY:
+                if self.state.items[sqx] != c.EMPTY:
                     # Exit is blocked
                     found_blocked_exit = True
                 else:
@@ -644,14 +652,14 @@ class GameState:
         # Update terrain under object's initial position (x,y)
         # Also unblock tunnel if Obj blocking tunnel and let other end activate (cx,cy)
         # used by CheckLLoc and IceMoveO
-        item = self.items[sq]  # Get object type
+        item = self.state.items[sq]  # Get object type
 
         # Trigger waiting tunnel if vacating a tunnel
         if self.is_tunnel(sq):
             # Unblock tunnel
             self.move_item_off_tunnel(sq)
         else:
-            self.items[sq] = c.EMPTY
+            self.state.items[sq] = c.EMPTY
 
         # Now update destination
         dest = sq.relative(dr)
@@ -659,31 +667,31 @@ class GameState:
 
     def move_item_off_tunnel(self, sq: Square):
         # Search for a blocked tunnel with the same ID
-        tunnel_waiting_id = c.Tunnel_Set_Waiting[self.terrain[sq]]
+        tunnel_waiting_id = c.Tunnel_Set_Waiting[self.state.terrain[sq]]
         tunnel_id = c.Tunnel_Set_Not_Waiting[tunnel_waiting_id]
 
         for sqx in SQUARES:
             if (
-                    self.terrain[sqx] == tunnel_waiting_id
-                    and self.items[sqx] != c.EMPTY
+                    self.state.terrain[sqx] == tunnel_waiting_id
+                    and self.state.items[sqx] != c.EMPTY
                     and not (sqx == sq)
             ):
                 # We are moving an object through a tunnel
                 # Other end of blocked tunnel had an object so move it through now
                 # Move object through a tunnel (from xy to cx, cy)
                 # Transfer blocked object
-                self.items[sq] = self.items[sqx]
-                self.items[sqx] = c.EMPTY
-                self.terrain[sqx] = tunnel_id
+                self.state.items[sq] = self.state.items[sqx]
+                self.state.items[sqx] = c.EMPTY
+                self.state.terrain[sqx] = tunnel_id
                 break
         else:
             # Did not find another end of this tunnel with an object on
             # Not Blocked Anymore
-            self.items[sq] = c.EMPTY
-            self.terrain[sq] = c.Tunnel_Set_Not_Waiting[self.terrain[sq]]
+            self.state.items[sq] = c.EMPTY
+            self.state.terrain[sq] = c.Tunnel_Set_Not_Waiting[self.state.terrain[sq]]
 
             # We didn't find a match so maybe the tank is it
-            if self.tank.on_waiting_tunnel and self.terrain[self.tank.sq] == tunnel_id:
+            if self.state.tank.on_waiting_tunnel and self.state.terrain[self.state.tank.sq] == tunnel_id:
                 self.check_tunnel_tank()
 
     def move_item_to_destination(self, dest: Square, item):
@@ -693,12 +701,12 @@ class GameState:
             if tunnel_exit is None:
                 return  # The tunnel was a black hole
             elif tunnel_exit == dest:
-                self.terrain[dest] = c.Tunnel_Set_Waiting[self.terrain[dest]]
+                self.state.terrain[dest] = c.Tunnel_Set_Waiting[self.state.terrain[dest]]
             else:
                 dest = tunnel_exit
 
-        self.items[dest] = item
-        if self.terrain[dest] == c.WATER:
+        self.state.items[dest] = item
+        if self.state.terrain[dest] == c.WATER:
             # Destination square is water
             self.sink_item_in_water(dest)
         else:
@@ -706,10 +714,10 @@ class GameState:
             self.SoundPlay(c.S_Push2)
 
     def sink_item_in_water(self, sq: Square):
-        item = self.items[sq]
-        self.items[sq] = c.EMPTY
+        item = self.state.items[sq]
+        self.state.items[sq] = c.EMPTY
         if item == c.BLOCK:
-            self.terrain[sq] = c.BRIDGE
+            self.state.terrain[sq] = c.BRIDGE
         self.SoundPlay(c.S_Sink)
 
 
@@ -752,13 +760,13 @@ class Graphics:
     def _increment_animation_counter(self):
         self.animation_counter = (self.animation_counter + 1) % 3
 
-    def draw_board(self, game: GameState):
+    def draw_board(self, game: Game):
         for sq in SQUARES:
-            self._draw_sprite(game.terrain[sq], sq)
-            self._draw_sprite(game.items[sq], sq)
-        self._draw_tank(game.tank.sq, game.tank.direction)
-        if game.laser_live:
-            self._draw_laser(game.laser)
+            self._draw_sprite(game.state.terrain[sq], sq)
+            self._draw_sprite(game.state.items[sq], sq)
+        self._draw_tank(game.state.tank.sq, game.state.tank.direction)
+        if game.state.laser_live:
+            self._draw_laser(game.state.laser)
         pygame.display.update()
         self._increment_animation_counter()
 
@@ -958,14 +966,14 @@ class InputEngine:
 
 class TextGraphics:
     @staticmethod
-    def draw_interesting_crop(game: GameState):
+    def draw_interesting_crop(game: Game):
         x_min = y_min = c.PLAYFIELD_SIZE
         x_max = y_max = 0
         for sq in SQUARES:
             if (
-                    game.terrain[sq] not in (c.GRASS, c.WATER)
-                    or game.items[sq] != c.EMPTY
-                    or game.tank.sq == sq
+                    game.state.terrain[sq] not in (c.GRASS, c.WATER)
+                    or game.state.items[sq] != c.EMPTY
+                    or game.state.tank.sq == sq
             ):
                 # Square of interest
                 x_min = min(x_min, sq.x)
@@ -1010,23 +1018,23 @@ class TextGraphics:
         return f"{x_val}{y_val}"
 
     @staticmethod
-    def cell_as_numbers(game: GameState, sq: Square):
-        terrain = game.terrain[sq]
-        item = game.items[sq]
+    def cell_as_numbers(game: Game, sq: Square):
+        terrain = game.state.terrain[sq]
+        item = game.state.items[sq]
         if terrain == c.GRASS:
             terrain = " "
         if item == c.EMPTY:
             item = " "
-        if game.tank.sq == sq:
+        if game.state.tank.sq == sq:
             item = "T"
-        if game.laser_live and game.laser.sq == sq:
+        if game.state.laser_live and game.state.laser.sq == sq:
             terrain = "-"
 
         return f"{terrain: >2}{item: >3}"
 
 
 def load_level(filename, level_number):
-    game = GameState()
+    game = Game()
     game.load_level(level_number=level_number, filename=filename)
     return game
 
@@ -1073,13 +1081,13 @@ def load_playback(filename):
     }
 
 
-def execute_playback(inputs: list, game: GameState):
+def execute_playback(inputs: list, game: Game):
     game.queue_new_inputs(inputs)
     while game.running and not game.is_inputs_queued():
         game.tick()
-    if game.reached_flag:
+    if game.state.reached_flag:
         return "WIN"
-    elif game.player_dead:
+    elif game.state.player_dead:
         return "DEAD"
     else:
         return "UNFINISHED"
@@ -1105,7 +1113,7 @@ def debug_level(level_name, level_number):
         print(f"Tick: {tick_counter}")
         print(f"Moves:{txtgrphcs.print_directions(game.moves_buffer)}")
         print(f"Actions: {game.change_log}")
-        print(f"Sliding: {game.sliding_items}")
+        print(f"Sliding: {game.state.sliding_items}")
         print("Board:")
         txtgrphcs.draw_interesting_crop(game)
         game.queue_new_inputs(inputs.wait_for_anykey())
@@ -1128,7 +1136,7 @@ def debug_level(level_name, level_number):
 
         display()
 
-    print(f"End State: {game.reached_flag}")
+    print(f"End State: {game.state.reached_flag}")
     # game.queue_new_inputs(inputs.wait_for_anykey())
 
 
