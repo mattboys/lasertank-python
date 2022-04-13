@@ -28,10 +28,13 @@ CONVEYORS_DIRECTIONS = {
 
 
 class Square(int):
-    def __new__(cls, x, y):
-        if not Square.on_board(x, y):
-            raise ValueError(f"Square ({x},{y}) is not on the board.")
-        value = x + (y * c.PLAYFIELD_SIZE)
+    def __new__(cls, x, y=None):
+        if y is None:
+            value = x
+        else:
+            if not Square.on_board(x, y):
+                raise ValueError(f"Square ({x},{y}) is not on the board.")
+            value = x + (y * c.PLAYFIELD_SIZE)
         return int.__new__(cls, value)
 
     @staticmethod
@@ -142,6 +145,13 @@ class GameState:
         self.reached_flag = False
         self.player_dead = False
 
+    def dump(self):
+        return {
+            'terrain': self.terrain.copy(),
+            'items': self.items.copy(),
+            'tank': self.tank.__dict__.copy()
+        }
+
 
 class Game:
     def __init__(self):
@@ -225,7 +235,10 @@ class Game:
 
     def tick(self):
         # Main game loop (see C-3043)
-        # TODO: handle an undo to avoid inf loop
+        if c.K_UNDO in self.moves_buffer:
+            self.moves_buffer = []
+            self.undo()
+
         if self.microtick == 0:
             self.tick_laser_turn()
         elif self.microtick == 1:
@@ -1158,5 +1171,24 @@ def debug_level(level_name, level_number):
     # game.queue_new_inputs(inputs.wait_for_anykey())
 
 
+def play_level(level_name, level_number):
+    game = load_level(f"resources/levels/{level_name}.lvl", level_number)
+
+    graphics = Graphics()
+    clock = pygame.time.Clock()
+    inputs = InputEngine()
+
+    graphics.draw_board(game)
+
+    while game.running:
+        game.queue_new_inputs(inputs.get_inputs())
+        game.tick()
+        graphics.draw_board(game)
+        clock.tick(10)
+
+    print(f"End State: {game.state.reached_flag}")
+
+
 if __name__ == "__main__":
-    debug_level("tricks/Tricks", 26)
+    # debug_level("tricks/Tricks", 26)
+    play_level("standard_levels/LaserTank", 1)
