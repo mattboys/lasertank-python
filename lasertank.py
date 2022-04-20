@@ -92,6 +92,7 @@ class TankRec:
     def __repr__(self):
         return f"TankRec({self.sq}, {self.direction}, {self.on_waiting_tunnel}, {self.is_sliding}, {self.sliding_dr})"
 
+
 class LaserRec:
     def __init__(
             self,
@@ -144,13 +145,6 @@ class GameState:
         self.score_moves = 0
         self.reached_flag = False
         self.player_dead = False
-
-    def dump(self):
-        return {
-            'terrain': self.terrain.copy(),
-            'items': self.items.copy(),
-            'tank': self.tank.__dict__.copy()
-        }
 
 
 class Game:
@@ -753,15 +747,20 @@ class Game:
 
 
 class Graphics:
-    GAMEBOARD_OFFSET_X_PX = 17  # XOffset
-    GAMEBOARD_OFFSET_Y_PX = 17  # YOffset
+    MENUBAR_SIZE = 19
     SPRITE_SIZE = 32  # SpBm_Width, SpBm_Height
     SPRITE_SHEET_ROWS = 6
     SPRITE_SHEET_COLUMNS = 10
+    SIDEBAR_SIZE = 187
+    GAMEBOARD_SIZE = SPRITE_SIZE * c.PLAYFIELD_SIZE
+    BOARD_GUTTER = 17
+    OFFSET_LEFT = BOARD_GUTTER  # XOffset
+    OFFSET_TOP = BOARD_GUTTER + MENUBAR_SIZE  # YOffset
     DISPLAY_SIZE = (
-        GAMEBOARD_OFFSET_X_PX * 2 + SPRITE_SIZE * 16,
-        GAMEBOARD_OFFSET_Y_PX * 2 + SPRITE_SIZE * 16,
+        OFFSET_LEFT + GAMEBOARD_SIZE + BOARD_GUTTER + SIDEBAR_SIZE,
+        OFFSET_TOP + GAMEBOARD_SIZE + BOARD_GUTTER,
     )
+
     TUNNEL_ID_COLOURS = [
         # c: 0x00bbggrr
         # py:0xrrggbbaa
@@ -780,18 +779,64 @@ class Graphics:
         c.LaserColorR: pygame.Color(0xFF0000FF),
     }
     LASER_OFFSET = 13  # LaserOffset
-    BLACK = pygame.Color(0x000000FF)
+    ANIMATION_RATE = 20
+
+    BLACK = pygame.Color(0, 0, 0)
+    LIGHT_GRAY = pygame.Color(192, 192, 192)
+    GRAY = pygame.Color(128, 128, 128)
+    WHITE = pygame.Color(255, 255, 255)
+    RED = pygame.Color(255, 0, 0)
 
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode(size=self.DISPLAY_SIZE, flags=0)
         self.spritesheet = pygame.image.load(DEFAULT_SPRITESHEET_LOC).convert_alpha()
         self.animation_counter = 0
+        self.animation_rate_counter = 0
+        self.screen.fill(self.LIGHT_GRAY)
+
+        self.rect_menu = pygame.Rect(0, 0, self.DISPLAY_SIZE[0], self.MENUBAR_SIZE)
+        self.rect_playfield = pygame.Rect(self.OFFSET_LEFT, self.OFFSET_TOP, self.GAMEBOARD_SIZE, self.GAMEBOARD_SIZE)
+        self.rect_coords = pygame.Rect(0, self.MENUBAR_SIZE,
+                                       self.GAMEBOARD_SIZE + self.BOARD_GUTTER + self.BOARD_GUTTER,
+                                       self.GAMEBOARD_SIZE + self.BOARD_GUTTER + self.BOARD_GUTTER)
 
     def _increment_animation_counter(self):
-        self.animation_counter = (self.animation_counter + 1) % 3
+        self.animation_rate_counter += 1
+        if self.animation_rate_counter >= self.ANIMATION_RATE:
+            self.animation_rate_counter = 0
+            self.animation_counter = (self.animation_counter + 1) % 3
+
+    def _draw_embossed(self, rect: pygame.Rect, inner=True, double=False):
+        if inner:
+            colour1 = self.WHITE
+            colour2 = self.GRAY
+
+            pygame.draw.line(self.screen, colour1, (rect.left + 1, rect.bottom - 2), (rect.left + 1, rect.top + 1))
+            pygame.draw.line(self.screen, colour1, (rect.left + 2, rect.top + 1), (rect.right - 3, rect.top + 1))
+            pygame.draw.line(self.screen, colour2, (rect.left + 2, rect.bottom - 2), (rect.right - 3, rect.bottom - 2))
+            pygame.draw.line(self.screen, colour2, (rect.right - 2, rect.bottom - 2), (rect.right - 2, rect.top + 1))
+
+        else:
+            colour1 = self.GRAY
+            colour2 = self.WHITE
+            pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.bottom), (rect.left - 1, rect.top - 1))
+            pygame.draw.line(self.screen, colour1, (rect.left, rect.top - 1), (rect.right - 1, rect.top - 1))
+            pygame.draw.line(self.screen, colour2, (rect.left, rect.bottom), (rect.right, rect.bottom))
+            pygame.draw.line(self.screen, colour2, (rect.right, rect.bottom - 1), (rect.right, rect.top - 1))
+            if double:
+                pygame.draw.line(self.screen, colour1, (rect.left - 2, rect.bottom + 1), (rect.left - 2, rect.top - 2))
+                pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.top - 2), (rect.right, rect.top - 2))
+                pygame.draw.line(self.screen, colour2, (rect.left - 1, rect.bottom + 1),
+                                 (rect.right + 1, rect.bottom + 1))
+                pygame.draw.line(self.screen, colour2, (rect.right + 1, rect.bottom), (rect.right + 1, rect.top - 2))
 
     def draw_board(self, game: Game):
+        self._draw_menu()
+        self._draw_sidebar()
+        self._draw_background()
+        self._draw_embossed(self.rect_playfield, inner=False, double=True)
+        self._draw_embossed(self.rect_coords)
         for sq in SQUARES:
             self._draw_sprite(game.state.terrain[sq], sq)
             self._draw_sprite(game.state.items[sq], sq)
@@ -801,10 +846,25 @@ class Graphics:
         pygame.display.update()
         self._increment_animation_counter()
 
+    def _draw_menu(self):
+        pygame.draw.rect(self.screen, self.WHITE, self.rect_menu, width=0, border_radius=0)
+
+    def _draw_sidebar(self):
+        sidebar_rect = pygame.Rect(
+            self.OFFSET_LEFT + self.GAMEBOARD_SIZE + self.BOARD_GUTTER,
+            self.MENUBAR_SIZE,
+            self.SIDEBAR_SIZE,
+            self.DISPLAY_SIZE[1] - self.MENUBAR_SIZE
+        )
+        pygame.draw.rect(self.screen, self.LIGHT_GRAY, sidebar_rect, width=0, border_radius=0)
+
+    def _draw_background(self):
+        pass
+
     def _draw_sprite(self, entity_id, square: Square):
         board_location = (
-            self.GAMEBOARD_OFFSET_X_PX + (square.x * self.SPRITE_SIZE),
-            self.GAMEBOARD_OFFSET_Y_PX + (square.y * self.SPRITE_SIZE),
+            self.OFFSET_LEFT + (square.x * self.SPRITE_SIZE),
+            self.OFFSET_TOP + (square.y * self.SPRITE_SIZE),
             self.SPRITE_SIZE,
             self.SPRITE_SIZE,
         )
@@ -834,8 +894,8 @@ class Graphics:
 
     def _draw_tank(self, square: Square, direction: Direction):
         board_location = (
-            self.GAMEBOARD_OFFSET_X_PX + (square.x * self.SPRITE_SIZE),
-            self.GAMEBOARD_OFFSET_Y_PX + (square.y * self.SPRITE_SIZE),
+            self.OFFSET_LEFT + (square.x * self.SPRITE_SIZE),
+            self.OFFSET_TOP + (square.y * self.SPRITE_SIZE),
             self.SPRITE_SIZE,
             self.SPRITE_SIZE,
         )
@@ -858,8 +918,8 @@ class Graphics:
     def _draw_laser(self, laser: LaserRec):
         # if laser.Firing:
         colour = self.LASER_COLOURS[laser.colour]
-        x = self.GAMEBOARD_OFFSET_X_PX + (laser.sq.x * self.SPRITE_SIZE)
-        y = self.GAMEBOARD_OFFSET_Y_PX + (laser.sq.y * self.SPRITE_SIZE)
+        x = self.OFFSET_LEFT + (laser.sq.x * self.SPRITE_SIZE)
+        y = self.OFFSET_TOP + (laser.sq.y * self.SPRITE_SIZE)
         h = self.SPRITE_SIZE / 2
         if laser.dir_front == laser.dir_back:
             # Not deflecting
@@ -879,8 +939,8 @@ class Graphics:
                     self.SPRITE_SIZE,
                     self.SPRITE_SIZE - self.LASER_OFFSET - self.LASER_OFFSET,
                 )
-            pygame.draw.rect(self.screen, self.BLACK, beam, 3)
-            pygame.draw.rect(self.screen, colour, beam)
+            pygame.draw.rect(self.screen, colour, beam, width=0, border_radius=2)
+            pygame.draw.rect(self.screen, self.BLACK, beam, width=1, border_radius=2)
         else:
             # Deflecting off mirror
             # Draw two parts of the reflecting laser
@@ -1184,7 +1244,7 @@ def play_level(level_name, level_number):
         game.queue_new_inputs(inputs.get_inputs())
         game.tick()
         graphics.draw_board(game)
-        clock.tick(10)
+        clock.tick(100)
 
     print(f"End State: {game.state.reached_flag}")
 
