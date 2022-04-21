@@ -21,8 +21,11 @@ K_UP = 38
 K_RIGHT = 39
 K_DOWN = 40
 
-K_UNDO = 117
-K_QUIT = 256
+K_UNDO = 117  # pygame.K_u
+K_QUIT = 113  # pygame.K_q
+K_RESET = 114  # pygame.K_r
+K_LVL_PRE = 112  # pygame.K_s
+K_LVL_NXT = 115  # pygame.K_s
 
 # Terrain
 GRASS = 0

@@ -113,12 +113,14 @@ class LevelInfo:
             hint: str,
             author: str,
             difficulty: str,
+            filename: str,
     ):
         self.number: int = number
         self.title: str = title
         self.hint: str = hint
         self.author: str = author
         self.difficulty: str = difficulty
+        self.filename: str = filename
 
 
 # class SlidingData:  # Sliding Struct
@@ -156,7 +158,7 @@ class Game:
         self.sounds_buffer = []
 
         # Static Info
-        self.level_info = LevelInfo(1, "", "", "", "")
+        self.level_info = LevelInfo(1, "", "", "", "", "")
 
         # Control flags
         self.running = True
@@ -209,7 +211,7 @@ class Game:
         hint = convert_null_terminated_bytes_to_str_helper(hint)
         author = convert_null_terminated_bytes_to_str_helper(author)
         difficulty = c.DIFFICULTY_TEXTS.get(difficulty_int, c.DIFFICULTY_TEXTS[1])
-        self.level_info = LevelInfo(level_number, title, hint, author, difficulty)
+        self.level_info = LevelInfo(level_number, title, hint, author, difficulty, filename)
 
         for sq in SQUARES:
             # Note that lvl files are saved in columns and playfield is in [x][y]
@@ -230,6 +232,12 @@ class Game:
         if c.K_UNDO in self.moves_buffer:
             self.moves_buffer = []
             self.undo()
+        elif c.K_RESET in self.moves_buffer:
+            self.load_level(self.level_info.number, self.level_info.filename)
+        elif c.K_LVL_PRE in self.moves_buffer:
+            self.load_level(self.level_info.number - 1, self.level_info.filename)
+        elif c.K_LVL_NXT in self.moves_buffer:
+            self.load_level(self.level_info.number + 1, self.level_info.filename)
 
         if self.microtick == 0:
             self.tick_laser_turn()
@@ -1063,6 +1071,15 @@ class InputEngine:
                 translated_events.append(c.K_SHOOT)
             elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_u:
                 translated_events.append(c.K_UNDO)
+            elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_r:
+                return [c.K_RESET]
+            elif event.type == pygame.locals.KEYDOWN and (event.key == pygame.locals.K_PAGEDOWN or event.key ==
+                                                          pygame.locals.K_p):
+                return [c.K_LVL_PRE]
+            elif event.type == pygame.locals.KEYDOWN and (event.key == pygame.locals.K_PAGEUP or event.key ==
+                                                          pygame.locals.K_s):
+                return [c.K_LVL_NXT]
+
         return translated_events
 
     def wait_for_anykey(self):
