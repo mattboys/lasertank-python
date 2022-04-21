@@ -23,7 +23,6 @@ K_DOWN = 40
 
 K_UNDO = 117
 K_QUIT = 256
-K_QUIT = 256
 
 # Terrain
 GRASS = 0

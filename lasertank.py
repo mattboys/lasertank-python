@@ -6,8 +6,6 @@ import pygame.locals
 
 import constants as c
 
-c.PLAYFIELD_SIZE = 16  # Playfield is 16x16 grid
-
 DEFAULT_LEVEL_LOC = "./resources/LaserTank.lvl"
 DEFAULT_SPRITESHEET_LOC = "./resources/spritesheet.png"
 DEFAULT_LPB_LOC = "./resources/LaserTank_0001.lpb"
@@ -786,6 +784,7 @@ class Graphics:
     GRAY = pygame.Color(128, 128, 128)
     WHITE = pygame.Color(255, 255, 255)
     RED = pygame.Color(255, 0, 0)
+    FONT_SIZE_COORDS = 13
 
     def __init__(self):
         pygame.init()
@@ -794,6 +793,7 @@ class Graphics:
         self.animation_counter = 0
         self.animation_rate_counter = 0
         self.screen.fill(self.LIGHT_GRAY)
+        self.font = pygame.font.SysFont("arial", size=self.FONT_SIZE_COORDS)
 
         self.rect_menu = pygame.Rect(0, 0, self.DISPLAY_SIZE[0], self.MENUBAR_SIZE)
         self.rect_playfield = pygame.Rect(self.OFFSET_LEFT, self.OFFSET_TOP, self.GAMEBOARD_SIZE, self.GAMEBOARD_SIZE)
@@ -806,6 +806,10 @@ class Graphics:
         if self.animation_rate_counter >= self.ANIMATION_RATE:
             self.animation_rate_counter = 0
             self.animation_counter = (self.animation_counter + 1) % 3
+
+    def _draw_text(self, text, position, colour, background):
+        rendered_text = self.font.render(str(text), True, colour, background)
+        self.screen.blit(rendered_text, rendered_text.get_rect(center=position))
 
     def _draw_embossed(self, rect: pygame.Rect, inner=True, double=False):
         if inner:
@@ -831,12 +835,30 @@ class Graphics:
                                  (rect.right + 1, rect.bottom + 1))
                 pygame.draw.line(self.screen, colour2, (rect.right + 1, rect.bottom), (rect.right + 1, rect.top - 2))
 
+    def _draw_board_coords(self):
+        for i in range(c.PLAYFIELD_SIZE):
+            l = str(i + 1)
+            x = self.rect_playfield.left - int(self.BOARD_GUTTER / 2) - 1
+            y = self.rect_playfield.top + int(self.rect_playfield.height / c.PLAYFIELD_SIZE * (i + 0.5))
+            self._draw_text(l, (x, y), self.GRAY, self.LIGHT_GRAY)
+            x = self.rect_playfield.right + int(self.BOARD_GUTTER / 2)
+            self._draw_text(l, (x, y), self.GRAY, self.LIGHT_GRAY)
+
+            l = chr(ord("A") + i)
+            x = self.rect_playfield.left + int(self.rect_playfield.width / c.PLAYFIELD_SIZE * (i + 0.5))
+            y = self.rect_playfield.top - int(self.BOARD_GUTTER / 2)
+            self._draw_text(l, (x, y), self.GRAY, self.LIGHT_GRAY)
+            y = self.rect_playfield.bottom + int(self.BOARD_GUTTER / 2)
+            self._draw_text(l, (x, y), self.GRAY, self.LIGHT_GRAY)
+
     def draw_board(self, game: Game):
         self._draw_menu()
         self._draw_sidebar()
         self._draw_background()
+        self._draw_board_coords()
         self._draw_embossed(self.rect_playfield, inner=False, double=True)
         self._draw_embossed(self.rect_coords)
+
         for sq in SQUARES:
             self._draw_sprite(game.state.terrain[sq], sq)
             self._draw_sprite(game.state.items[sq], sq)
