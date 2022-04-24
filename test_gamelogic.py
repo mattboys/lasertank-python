@@ -1,4 +1,4 @@
-from lasertank import *
+from execution import load_playback, load_level
 
 
 def helper_print_test_functions(folder, filename, numbers):
@@ -19,11 +19,10 @@ def run_lvl_playback(level_name, level_number, show=False):
     game = load_level(f"resources/levels/{level_name}.lvl", pb["number"])
     game.queue_new_inputs(pb["playback"])
     if show:
+        from graphics_pygame import Graphics
         graphics = Graphics()
-        clock = pygame.time.Clock()
     else:
         graphics = None
-        clock = None
 
     timeout_counter = 0
     moves_left_prev = 0
@@ -40,7 +39,7 @@ def run_lvl_playback(level_name, level_number, show=False):
 
         if show:
             graphics.draw_board(game)
-            clock.tick(100)
+            graphics.clock.tick(100)
     return game.state.reached_flag
 
 
@@ -874,22 +873,27 @@ def test_Tutor_with_Playbacks_level_0111():
 def test_Tutor_with_Playbacks_level_0112():
     assert run_lvl_playback("Tutor-with-Playbacks/Tutor-with-Playbacks", 112)
 
+
 # Deaths
 def test_Deaths_level_0001():
     assert not run_lvl_playback("deaths/Deaths", 1)
 
+
 def test_Deaths_level_0002():
     assert not run_lvl_playback("deaths/Deaths", 2)
+
 
 def test_Deaths_level_0003():
     assert not run_lvl_playback("deaths/Deaths", 3)
 
+
 def test_Deaths_level_0004():
     assert not run_lvl_playback("deaths/Deaths", 4)
+
 
 def test_Deaths_level_0005():
     assert not run_lvl_playback("deaths/Deaths", 5)
 
+
 def test_Deaths_level_0006():
     assert not run_lvl_playback("deaths/Deaths", 6)
-
