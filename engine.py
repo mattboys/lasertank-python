@@ -92,6 +92,7 @@ class Game:
             # Tank is not placed in the items array
             if item == c.TANK:
                 self.state.tank = TankRec(sq, direction=UP)
+                self.state.items[sq] = c.EMPTY
             else:
                 self.state.items[sq] = item
             self.state.terrain[sq] = terrain

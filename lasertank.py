@@ -9,12 +9,12 @@ def play_level(level_name, level_number):
     graphics = Graphics()
     inputs = InputEngine()
 
-    graphics.draw_board(game)
+    graphics.draw(game)
 
     while game.running:
         game.queue_new_inputs(inputs.get_inputs())
         game.tick()
-        graphics.draw_board(game)
+        graphics.draw(game)
         graphics.clock.tick(100)
 
     print(f"End State: {game.state.reached_flag}")

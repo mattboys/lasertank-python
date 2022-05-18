@@ -18,7 +18,7 @@ def debug_level(level_name, level_number):
     moves_left_prev = 0
 
     def display():
-        graphics.draw_board(game)
+        graphics.draw(game)
         print("")
         print(f"Tick: {tick_counter}")
         print(f"Moves:{txtgrphcs.print_directions(game.moves_buffer)}")
