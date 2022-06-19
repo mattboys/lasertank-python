@@ -61,9 +61,10 @@ class Graphics:
     CYAN = pygame.Color(0, 255, 255)
     DARK_YELLOW = pygame.Color(128, 128, 0)
 
-    def __init__(self):
+    def __init__(self, framerate=100):
         pygame.init()
         self.clock = pygame.time.Clock()
+        self.framerate = framerate
         self.screen = pygame.display.set_mode(size=self.DISPLAY_SIZE, flags=0)
         # self.screen = pygame.display.set_mode(size=self.DISPLAY_SIZE, flags=pygame.RESIZABLE)
         self.spritesheet = pygame.image.load(DEFAULT_SPRITESHEET_LOC).convert_alpha()
@@ -185,6 +186,7 @@ class Graphics:
         self._draw_playfield(game)
 
         pygame.display.update()
+        self.clock.tick(self.framerate)
 
     def _draw_playfield(self, game: Game):
         for sq in SQUARES:

@@ -1,51 +1,30 @@
-from engine import *
+from datastructures import *
+from engine import Game
+import constants as const
 
 
-class TextGraphics:
-    @staticmethod
-    def draw_interesting_crop(game: Game):
-        x_min = y_min = c.PLAYFIELD_SIZE
-        x_max = y_max = 0
-        for sq in SQUARES:
-            if (
-                    game.state.terrain[sq] not in (c.GRASS, c.WATER)
-                    or game.state.items[sq] != c.EMPTY
-                    or game.state.tank.sq == sq
-            ):
-                # Square of interest
-                x_min = min(x_min, sq.x)
-                y_min = min(y_min, sq.y)
-                x_max = max(x_max, sq.x)
-                y_max = max(y_max, sq.y)
-        # print(f"x_min: {x_min},y_min: {y_min},x_max: {x_max},y_max: {y_max}")
+class Graphics:
+    def draw(self, game: Game):
+        self.draw_state(game.state)
+
+    def draw_state(self, state: GameState):
         print(
             "       "
             + "       ".join(
-                [TextGraphics.coordinate(x=x) for x in range(x_min, x_max + 1)]
+                [self.coordinate(x=x) for x in range(c.PLAYFIELD_SIZE)]
             )
         )
-        for y in range(y_min, y_max + 1):
+        for y in range(c.PLAYFIELD_SIZE):
             print(
-                TextGraphics.coordinate(y=y)
+                self.coordinate(y=y)
                 + " : "
                 + " | ".join(
                     [
-                        TextGraphics.cell_as_numbers(game, Square(x, y))
-                        for x in range(x_min, x_max + 1)
+                        self.draw_square(state, Square(x, y))
+                        for x in range(c.PLAYFIELD_SIZE)
                     ]
                 )
             )
-
-    @staticmethod
-    def print_directions(moves):
-        move_mapping = {
-            c.K_SHOOT: "*",
-            c.K_LEFT: "⮜",
-            c.K_UP: "⮝",
-            c.K_RIGHT: "⮞",
-            c.K_DOWN: "⮟",
-        }
-        return "".join(move_mapping[m] for m in moves)
 
     @staticmethod
     def coordinate(x=None, y=None):
@@ -55,16 +34,45 @@ class TextGraphics:
         return f"{x_val}{y_val}"
 
     @staticmethod
-    def cell_as_numbers(game: Game, sq: Square):
-        terrain = game.state.terrain[sq]
-        item = game.state.items[sq]
+    def draw_square(state: GameState, sq: Square):
+        terrain = state.terrain[sq]
+        item = state.items[sq]
+
         if terrain == c.GRASS:
             terrain = " "
         if item == c.EMPTY:
             item = " "
-        if game.state.tank.sq == sq:
+        if state.tank.sq == sq:
             item = "T"
-        if game.state.laser_live and game.state.laser.sq == sq:
+        if state.laser_live and state.laser.sq == sq:
             terrain = "-"
 
         return f"{terrain: >2}{item: >3}"
+
+
+class InputEngine:
+    def get_inputs(self):
+        translated_events = []
+        events = input("Enter move (W,A,S,D,space),\n or U: undo, R: reset, N: next, P: prev, Q: exit\n")
+        for event in events:
+            if event.upper() == "Q":
+                return [const.K_QUIT]
+            elif event.upper() == "W":
+                translated_events.append(const.K_UP)
+            elif event.upper() == "S":
+                translated_events.append(const.K_DOWN)
+            elif event.upper() == "A":
+                translated_events.append(const.K_LEFT)
+            elif event.upper() == "D":
+                translated_events.append(const.K_RIGHT)
+            elif event == " ":
+                translated_events.append(const.K_SHOOT)
+            elif event.upper() == "U":
+                translated_events.append(const.K_UNDO)
+            elif event.upper() == "R":
+                translated_events.append(const.K_RESET)
+            elif event.upper() == "N":
+                translated_events.append(const.K_LVL_NXT)
+            elif event.upper() == "P":
+                translated_events.append(const.K_LVL_PRE)
+        return translated_events
