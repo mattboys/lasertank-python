@@ -3,28 +3,37 @@ from engine import Game
 import constants as const
 
 
+def draw_state(state: GameState):
+    Graphics.draw_grid_with_coordinates(Graphics.get_sprites(state))
+
+
 class Graphics:
     def draw(self, game: Game):
-        self.draw_state(game.state)
+        draw_state(game.state)
 
-    def draw_state(self, state: GameState):
+    @staticmethod
+    def draw_grid_with_coordinates(squares_list: list[str]):
         print(
             "       "
             + "       ".join(
-                [self.coordinate(x=x) for x in range(c.PLAYFIELD_SIZE)]
+                [Graphics.coordinate(x=x) for x in range(c.PLAYFIELD_SIZE)]
             )
         )
         for y in range(c.PLAYFIELD_SIZE):
             print(
-                self.coordinate(y=y)
+                Graphics.coordinate(y=y)
                 + " : "
                 + " | ".join(
                     [
-                        self.draw_square(state, Square(x, y))
+                        squares_list[Square(x, y)]
                         for x in range(c.PLAYFIELD_SIZE)
                     ]
                 )
             )
+
+    @staticmethod
+    def get_sprites(state: GameState):
+        return [Graphics.draw_square(state, s) for s in SQUARES]
 
     @staticmethod
     def coordinate(x=None, y=None):
