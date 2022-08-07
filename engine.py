@@ -240,7 +240,9 @@ class Game:
                     self.state.tank.sq = self.state.tank.sq.relative(direction)
                     self.tank_moving_on_conveyor = True
                     self.check_tunnel_tank()
-                    self.check_ice_tank(direction)
+                    if self.is_ice(self.state.tank.sq):
+                        self.state.tank.is_sliding = True
+                        self.state.tank.sliding_dr = direction
                     self.AntiTank()
 
     def game_over(self, victorious):
@@ -262,10 +264,10 @@ class Game:
     # def change_terrain(self, sq, new_terrain):
     #     self.terrain[sq] = new_terrain
 
-    def ConvMoveTank(self, direction):
-        # Move tank in the direction of the conveyor
-        self.state.tank.sq = self.state.tank.sq.relative(direction)
-        self.tank_moving_on_conveyor = True
+    # def ConvMoveTank(self, direction):
+    #     # Move tank in the direction of the conveyor
+    #     self.state.tank.sq = self.state.tank.sq.relative(direction)
+    #     self.tank_moving_on_conveyor = True
 
     def check_tunnel_tank(self):
         self.state.tank.on_waiting_tunnel = False
@@ -281,34 +283,29 @@ class Game:
             else:
                 self.state.tank.sq = tunnel_exit
 
-    def check_ice_tank(self, direction):
-        if self.is_ice(self.state.tank.sq):
-            # self.tank.sliding_sq = self.tank.sq
-            self.state.tank.is_sliding = True
-            self.state.tank.sliding_dr = direction
+    # def check_ice_tank(self, direction):
+    #     if self.is_ice(self.state.tank.sq):
+    #         # self.tank.sliding_sq = self.tank.sq
+    #         self.state.tank.is_sliding = True
+    #         self.state.tank.sliding_dr = direction
 
     def is_on_board_and_empty(self, sq):
+        """ Return True if a sq is on the board and is EMPTY """
         return False if sq is None else self.state.items[sq] == c.EMPTY
 
     def check_loc_move_start_sliding(self, sq, dr):
-
+        """ For when some objects are hit by a laser (Block, Mirrors, Antitanks)
+        Move object in dr, return True if was able """
         # Stop it sliding if already
         self.state.sliding_items.pop(sq, None)
-
         destination = sq.relative(dr)
         if destination is None or self.state.items[destination] != c.EMPTY:
             # Hitting edge of board or occupied square
-            return False
-
-        item = self.state.items[sq]  # Get object type
-
-        self.MoveObj(sq, dr)
-
-        # MoveObj2(sq, dr, c.S_Push1)
-        if self.is_ice(destination):
-            self.state.sliding_items[destination] = dr
-
-        return True
+            self.SoundPlay(c.S_LaserHit)
+        else:
+            self.MoveObj(sq, dr)
+            if self.is_ice(destination):
+                self.state.sliding_items[destination] = dr
 
     def AntiTank(self):
         # Look for antitanks on same row/col as tank and let them fire (only if laser not already existing)
@@ -405,8 +402,7 @@ class Game:
                 elif item_loc == c.BLOCK:
                     self.state.laser_live = False
                     # Can block be moved in direction of laser? Is square free
-                    if not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
+                    self.check_loc_move_start_sliding(sq, dr)
 
                 elif item_loc == c.WALL:
                     self.state.laser_live = False
@@ -431,8 +427,8 @@ class Game:
                         # Kill Antitank
                         self.state.items[sq] = deadantitank
                         self.SoundPlay(c.S_Anti1)
-                    elif not self.check_loc_move_start_sliding(sq, dr):
-                        self.SoundPlay(c.S_LaserHit)
+                    else:
+                        self.check_loc_move_start_sliding(sq, dr)
 
                 elif item_loc in [c.MIRROR_LEFT_UP, c.MIRROR_UP_RIGHT, c.MIRROR_RIGHT_DOWN, c.MIRROR_DOWN_LEFT, ]:
                     MIRROR_REFLECTION_DIRECTION = {
@@ -449,8 +445,7 @@ class Game:
                             LaserBounceOnIce = True
                     else:
                         self.state.laser_live = False
-                        if not self.check_loc_move_start_sliding(sq, dr):
-                            self.SoundPlay(c.S_LaserHit)
+                        self.check_loc_move_start_sliding(sq, dr)
 
                 elif item_loc in [c.ROTMIRROR_LEFT_UP, c.ROTMIRROR_UP_RIGHT, c.ROTMIRROR_RIGHT_DOWN,
                                   c.ROTMIRROR_DOWN_LEFT, ]:
