@@ -356,19 +356,19 @@ class Game:
 
     def UpdateUndo(self):
         # Should be done whenever player moves or shoots
-        self.undo_state.append(pickle.dumps(self.state))
+        self.undo_state.append(self.state.serialise())
 
     def PopUndo(self):
         # Remove an undo when tank moving through a tunnel
         if len(self.undo_state) > 0:
-            return pickle.loads(self.undo_state.pop())
+            return self.undo_state.pop()
         else:
             return None
 
     def undo(self):
         old_state = self.PopUndo()
         if old_state is not None:
-            self.state = old_state
+            self.state = GameState.deserialise(old_state)
 
     def MoveLaser(self):
 

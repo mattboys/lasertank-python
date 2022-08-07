@@ -10,8 +10,6 @@ class Graphics:
         state_sprites = self.get_sprites(state)
         self.draw_grid_with_coordinates(state_sprites)
         print("Loading")
-        for event in game.events:
-            print(event)
 
     @staticmethod
     def draw_grid_with_coordinates(squares_list: list[str]):
