@@ -19,7 +19,7 @@ class Game:
     def __init__(self):
         self.state: GameState = GameState()
 
-        self.moves_history = []
+        self.moves_history = []  # TODO
         self.moves_buffer = []  # RecBuffer
         self.undo_state = []
         self.sounds_buffer = []
@@ -36,19 +36,27 @@ class Game:
         self.microtick = 0
 
     def is_objects_sliding(self):
-        """Is anything sliding? Originally named SlideO_s"""
+        """ Is anything sliding? Originally named SlideO_s """
         return len(self.state.sliding_items) > 0
 
     def is_inputs_queued(self):
-        """Are there player moves waiting in the buffer to be played?"""
+        """ Are there player moves waiting in the buffer to be played? """
         return len(self.moves_buffer) > 0
 
     def is_tank_on_terrain(self):
-        """If the tank up on an object from a trick-shot then the tank is not on the terrain"""
+        """ If the tank up on an object from a trick-shot then the tank is not on the terrain """
         return self.state.items[self.state.tank.sq] == c.EMPTY
 
     def is_ice(self, sq: Square):
+        """ Is the square ICE or THINICE (causes objects to start sliding) """
         return self.state.terrain[sq] == c.ICE or self.state.terrain[sq] == c.THINICE
+
+    def is_on_board_and_empty(self, sq):
+        """ Return True if a sq is on the board and is EMPTY """
+        return False if sq is None else self.state.items[sq] == c.EMPTY
+
+    def is_tunnel(self, sq):
+        return self.state.terrain[sq] in c.TUNNEL_ALL
 
     def load_level(self, level_number, filename=DEFAULT_LEVEL_LOC):
         self.state.sliding_items = {}
@@ -165,7 +173,7 @@ class Game:
                             self.state.tank.sliding_dr = dr
                     else:
                         self.SoundPlay(c.S_Head)  # Bumping into something
-            self.AntiTank()
+            self.antitank_turn()
 
     def tick_resolve_object_momenta(self):
         # Resolve Momenta
@@ -182,7 +190,7 @@ class Game:
                 destination = sliding_item_sq.relative(sliding_item_dr)
                 if self.is_on_board_and_empty(destination) and not destination == self.state.tank.sq:
                     self.MoveObj(sliding_item_sq, sliding_item_dr)
-                    self.AntiTank()
+                    self.antitank_turn()
                     if not self.is_ice(destination):
                         del self.state.sliding_items[sliding_item_sq]
                     else:
@@ -201,7 +209,7 @@ class Game:
                         # Drop into water if ice melted and item couldn't move
                         self.sink_item_in_water(sliding_item_sq)
                     del self.state.sliding_items[sliding_item_sq]
-                    self.AntiTank()
+                    self.antitank_turn()
 
     def tick_resolve_tank_momenta(self):
         if self.state.tank.is_sliding:
@@ -216,7 +224,7 @@ class Game:
                 self.state.tank.sq = self.state.tank.sq.relative(self.state.tank.sliding_dr)
                 # self.tank_moving_on_conveyor = True
                 self.check_tunnel_tank()
-                self.AntiTank()
+                self.antitank_turn()
                 # Move tank an additional square
                 # self.tank.sq = self.tank.sq.relative(self.tank.sliding_dr)
                 if not self.is_ice(destination):
@@ -243,7 +251,7 @@ class Game:
                     if self.is_ice(self.state.tank.sq):
                         self.state.tank.is_sliding = True
                         self.state.tank.sliding_dr = direction
-                    self.AntiTank()
+                    self.antitank_turn()
 
     def game_over(self, victorious):
         self.running = False
@@ -289,9 +297,7 @@ class Game:
     #         self.state.tank.is_sliding = True
     #         self.state.tank.sliding_dr = direction
 
-    def is_on_board_and_empty(self, sq):
-        """ Return True if a sq is on the board and is EMPTY """
-        return False if sq is None else self.state.items[sq] == c.EMPTY
+
 
     def check_loc_move_start_sliding(self, sq, dr):
         """ For when some objects are hit by a laser (Block, Mirrors, Antitanks)
@@ -307,10 +313,11 @@ class Game:
             if self.is_ice(destination):
                 self.state.sliding_items[destination] = dr
 
-    def AntiTank(self):
-        # Look for antitanks on same row/col as tank and let them fire (only if laser not already existing)
-        # Order: Right, left, down, above from Tank
-
+    def antitank_turn(self):
+        """
+        Look for antitanks on same row/col as tank and let them fire (only if laser not already existing)
+        Order: Right, left, down, above from Tank
+        """
         # Only one laser on board so returns if laser exists
         if self.state.laser_live:
             return
@@ -334,9 +341,8 @@ class Game:
                 break
 
     def FireLaser(self, sq, dr, is_player_tank):
-
+        """ Start the laser moving from the player tank or an antitank """
         self.state.laser_live = True
-
         self.state.laser.dir_front = dr
         self.state.laser.dir_back = dr
         self.state.laser.sq = sq
@@ -347,7 +353,6 @@ class Game:
         else:
             self.state.laser.colour = c.LaserColorR
             self.SoundPlay(c.S_Anti2)
-        # self.MoveLaser()
 
     def UpdateUndo(self):
         # Should be done whenever player moves or shoots
@@ -492,7 +497,7 @@ class Game:
             else:
                 # Laser is off the board / hit something solid
                 # Antitank Turn
-                self.AntiTank()
+                self.antitank_turn()
 
                 # TestIfConvCanMoveTank: Used to handle the speed bug
                 terrain_tank_on = self.state.terrain[self.state.tank.sq]
@@ -516,9 +521,6 @@ class Game:
                 ):
                     self.tank_moving_on_conveyor = True
         # loops here if LaserBounceOnIce was set in the loop
-
-    def is_tunnel(self, sq):
-        return self.state.terrain[sq] in c.TUNNEL_ALL
 
     def SoundPlay(self, sound_id):
         self.sounds_buffer.append(sound_id)
