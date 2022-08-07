@@ -17,7 +17,6 @@ CONVEYORS_DIRECTIONS = {
 
 class Game:
     def __init__(self):
-
         self.state: GameState = GameState()
 
         self.moves_history = []
@@ -37,8 +36,7 @@ class Game:
         self.microtick = 0
 
     def is_objects_sliding(self):
-        # Was named SlideO_s
-        # Is anything sliding?
+        """Is anything sliding? Originally named SlideO_s"""
         return len(self.state.sliding_items) > 0
 
     def is_inputs_queued(self):
