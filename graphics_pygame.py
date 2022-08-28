@@ -56,10 +56,10 @@ class Graphics:
     WHITE = pygame.Color(255, 255, 255)
     RED = pygame.Color(255, 0, 0)
     RED_BRICK_SPECK = pygame.Color(128, 0, 0)
-
     BLUE = pygame.Color(0, 0, 255)
     CYAN = pygame.Color(0, 255, 255)
     DARK_YELLOW = pygame.Color(128, 128, 0)
+    GREEN = pygame.Color(0, 255, 0)
 
     def __init__(self, framerate=100):
         pygame.init()
@@ -88,6 +88,9 @@ class Graphics:
 
         self.rect_info = pygame.Rect(self.rect_coords.right, self.rect_coords.top,
                                      self.DISPLAY_SIZE[0] - self.rect_coords.right - 1, self.INFO_HEIGHT)
+        self.rect_buttons = pygame.Rect(self.rect_info.left, self.rect_info.bottom,
+                                        self.DISPLAY_SIZE[0] - self.rect_coords.right - 1,
+                                        self.DISPLAY_SIZE[1] - self.rect_info.bottom - 1)
 
         self._draw_menu()
         self._draw_sidebar()
@@ -103,29 +106,33 @@ class Graphics:
         rendered_text = font.render(str(text), True, colour, background)
         self.screen.blit(rendered_text, rendered_text.get_rect(center=position))
 
-    def _draw_embossed(self, rect: pygame.Rect, inner=True, double=False):
-        if inner:
-            colour1 = self.WHITE
-            colour2 = self.GRAY
+    # def _draw_embossed(self, rect: pygame.Rect, inner=True, double=False):
+    #     if inner:
+    #         colour1 = self.WHITE
+    #         colour2 = self.GRAY
+    #
+    #         pygame.draw.line(self.screen, colour1, (rect.left + 1, rect.bottom - 2), (rect.left + 1, rect.top + 1))
+    #         pygame.draw.line(self.screen, colour1, (rect.left + 2, rect.top + 1), (rect.right - 3, rect.top + 1))
+    #         pygame.draw.line(self.screen, colour2, (rect.left + 2, rect.bottom - 2), (rect.right - 3, rect.bottom - 2))
+    #         pygame.draw.line(self.screen, colour2, (rect.right - 2, rect.bottom - 2), (rect.right - 2, rect.top + 1))
+    #
+    #     else:
+    #         colour1 = self.GRAY
+    #         colour2 = self.WHITE
+    #         pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.bottom), (rect.left - 1, rect.top - 1))
+    #         pygame.draw.line(self.screen, colour1, (rect.left, rect.top - 1), (rect.right - 1, rect.top - 1))
+    #         pygame.draw.line(self.screen, colour2, (rect.left, rect.bottom), (rect.right, rect.bottom))
+    #         pygame.draw.line(self.screen, colour2, (rect.right, rect.bottom - 1), (rect.right, rect.top - 1))
+    #         if double:
+    #             pygame.draw.line(self.screen, colour1, (rect.left - 2, rect.bottom + 1), (rect.left - 2, rect.top - 2))
+    #             pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.top - 2), (rect.right, rect.top - 2))
+    #             pygame.draw.line(self.screen, colour2, (rect.left - 1, rect.bottom + 1),
+    #                              (rect.right + 1, rect.bottom + 1))
+    #             pygame.draw.line(self.screen, colour2, (rect.right + 1, rect.bottom), (rect.right + 1, rect.top - 2))
 
-            pygame.draw.line(self.screen, colour1, (rect.left + 1, rect.bottom - 2), (rect.left + 1, rect.top + 1))
-            pygame.draw.line(self.screen, colour1, (rect.left + 2, rect.top + 1), (rect.right - 3, rect.top + 1))
-            pygame.draw.line(self.screen, colour2, (rect.left + 2, rect.bottom - 2), (rect.right - 3, rect.bottom - 2))
-            pygame.draw.line(self.screen, colour2, (rect.right - 2, rect.bottom - 2), (rect.right - 2, rect.top + 1))
+    def _draw_buttons(self):
 
-        else:
-            colour1 = self.GRAY
-            colour2 = self.WHITE
-            pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.bottom), (rect.left - 1, rect.top - 1))
-            pygame.draw.line(self.screen, colour1, (rect.left, rect.top - 1), (rect.right - 1, rect.top - 1))
-            pygame.draw.line(self.screen, colour2, (rect.left, rect.bottom), (rect.right, rect.bottom))
-            pygame.draw.line(self.screen, colour2, (rect.right, rect.bottom - 1), (rect.right, rect.top - 1))
-            if double:
-                pygame.draw.line(self.screen, colour1, (rect.left - 2, rect.bottom + 1), (rect.left - 2, rect.top - 2))
-                pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.top - 2), (rect.right, rect.top - 2))
-                pygame.draw.line(self.screen, colour2, (rect.left - 1, rect.bottom + 1),
-                                 (rect.right + 1, rect.bottom + 1))
-                pygame.draw.line(self.screen, colour2, (rect.right + 1, rect.bottom), (rect.right + 1, rect.top - 2))
+        pygame.draw.rect(self.screen, self.CYAN, self.rect_buttons.inflate(-20, -20))
 
     def _draw_embossed_out(self, rect: pygame.Rect):
         """ Overlays one pixel of embossed-out effect lines on INSIDE of rect """
@@ -164,17 +171,19 @@ class Graphics:
     def _draw_board_coords(self):
         for i in range(c.PLAYFIELD_SIZE):
             int_print = str(i + 1)
-            x = self.rect_playfield.left - int(self.BOARD_GUTTER / 2) - 1
+            x = self.rect_playfield.left - int(self.BOARD_GUTTER / 2) + 1
             y = self.rect_playfield.top + int(self.rect_playfield.height / c.PLAYFIELD_SIZE * (i + 0.5))
             self._draw_text(int_print, (x, y), self.GRAY, self.LIGHT_GRAY, self.font_coords)
-            x = self.rect_playfield.right + int(self.BOARD_GUTTER / 2)
+
+            x = self.rect_playfield.right + int(self.BOARD_GUTTER / 2) - 2
             self._draw_text(int_print, (x, y), self.GRAY, self.LIGHT_GRAY, self.font_coords)
 
             char_print = chr(ord("A") + i)
             x = self.rect_playfield.left + int(self.rect_playfield.width / c.PLAYFIELD_SIZE * (i + 0.5))
             y = self.rect_playfield.top - int(self.BOARD_GUTTER / 2)
             self._draw_text(char_print, (x, y), self.GRAY, self.LIGHT_GRAY, self.font_coords)
-            y = self.rect_playfield.bottom + int(self.BOARD_GUTTER / 2)
+
+            y = self.rect_playfield.bottom + int(self.BOARD_GUTTER / 2) - 3
             self._draw_text(char_print, (x, y), self.GRAY, self.LIGHT_GRAY, self.font_coords)
 
     def draw(self, game: Game):
@@ -184,6 +193,7 @@ class Graphics:
         self._draw_embossed_out(self.rect_coords)
         self._draw_level_info()
         self._draw_playfield(game)
+        self._draw_buttons()
 
         pygame.display.update()
         self.clock.tick(self.framerate)
@@ -241,6 +251,16 @@ class Graphics:
 
         self.screen.blit(rendered_text, rendered_text.get_rect(center=(x, y - 1)), crop)
 
+    def _draw_text_in_rect(self, text: str, rect: pygame.rect, rect_colour, text_colour, font: pygame.font.Font):
+        """ Draw a box at rect with the colour rect_colour and the text centred in the rect """
+
+        rendered_text = font.render(text, True, text_colour, rect_colour)
+        rendered_text_rect = rendered_text.get_rect(center=rect.center, height=rect.height)
+
+        pygame.draw.rect(self.screen, rect_colour, rect)
+
+        self.screen.blit(rendered_text, rendered_text_rect)
+
     def _draw_level_info(self):
         padding_small = 28
         padding_large = 40
@@ -264,22 +284,34 @@ class Graphics:
         x = self.rect_info.centerx - int(self.rect_info.width / 4) + 5
         moves_rect = pygame.Rect(0, y, 100, 65)
         moves_rect.centerx = x
-        pygame.draw.rect(self.screen, self.CYAN, moves_rect)
+        pygame.draw.rect(self.screen, self.LIGHT_GRAY, moves_rect)
         self._draw_embossed_out(moves_rect)
+
+        moves_rect_title = pygame.Rect(0, y, 80, 24)
+        moves_rect_title.midtop = moves_rect.midtop
+        moves_rect_title.y += 3
+        self._draw_text_in_rect("Moves", moves_rect_title, self.LIGHT_GRAY, self.DARK_YELLOW, self.font_info_title)
 
         moves_rect_counter = pygame.Rect(0, y, 80, 24)
         moves_rect_counter.midtop = moves_rect.center
-        pygame.draw.rect(self.screen, self.BLACK, moves_rect_counter)
+        self._draw_text_in_rect("888", moves_rect_counter, self.BLACK, self.GREEN, self.font_info)
         self._draw_embossed_in_double(moves_rect_counter)
 
         x = self.rect_info.centerx + int(self.rect_info.width / 4) - 5
         shoot_rect = pygame.Rect(0, y, 100, 65)
         shoot_rect.centerx = x
-        pygame.draw.rect(self.screen, self.CYAN, shoot_rect)
+        pygame.draw.rect(self.screen, self.LIGHT_GRAY, shoot_rect)
+        self._draw_embossed_out(shoot_rect)
+
+        shoot_rect_title = pygame.Rect(0, y, 80, 24)
+        shoot_rect_title.midtop = shoot_rect.midtop
+        shoot_rect_title.y += 3
+        self._draw_text_in_rect("Shots", shoot_rect_title, self.LIGHT_GRAY, self.DARK_YELLOW, self.font_info_title)
+
         shoot_rect_counter = pygame.Rect(0, y, 80, 24)
         shoot_rect_counter.midtop = shoot_rect.center
-        pygame.draw.rect(self.screen, self.BLACK, shoot_rect_counter)
-        # self._draw_embossed_in_double(shoot_rect_counter)
+        self._draw_text_in_rect("555", shoot_rect_counter, self.BLACK, self.GREEN, self.font_info)
+        self._draw_embossed_in_double(shoot_rect_counter)
 
     def _draw_bricks_background(self):
         brick_background_rect = self.rect_info.inflate(-4, -4)
