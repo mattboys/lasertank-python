@@ -1,6 +1,9 @@
 from execution import load_playback, load_level
 
 
+# Install pytest to validate these tests
+
+
 def helper_print_test_functions(folder, filename, numbers):
     if isinstance(numbers, int):
         numbers = [numbers]
@@ -202,52 +205,100 @@ def test_tricks_level_0026():
 
 
 # Standard Levels
-def test_standard_level_0001():
+def test_LaserTank_level_0001():
     assert run_lvl_playback("standard_levels/LaserTank", 1)
 
 
-def test_standard_level_0002():
+def test_LaserTank_level_0002():
     assert run_lvl_playback("standard_levels/LaserTank", 2)
 
 
-def test_standard_level_0003():
+def test_LaserTank_level_0003():
     assert run_lvl_playback("standard_levels/LaserTank", 3)
 
 
-def test_standard_level_0004():
+def test_LaserTank_level_0004():
     assert run_lvl_playback("standard_levels/LaserTank", 4)
 
 
-def test_standard_level_0005():
+def test_LaserTank_level_0005():
     assert run_lvl_playback("standard_levels/LaserTank", 5)
 
 
-def test_standard_level_0006():
+def test_LaserTank_level_0006():
     assert run_lvl_playback("standard_levels/LaserTank", 6)
 
 
-def test_standard_level_0007():
+def test_LaserTank_level_0007():
     assert run_lvl_playback("standard_levels/LaserTank", 7)
 
 
-def test_standard_level_0008():
+def test_LaserTank_level_0008():
     assert run_lvl_playback("standard_levels/LaserTank", 8)
 
 
-def test_standard_level_0009():
+def test_LaserTank_level_0009():
     assert run_lvl_playback("standard_levels/LaserTank", 9)
 
 
-def test_standard_level_0010():
+def test_LaserTank_level_0010():
     assert run_lvl_playback("standard_levels/LaserTank", 10)
 
 
-def test_standard_level_0011():
+def test_LaserTank_level_0011():
     assert run_lvl_playback("standard_levels/LaserTank", 11)
 
 
-def test_standard_level_0012():
+def test_LaserTank_level_0012():
     assert run_lvl_playback("standard_levels/LaserTank", 12)
+
+
+def test_LaserTank_level_0013():
+    assert run_lvl_playback("standard_levels/LaserTank", 13)
+
+
+def test_LaserTank_level_0014():
+    assert run_lvl_playback("standard_levels/LaserTank", 14)
+
+
+def test_LaserTank_level_0015():
+    assert run_lvl_playback("standard_levels/LaserTank", 15)
+
+
+def test_LaserTank_level_0016():
+    assert run_lvl_playback("standard_levels/LaserTank", 16)
+
+
+def test_LaserTank_level_0017():
+    assert run_lvl_playback("standard_levels/LaserTank", 17)
+
+
+def test_LaserTank_level_0018():
+    assert run_lvl_playback("standard_levels/LaserTank", 18)
+
+
+def test_LaserTank_level_0019():
+    assert run_lvl_playback("standard_levels/LaserTank", 19)
+
+
+def test_LaserTank_level_0020():
+    assert run_lvl_playback("standard_levels/LaserTank", 20)
+
+
+def test_LaserTank_level_0021():
+    assert run_lvl_playback("standard_levels/LaserTank", 21)
+
+
+def test_LaserTank_level_0022():
+    assert run_lvl_playback("standard_levels/LaserTank", 22)
+
+
+def test_LaserTank_level_0023():
+    assert run_lvl_playback("standard_levels/LaserTank", 23)
+
+
+def test_LaserTank_level_0024():
+    assert run_lvl_playback("standard_levels/LaserTank", 24)
 
 
 # Custom Tests

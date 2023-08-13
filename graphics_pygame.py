@@ -46,9 +46,11 @@ class Graphics:
     LASER_OFFSET = 13  # LaserOffset
     ANIMATION_RATE = 20
 
-    FONT_SIZE_COORDS = 13
+    FONT_SIZE_COORDS = 14
     FONT_SIZE_INFO_TITLE = 17
-    FONT_SIZE_INFO = 15
+    FONT_SIZE_INFO = 17
+    FONT_SIZE_BUTTONS = 17
+    FONT_SIZE_MENU = 13
 
     BLACK = pygame.Color(0, 0, 0)
     LIGHT_GRAY = pygame.Color(192, 192, 192)
@@ -72,10 +74,12 @@ class Graphics:
         self.animation_rate_counter = 0
         self.screen.fill(self.LIGHT_GRAY)
 
-        self.font_coords = pygame.font.SysFont("arial", size=self.FONT_SIZE_COORDS)
+        self.font_coords = pygame.font.SysFont("calibri", size=self.FONT_SIZE_COORDS)
         self.font_info_title = pygame.font.SysFont("palatinolinotype", size=self.FONT_SIZE_INFO_TITLE)
         self.font_info_title.set_bold(True)
-        self.font_info = pygame.font.SysFont("arial", size=self.FONT_SIZE_INFO)
+        self.font_info = pygame.font.SysFont("calibri", size=self.FONT_SIZE_INFO)
+        self.font_button = pygame.font.SysFont("calibri", size=self.FONT_SIZE_BUTTONS, bold=True)
+        self.font_menu = pygame.font.SysFont("calibri", size=self.FONT_SIZE_MENU)
 
         self.rect_menu = pygame.Rect(0, 0, self.screen.get_width(), self.MENUBAR_SIZE)
         height_remaining = self.screen.get_height() - self.rect_menu.height
@@ -90,7 +94,7 @@ class Graphics:
                                      self.DISPLAY_SIZE[0] - self.rect_coords.right - 1, self.INFO_HEIGHT)
         self.rect_buttons = pygame.Rect(self.rect_info.left, self.rect_info.bottom,
                                         self.DISPLAY_SIZE[0] - self.rect_coords.right - 1,
-                                        self.DISPLAY_SIZE[1] - self.rect_info.bottom - 1)
+                                        self.DISPLAY_SIZE[1] - self.rect_info.bottom - 3)
 
         self._draw_menu()
         self._draw_sidebar()
@@ -131,42 +135,151 @@ class Graphics:
     #             pygame.draw.line(self.screen, colour2, (rect.right + 1, rect.bottom), (rect.right + 1, rect.top - 2))
 
     def _draw_buttons(self):
+        self.rect_button_zone_outer = self.rect_buttons.inflate(-6, -6)
+        button_outer_padding = 6
+        button_rows = 6
+        row_height = int(
+            (self.rect_button_zone_outer.height - ((button_rows + 1) * button_outer_padding)) / button_rows)
+        row_width = int((self.rect_button_zone_outer.width - ((1 + 1) * button_outer_padding)) / 1)
+        row_half_width = int((self.rect_button_zone_outer.width - ((2 + 1) * button_outer_padding)) / 2)
+        self.rect_button_undo = pygame.Rect(
+            self.rect_button_zone_outer.left + button_outer_padding,
+            self.rect_button_zone_outer.top + button_outer_padding,
+            row_half_width,
+            row_height,
+        )
+        self.rect_button_hint = pygame.Rect(
+            self.rect_button_undo.right + button_outer_padding,
+            self.rect_button_zone_outer.top + button_outer_padding,
+            row_half_width,
+            row_height,
+        )
+        self.rect_button_save = pygame.Rect(
+            self.rect_button_zone_outer.left + button_outer_padding,
+            self.rect_button_undo.bottom + button_outer_padding,
+            row_width,
+            row_height,
+        )
+        self.rect_button_restore = pygame.Rect(
+            self.rect_button_zone_outer.left + button_outer_padding,
+            self.rect_button_save.bottom + button_outer_padding,
+            row_width,
+            row_height,
+        )
 
-        pygame.draw.rect(self.screen, self.CYAN, self.rect_buttons.inflate(-20, -20))
+        self.rect_button_new = pygame.Rect(
+            self.rect_button_zone_outer.left + button_outer_padding,
+            self.rect_button_restore.bottom + button_outer_padding,
+            row_half_width,
+            row_height,
+        )
+        self.rect_button_restart = pygame.Rect(
+            self.rect_button_new.right + button_outer_padding,
+            self.rect_button_restore.bottom + button_outer_padding,
+            row_half_width,
+            row_height,
+        )
+        self.rect_button_load = pygame.Rect(
+            self.rect_button_zone_outer.left + button_outer_padding,
+            self.rect_button_new.bottom + button_outer_padding,
+            row_width,
+            row_height,
+        )
+        self.rect_button_level_prev = pygame.Rect(
+            self.rect_button_zone_outer.left + button_outer_padding,
+            self.rect_button_load.bottom + button_outer_padding,
+            row_half_width,
+            row_height,
+        )
+        self.rect_button_level_next = pygame.Rect(
+            self.rect_button_level_prev.right + button_outer_padding,
+            self.rect_button_load.bottom + button_outer_padding,
+            row_half_width,
+            row_height,
+        )
+
+        self._draw_embossed_out(self.rect_buttons)
+        self._draw_embossed_in(self.rect_button_zone_outer)
+
+        self._draw_unpressed_button(self.rect_button_undo, "Undo")
+        self._draw_unpressed_button(self.rect_button_hint, "Hint")
+        self._draw_unpressed_button(self.rect_button_save, "Save Position")
+        self._draw_unpressed_button(self.rect_button_restore, "Restore Position")
+        self._draw_unpressed_button(self.rect_button_new, "New")
+        self._draw_unpressed_button(self.rect_button_restart, "Restart")
+        self._draw_unpressed_button(self.rect_button_load, "Load Level")
+        self._draw_unpressed_button(self.rect_button_level_prev, "<< Level")
+        self._draw_unpressed_button(self.rect_button_level_next, "Level >>")
 
     def _draw_embossed_out(self, rect: pygame.Rect):
         """ Overlays one pixel of embossed-out effect lines on INSIDE of rect """
-        colour1 = self.WHITE
-        colour2 = self.GRAY
-
-        pygame.draw.line(self.screen, colour1, (rect.left, rect.bottom - 1), (rect.left, rect.top))
-        pygame.draw.line(self.screen, colour1, (rect.left + 1, rect.top), (rect.right - 2, rect.top))
-        pygame.draw.line(self.screen, colour2, (rect.left + 1, rect.bottom - 1), (rect.right - 2, rect.bottom - 1))
-        pygame.draw.line(self.screen, colour2, (rect.right - 1, rect.bottom - 1), (rect.right - 1, rect.top))
+        self._draw_3d_inside(rect, self.WHITE, self.GRAY)
+        # colour1 = self.WHITE
+        # colour2 = self.GRAY
+        # pygame.draw.line(self.screen, colour1, (rect.left, rect.bottom - 1), (rect.left, rect.top))
+        # pygame.draw.line(self.screen, colour1, (rect.left + 1, rect.top), (rect.right - 2, rect.top))
+        # pygame.draw.line(self.screen, colour2, (rect.left + 1, rect.bottom - 1), (rect.right - 2, rect.bottom - 1))
+        # pygame.draw.line(self.screen, colour2, (rect.right - 1, rect.bottom - 1), (rect.right - 1, rect.top))
 
     def _draw_embossed_in(self, rect: pygame.Rect):
         """ Overlays one pixel of embossed-in effect lines on INSIDE of rect """
-        colour1 = self.GRAY
-        colour2 = self.WHITE
+        self._draw_3d_inside(rect, self.GRAY, self.WHITE)
+        # colour1 = self.GRAY
+        # colour2 = self.WHITE
+        # pygame.draw.line(self.screen, colour1, (rect.left, rect.bottom - 1), (rect.left, rect.top))
+        # pygame.draw.line(self.screen, colour1, (rect.left + 1, rect.top), (rect.right - 2, rect.top))
+        # pygame.draw.line(self.screen, colour2, (rect.left + 1, rect.bottom - 1), (rect.right - 2, rect.bottom - 1))
+        # pygame.draw.line(self.screen, colour2, (rect.right - 1, rect.bottom - 1), (rect.right - 1, rect.top))
 
-        pygame.draw.line(self.screen, colour1, (rect.left, rect.bottom - 1), (rect.left, rect.top))
-        pygame.draw.line(self.screen, colour1, (rect.left + 1, rect.top), (rect.right - 2, rect.top))
-        pygame.draw.line(self.screen, colour2, (rect.left + 1, rect.bottom - 1), (rect.right - 2, rect.bottom - 1))
-        pygame.draw.line(self.screen, colour2, (rect.right - 1, rect.bottom - 1), (rect.right - 1, rect.top))
+    def _draw_3d_inside(self, rect: pygame.Rect, colour_top_left: pygame.Color, colour_bottom_right: pygame.Color):
+        """ Overlays one pixel of 3D lighting effect lines on INSIDE of rect. """
+        pygame.draw.line(self.screen, colour_top_left, (rect.left, rect.bottom - 1), (rect.left, rect.top))
+        pygame.draw.line(self.screen, colour_top_left, (rect.left + 1, rect.top), (rect.right - 2, rect.top))
+        pygame.draw.line(self.screen, colour_bottom_right, (rect.left + 1, rect.bottom - 1),
+                         (rect.right - 2, rect.bottom - 1))
+        pygame.draw.line(self.screen, colour_bottom_right, (rect.right - 1, rect.bottom - 1),
+                         (rect.right - 1, rect.top))
+
+    def _draw_3d_outside(self, rect: pygame.Rect, colour_top_left: pygame.Color, colour_bottom_right: pygame.Color):
+        """ Overlays one pixel of 3D lighting effect lines on OUSIDE of rect. """
+        self._draw_3d_inside(rect.inflate(2, 2), colour_top_left, colour_bottom_right)
 
     def _draw_embossed_in_double(self, rect: pygame.Rect):
         """ Adds two pixels of embossed-in effect lines on OUTSIDE of rect """
-        colour1 = self.GRAY
-        colour2 = self.WHITE
-        pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.bottom), (rect.left - 1, rect.top - 1))
-        pygame.draw.line(self.screen, colour1, (rect.left, rect.top - 1), (rect.right - 1, rect.top - 1))
-        pygame.draw.line(self.screen, colour2, (rect.left, rect.bottom), (rect.right, rect.bottom))
-        pygame.draw.line(self.screen, colour2, (rect.right, rect.bottom - 1), (rect.right, rect.top - 1))
+        self._draw_3d_outside(rect, self.GRAY, self.WHITE)
+        self._draw_3d_outside(rect.inflate(2, 2), self.GRAY, self.WHITE)
 
-        pygame.draw.line(self.screen, colour1, (rect.left - 2, rect.bottom + 1), (rect.left - 2, rect.top - 2))
-        pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.top - 2), (rect.right, rect.top - 2))
-        pygame.draw.line(self.screen, colour2, (rect.left - 1, rect.bottom + 1), (rect.right + 1, rect.bottom + 1))
-        pygame.draw.line(self.screen, colour2, (rect.right + 1, rect.bottom), (rect.right + 1, rect.top - 2))
+        # pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.bottom), (rect.left - 1, rect.top - 1))
+        # pygame.draw.line(self.screen, colour1, (rect.left, rect.top - 1), (rect.right - 1, rect.top - 1))
+        # pygame.draw.line(self.screen, colour2, (rect.left, rect.bottom), (rect.right, rect.bottom))
+        # pygame.draw.line(self.screen, colour2, (rect.right, rect.bottom - 1), (rect.right, rect.top - 1))
+        #
+        # pygame.draw.line(self.screen, colour1, (rect.left - 2, rect.bottom + 1), (rect.left - 2, rect.top - 2))
+        # pygame.draw.line(self.screen, colour1, (rect.left - 1, rect.top - 2), (rect.right, rect.top - 2))
+        # pygame.draw.line(self.screen, colour2, (rect.left - 1, rect.bottom + 1), (rect.right + 1, rect.bottom + 1))
+        # pygame.draw.line(self.screen, colour2, (rect.right + 1, rect.bottom), (rect.right + 1, rect.top - 2))
+
+    def _draw_unpressed_button(self, rect: pygame.Rect, button_text: str):
+        BUTTON_BACKGROUND = pygame.Color(220, 220, 220)
+        pygame.draw.rect(self.screen, BUTTON_BACKGROUND, rect)
+        self._draw_text(button_text, rect.center, self.BLACK, BUTTON_BACKGROUND, self.font_button)
+        self._draw_3d_inside(
+            rect,
+            self.WHITE,
+            pygame.Color(105, 105, 105),
+        )
+        self._draw_3d_inside(
+            rect.inflate(-2, -2),
+            pygame.Color(227, 227, 227),
+            pygame.Color(160, 160, 160),
+        )
+        # self._draw_double_embossed(
+        #     rect,
+        #     pygame.Color(240, 240, 240),
+        #     pygame.Color(227, 227, 227),
+        #     pygame.Color(105, 105, 105),
+        #     pygame.Color(160, 160, 160)
+        # )
 
     def _draw_board_coords(self):
         for i in range(c.PLAYFIELD_SIZE):
@@ -208,8 +321,21 @@ class Graphics:
         self._increment_animation_counter()
 
     def _draw_menu(self):
-        # pygame.draw.rect(self.screen, self.WHITE, self.rect_menu, width=0, border_radius=0)
-        pass
+        pygame.draw.rect(self.screen, self.WHITE, self.rect_menu, width=0, border_radius=0)
+        menu_width = 50
+        rect_menu_game = pygame.Rect(self.rect_menu.left, self.rect_menu.top, menu_width, self.rect_menu.height)
+        rect_menu_move = pygame.Rect(rect_menu_game.right, self.rect_menu.top, menu_width, self.rect_menu.height)
+        rect_menu_options = pygame.Rect(rect_menu_move.right, self.rect_menu.top, menu_width, self.rect_menu.height)
+        rect_menu_editor = pygame.Rect(rect_menu_options.right, self.rect_menu.top, menu_width, self.rect_menu.height)
+        rect_menu_help = pygame.Rect(rect_menu_editor.right, self.rect_menu.top, menu_width, self.rect_menu.height)
+        rect_menu_extras = pygame.Rect(rect_menu_help.right, self.rect_menu.top, menu_width, self.rect_menu.height)
+
+        self._draw_text_in_rect("Game", rect_menu_game, self.WHITE, self.BLACK, self.font_menu)
+        self._draw_text_in_rect("Move", rect_menu_move, self.WHITE, self.BLACK, self.font_menu)
+        self._draw_text_in_rect("Options", rect_menu_options, self.WHITE, self.BLACK, self.font_menu)
+        self._draw_text_in_rect("Editor", rect_menu_editor, self.WHITE, self.BLACK, self.font_menu)
+        self._draw_text_in_rect("Help", rect_menu_help, self.WHITE, self.BLACK, self.font_menu)
+        self._draw_text_in_rect("Extras", rect_menu_extras, self.WHITE, self.BLACK, self.font_menu)
 
     def _draw_sidebar(self):
         pass
@@ -251,7 +377,8 @@ class Graphics:
 
         self.screen.blit(rendered_text, rendered_text.get_rect(center=(x, y - 1)), crop)
 
-    def _draw_text_in_rect(self, text: str, rect: pygame.rect, rect_colour, text_colour, font: pygame.font.Font):
+    def _draw_text_in_rect(self, text: str, rect: pygame.Rect, rect_colour: pygame.Color, text_colour: pygame.Color,
+                           font: pygame.font.Font):
         """ Draw a box at rect with the colour rect_colour and the text centred in the rect """
 
         rendered_text = font.render(text, True, text_colour, rect_colour)
